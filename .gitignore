@@ -1,0 +1,20 @@
+# Python virtual environment
+.venv/
+venv/
+ENV/
+env/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Uploads and temporary runtime files
+uploads/
+*.log
+
+# OS generated files
+.DS_Store
+.directory
+Thumbs.db
