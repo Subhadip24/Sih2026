@@ -9,6 +9,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyc
 
 # Uploads and temporary runtime files
 uploads/
@@ -18,3 +19,23 @@ uploads/
 .DS_Store
 .directory
 Thumbs.db
+
+# Large Datasets
+data/
+data/raw/
+data/processed/
+data/splits/
+data/raw/ITD/
+data/raw/ITD_27class/
+
+# ML Artifacts, Checkpoints & Weights
+models/
+ml/checkpoints/
+*.pt
+*.pth
+*.onnx
+*.ckpt
+
+# Generated visual inspection artifacts & external test images
+ml/dataset_inspection/itd_class_coverage/
+test_thali.png

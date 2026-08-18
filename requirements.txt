@@ -5,3 +5,10 @@ requests>=2.32.0
 pydantic>=2.8.0
 python-multipart>=0.0.9
 google-generativeai>=0.8.0
+
+# Machine Learning & Computer Vision (SegFormer Thali Food Segmentation)
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.30.0
+tqdm>=4.65.0
+pytest>=8.0.0
