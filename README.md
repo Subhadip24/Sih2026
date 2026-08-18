@@ -1,4 +1,4 @@
-# 🥗 NutriVision AI: Vision-Based Nutrition & Fitness Intelligence Platform
+# 🥗 ThaalTatva: Vision-Based Nutrition & Fitness Intelligence Platform
 > **Smart India Hackathon (SIH 2026)** — Real-Time Camera Food Detection, Pre-vs-Post Plate Leftover Consumption Delta Tracker, Metabolic Target Calculator, and Adaptive AI Dietitian.
 
 ---
@@ -7,7 +7,7 @@
 
 Accurate dietary tracking is the single most critical yet failed aspect of modern fitness, clinical wellness, and obesity management. Traditional apps require tedious manual logging, guessing food weights, and fail to account for **food left uneaten on the plate**.
 
-**NutriVision AI** solves this with an end-to-end Computer Vision and Multimodal AI pipeline:
+**ThaalTatva** solves this with an end-to-end Computer Vision and Multimodal AI pipeline:
 1. **Live Camera & Photo Food Detection**: Detects multiple food items on a plate with bounding boxes, segmentation masks, and density-based portion weight (grams) estimation.
 2. **Before-and-After Leftover Consumption Tracker**: Compares the served plate against the post-meal leftover plate to calculate the **exact net calories and nutrients consumed** vs wasted.
 3. **Dynamic Client Target Engine**: Computes BMR (Mifflin-St Jeor), TDEE, Calorie Deficit/Surplus, and exact Macro/Micro requirements tailored to client goals (Hypertrophy, Fat Loss, Diabetic Glycemic Control, Keto, Renal, DASH diet, Vegan).
