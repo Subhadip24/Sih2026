@@ -323,6 +323,12 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
   return handleClientSideFallback(endpoint, method, body);
 }
 
+function resolvePresetImg(filename) {
+  const file = filename.split('/').pop();
+  const isStaticSubdir = window.location.pathname.endsWith('/static/') || window.location.pathname.includes('/static/index.html');
+  return isStaticSubdir ? `./images/presets/${file}` : `./static/images/presets/${file}`;
+}
+
 function handleClientSideFallback(endpoint, method, body) {
   console.log(`[ThaalTatva Client-Side Engine Active] Serving ${endpoint}`);
 
@@ -334,7 +340,7 @@ function handleClientSideFallback(endpoint, method, body) {
           title: "Traditional Indian Thali (Pre-Meal)",
           type: "pre_meal",
           matching_pre_id: null,
-          image_url: "./images/presets/indian_thali_pre.jpg",
+          image_url: resolvePresetImg("indian_thali_pre.jpg"),
           diet_type: "Vegetarian",
           cuisine: "Indian",
           description: "Wholesome Indian balanced platter with yellow dal, paneer gravy, basmati rice, 2 rotis, and fresh cucumber salad.",
@@ -345,7 +351,7 @@ function handleClientSideFallback(endpoint, method, body) {
           title: "Traditional Indian Thali (Post-Meal Leftover)",
           type: "post_meal",
           matching_pre_id: "indian_thali_pre",
-          image_url: "./images/presets/indian_thali_post.jpg",
+          image_url: resolvePresetImg("indian_thali_post.jpg"),
           diet_type: "Vegetarian",
           cuisine: "Indian",
           description: "Post-meal plate showing all rotis and paneer consumed, 50% rice leftover, 39% dal remaining.",
@@ -356,7 +362,7 @@ function handleClientSideFallback(endpoint, method, body) {
           title: "Lean Chicken, Brown Rice & Greens (Pre-Meal)",
           type: "pre_meal",
           matching_pre_id: null,
-          image_url: "./images/presets/chicken_rice_pre.jpg",
+          image_url: resolvePresetImg("chicken_rice_pre.jpg"),
           diet_type: "High-Protein / Fitness",
           cuisine: "Clean Fitness Prep",
           description: "High-protein athlete meal prep with sliced grilled chicken breast, complex brown rice, and asparagus.",
@@ -367,7 +373,7 @@ function handleClientSideFallback(endpoint, method, body) {
           title: "Lean Chicken & Rice (Post-Meal Leftover)",
           type: "post_meal",
           matching_pre_id: "chicken_rice_pre",
-          image_url: "./images/presets/chicken_rice_post.jpg",
+          image_url: resolvePresetImg("chicken_rice_post.jpg"),
           diet_type: "High-Protein / Fitness",
           cuisine: "Clean Fitness Prep",
           description: "Post-meal plate with 100% chicken consumed, 40g asparagus leftover, and 65g brown rice leftover.",
@@ -378,7 +384,7 @@ function handleClientSideFallback(endpoint, method, body) {
           title: "Salmon, Quinoa & Avocado Superfood Bowl",
           type: "pre_meal",
           matching_pre_id: null,
-          image_url: "./images/presets/salmon_bowl_pre.jpg",
+          image_url: resolvePresetImg("salmon_bowl_pre.jpg"),
           diet_type: "Omega-3 / Superfood",
           cuisine: "Contemporary Healthy",
           description: "Nutrient-dense superfood bowl with crispy pan-seared salmon fillet, tri-color quinoa, and avocado.",
@@ -389,7 +395,7 @@ function handleClientSideFallback(endpoint, method, body) {
           title: "Mediterranean Greek Chicken Salad",
           type: "pre_meal",
           matching_pre_id: null,
-          image_url: "./images/presets/mediterranean_salad.jpg",
+          image_url: resolvePresetImg("mediterranean_salad.jpg"),
           diet_type: "Keto / Low-Carb",
           cuisine: "Mediterranean",
           description: "Fresh vibrant Mediterranean bowl with grilled herb chicken strips, creamy feta, and olives.",
@@ -400,7 +406,7 @@ function handleClientSideFallback(endpoint, method, body) {
           title: "High-Protein Oatmeal Super-Bowl",
           type: "pre_meal",
           matching_pre_id: null,
-          image_url: "./images/presets/fitness_oatmeal.jpg",
+          image_url: resolvePresetImg("fitness_oatmeal.jpg"),
           diet_type: "High-Fiber / Energy",
           cuisine: "Clean Breakfast",
           description: "Energizing fitness breakfast with rolled oats, sliced bananas, blueberries, and chia seeds.",
