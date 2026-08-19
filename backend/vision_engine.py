@@ -1,5 +1,5 @@
 """
-AI Multimodal Vision Engine for Plate & Food Detection.
+AI Multimodal Vision Engine for Plate & Food Detection for ThaalTatva AI.
 Supports Gemini Vision API with automatic fallback to offline Computer Vision heuristics.
 Extracts bounding boxes, segmented polygon coordinates, portion estimation (grams), and nutritional mapping.
 """
@@ -19,7 +19,7 @@ from backend.mock_plates import PRESET_PLATES
 logger = logging.getLogger(__name__)
 
 GEMINI_PROMPT = """
-You are NutriVision AI, a world-class AI Clinical Dietitian and Computer Vision specialist.
+You are ThaalTatva AI, a world-class AI Clinical Dietitian and Computer Vision specialist.
 Analyze the provided plate/meal photograph with extreme precision.
 
 Detect every distinct food item on the plate.

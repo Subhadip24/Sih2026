@@ -1,5 +1,5 @@
 """
-Automated unit and integration test suite for NutriVision AI.
+Automated unit and integration test suite for ThaalTatva AI.
 Tests nutrition database lookups, vision parser, leftover comparator, and fitness/diet engines.
 """
 
@@ -11,7 +11,7 @@ from backend.diet_planner import recommend_next_meals, generate_7day_diet_plan
 from backend.vision_engine import compile_plate_nutrition, heuristic_cv_analyze
 
 
-class TestNutriVision(unittest.TestCase):
+class TestThaalTatva(unittest.TestCase):
 
     def test_nutrition_db_lookup(self):
         item = find_food_in_db("paneer_tikka")

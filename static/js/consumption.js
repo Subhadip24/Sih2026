@@ -1,13 +1,15 @@
 /**
- * NutriVision AI - Pre vs Post Plate Leftover Consumption Comparator
+ * ThaalTatva AI - Pre vs Post Plate Leftover Consumption Comparator & Interactive Split Lens
  */
 
 const ConsumptionModule = {
   selectedPreImage: '/static/images/presets/indian_thali_pre.jpg',
   selectedPostImage: '/static/images/presets/indian_thali_post.jpg',
+  isDraggingLens: false,
 
   init() {
     this.bindEvents();
+    this.initSplitLens();
   },
 
   bindEvents() {
@@ -17,31 +19,90 @@ const ConsumptionModule = {
     const postSelector = document.getElementById('postMealPresetSelect');
 
     if (compareBtn) {
-      compareBtn.addEventListener('click', () => this.runComparison());
+      compareBtn.addEventListener('click', () => {
+        playAudioFx('click');
+        this.runComparison();
+      });
     }
 
     if (logMealBtn) {
-      logMealBtn.addEventListener('click', () => this.logConsumedMealToDiary());
+      logMealBtn.addEventListener('click', (e) => {
+        const rect = logMealBtn.getBoundingClientRect();
+        triggerCelebration(rect.left + rect.width / 2, rect.top);
+        this.logConsumedMealToDiary();
+      });
     }
 
     if (preSelector) {
       preSelector.addEventListener('change', (e) => {
+        playAudioFx('toggle');
         this.selectedPreImage = e.target.value;
-        const img = document.getElementById('preMealViewImg');
+        const img = document.getElementById('splitLensPreImg');
         if (img) img.src = this.selectedPreImage;
       });
     }
 
     if (postSelector) {
       postSelector.addEventListener('change', (e) => {
+        playAudioFx('toggle');
         this.selectedPostImage = e.target.value;
-        const img = document.getElementById('postMealViewImg');
+        const img = document.getElementById('splitLensPostImg');
         if (img) img.src = this.selectedPostImage;
       });
     }
 
     // Auto run comparison on load
     setTimeout(() => this.runComparison(), 600);
+  },
+
+  initSplitLens() {
+    const container = document.getElementById('splitLensContainer');
+    const handle = document.getElementById('splitLensHandle');
+    const postLayer = document.getElementById('splitLensPostLayer');
+
+    if (!container || !handle || !postLayer) return;
+
+    const setPosition = (clientX) => {
+      const rect = container.getBoundingClientRect();
+      let offsetX = clientX - rect.left;
+      let pct = (offsetX / rect.width) * 100;
+      pct = Math.max(5, Math.min(95, pct));
+
+      handle.style.left = `${pct}%`;
+      postLayer.style.width = `${pct}%`;
+    };
+
+    // Mouse Events
+    container.addEventListener('mousedown', (e) => {
+      this.isDraggingLens = true;
+      setPosition(e.clientX);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!this.isDraggingLens) return;
+      setPosition(e.clientX);
+    });
+
+    window.addEventListener('mouseup', () => {
+      this.isDraggingLens = false;
+    });
+
+    // Touch Events for Mobile
+    container.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        this.isDraggingLens = true;
+        setPosition(e.touches[0].clientX);
+      }
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!this.isDraggingLens || e.touches.length === 0) return;
+      setPosition(e.touches[0].clientX);
+    });
+
+    window.addEventListener('touchend', () => {
+      this.isDraggingLens = false;
+    });
   },
 
   async runComparison() {
@@ -57,6 +118,7 @@ const ConsumptionModule = {
         AppState.comparisonResult = res.data;
         this.renderComparisonUI(res.data);
         showToast(`Leftover analysis complete: ${res.data.overall_consumed_pct}% consumed`, 'success');
+        playAudioFx('scan');
       }
     } catch (e) {
       showToast('Plate comparison failed. Check images and try again.', 'error');
@@ -64,7 +126,7 @@ const ConsumptionModule = {
   },
 
   renderComparisonUI(data) {
-    // Stat meters
+    // Stat meters with animated number rollups
     const consumedPctEl = document.getElementById('consumedPctStat');
     const leftoverPctEl = document.getElementById('leftoverPctStat');
     const consumedCalsEl = document.getElementById('consumedCalsStat');
@@ -78,15 +140,10 @@ const ConsumptionModule = {
     if (savedCalsEl) savedCalsEl.textContent = `${Math.round(data.leftover_totals.calories_saved)} kcal`;
 
     // Consumed Macros
-    const elP = document.getElementById('consumedProteinStat');
-    const elC = document.getElementById('consumedCarbsStat');
-    const elF = document.getElementById('consumedFatStat');
-    const elFib = document.getElementById('consumedFiberStat');
-
-    if (elP) elP.textContent = `${data.consumed_totals.protein_g}g`;
-    if (elC) elC.textContent = `${data.consumed_totals.carbs_g}g`;
-    if (elF) elF.textContent = `${data.consumed_totals.fat_g}g`;
-    if (elFib) elFib.textContent = `${data.consumed_totals.fiber_g}g`;
+    animateNumber('consumedProteinStat', data.consumed_totals.protein_g, 600, 'g');
+    animateNumber('consumedCarbsStat', data.consumed_totals.carbs_g, 600, 'g');
+    animateNumber('consumedFatStat', data.consumed_totals.fat_g, 600, 'g');
+    animateNumber('consumedFiberStat', data.consumed_totals.fiber_g, 600, 'g');
 
     // Delta Table
     const tableBody = document.getElementById('consumedDeltaTableBody');
@@ -98,15 +155,15 @@ const ConsumptionModule = {
       tr.innerHTML = `
         <td>
           <strong style="color: #fff;">${item.name}</strong>
-          <div class="delta-bar-bg">
-            <div class="delta-bar-fill" style="width: ${item.consumed_pct}%;"></div>
+          <div style="background: rgba(255,255,255,0.08); height: 4px; border-radius: 2px; margin-top: 4px; overflow: hidden;">
+            <div style="width: ${item.consumed_pct}%; height: 100%; background: linear-gradient(90deg, #10b981, #06b6d4);"></div>
           </div>
         </td>
         <td>${item.pre_grams}g</td>
         <td style="color: #f59e0b;">${item.post_grams}g (${item.leftover_pct}%)</td>
-        <td style="color: #10b981; font-weight: 700;">${item.consumed_grams}g (${item.consumed_pct}%)</td>
+        <td style="color: #34d399; font-weight: 700;">${item.consumed_grams}g (${item.consumed_pct}%)</td>
         <td style="color: #38bdf8; font-weight: 600;">${item.consumed_calories} kcal</td>
-        <td>${item.consumed_protein_g}g P • ${item.consumed_carbs_g}g C • ${item.consumed_fat_g}g F</td>
+        <td>${item.consumed_protein_g}g प्रथिन (P) • ${item.consumed_carbs_g}g कार्बोज (C) • ${item.consumed_fat_g}g स्नेह (F)</td>
       `;
       tableBody.appendChild(tr);
     });
@@ -146,7 +203,7 @@ const ConsumptionModule = {
     AppState.dailyConsumed.meals.unshift(mealRecord);
 
     saveConsumedState();
-    showToast(`Logged ${Math.round(mealRecord.calories)} kcal to today's ${mealType}!`, 'success');
-    switchTab('dashboard');
+    showToast(`Recorded net ${Math.round(mealRecord.calories)} kcal to today's ${mealType}!`, 'success');
+    setTimeout(() => switchTab('dashboard'), 600);
   }
 };

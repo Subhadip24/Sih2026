@@ -1,6 +1,6 @@
 """
-AI Dietitian & Adaptive Meal Planning Engine for NutriVision AI.
-Generates real-time next-meal suggestions matching remaining macro deficits, 7-day personalized diet plans, and smart swaps.
+AI Dietitian & Adaptive Meal Planning Engine for ThaalTatva AI.
+Generates tailored 7-day meal plans and real-time next meal recommendations to close macro deficits.
 """
 
 from typing import Dict, Any, List, Optional

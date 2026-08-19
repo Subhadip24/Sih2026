@@ -1,12 +1,12 @@
 /**
- * NutriVision AI - Camera Stream & Plate Capture Controller
+ * ThaalTatva AI - Holographic Camera Stream & Plate Capture Controller
  */
 
 const CameraModule = {
   videoStream: null,
   isCameraActive: false,
   currentPresetId: 'indian_thali_pre',
-  facingMode: 'environment', // Rear camera by default on mobile devices
+  facingMode: 'environment',
 
   init() {
     this.bindEvents();
@@ -21,19 +21,31 @@ const CameraModule = {
     const uploadTrigger = document.getElementById('uploadTriggerBtn');
 
     if (startCamBtn) {
-      startCamBtn.addEventListener('click', () => this.toggleCamera());
+      startCamBtn.addEventListener('click', () => {
+        playAudioFx('click');
+        this.toggleCamera();
+      });
     }
 
     if (shutterBtn) {
-      shutterBtn.addEventListener('click', () => this.captureSnapshot());
+      shutterBtn.addEventListener('click', () => {
+        playAudioFx('shutter');
+        this.captureSnapshot();
+      });
     }
 
     if (switchCamBtn) {
-      switchCamBtn.addEventListener('click', () => this.switchFacingMode());
+      switchCamBtn.addEventListener('click', () => {
+        playAudioFx('toggle');
+        this.switchFacingMode();
+      });
     }
 
     if (uploadTrigger && uploadInput) {
-      uploadTrigger.addEventListener('click', () => uploadInput.click());
+      uploadTrigger.addEventListener('click', () => {
+        playAudioFx('click');
+        uploadInput.click();
+      });
       uploadInput.addEventListener('change', (e) => this.handleFileUpload(e));
     }
   },
@@ -62,10 +74,13 @@ const CameraModule = {
 
       this.isCameraActive = true;
       if (startCamBtn) startCamBtn.classList.add('active');
-      showToast('Live Camera Feed Active', 'info');
+      showToast('Live Holographic Camera Feed Active', 'info');
+
+      const telemetry = document.getElementById('telemetryFeedText');
+      if (telemetry) telemetry.textContent = 'Camera sensor stream synchronized • Auto-focusing plate centroid';
     } catch (err) {
       console.warn('Camera access error:', err);
-      showToast('Camera unavailable or denied. You can select preset plates or upload a photo.', 'warning');
+      showToast('Camera unavailable or denied. You can select preset demo plates or upload a photo.', 'warning');
     }
   },
 
@@ -142,16 +157,20 @@ const CameraModule = {
       if (!carousel) return;
 
       carousel.innerHTML = '';
-      data.presets.forEach((preset, index) => {
+      data.presets.forEach((preset) => {
         const card = document.createElement('div');
-        card.className = `preset-card ${preset.id === this.currentPresetId ? 'active' : ''}`;
+        card.className = `preset-thumb-card ${preset.id === this.currentPresetId ? 'active' : ''}`;
         card.dataset.presetId = preset.id;
         card.dataset.type = preset.type;
         card.innerHTML = `
           <img src="${preset.image_url}" alt="${preset.title}" loading="lazy" />
-          <div class="preset-card-title">${preset.title}</div>
+          <p>${preset.title}</p>
+          <span>${preset.cuisine} • ${preset.diet_type}</span>
         `;
-        card.addEventListener('click', () => this.selectPreset(preset));
+        card.addEventListener('click', () => {
+          playAudioFx('click');
+          this.selectPreset(preset);
+        });
         carousel.appendChild(card);
       });
 
@@ -168,7 +187,7 @@ const CameraModule = {
     this.currentPresetId = preset.id;
     this.stopCamera();
 
-    document.querySelectorAll('.preset-card').forEach(c => {
+    document.querySelectorAll('.preset-thumb-card').forEach(c => {
       c.classList.toggle('active', c.dataset.presetId === preset.id);
     });
 
@@ -183,7 +202,11 @@ const CameraModule = {
 
   async processPlateImage(imageInput) {
     const scanBeam = document.getElementById('scanBeam');
-    if (scanBeam) scanBeam.style.display = 'block';
+    if (scanBeam) scanBeam.classList.add('active');
+
+    const telemetry = document.getElementById('telemetryFeedText');
+    if (telemetry) telemetry.textContent = 'Scanning plate • Isolating distinct food regions & estimating grams...';
+    playAudioFx('scan');
 
     try {
       const payload = {
@@ -195,12 +218,13 @@ const CameraModule = {
       if (response && response.data) {
         AppState.currentPlateAnalysis = response.data;
         VisualizerModule.renderAnalysis(response.data);
-        showToast(`Detected: ${response.data.meal_name} (${response.data.totals.calories} kcal)`, 'success');
+        showToast(`Detected: ${response.data.meal_name} (${Math.round(response.data.totals.calories)} kcal)`, 'success');
       }
     } catch (err) {
       showToast('Plate analysis failed. Please try again.', 'error');
+      if (telemetry) telemetry.textContent = 'Vision analysis timeout. Using heuristic CV database fallback.';
     } finally {
-      if (scanBeam) scanBeam.style.display = 'none';
+      if (scanBeam) scanBeam.classList.remove('active');
     }
   }
 };

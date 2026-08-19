@@ -1,5 +1,5 @@
 /**
- * NutriVision AI - Daily Nutrition, Macro Budget & Diary Dashboard
+ * ThaalTatva AI - Panch-Tatva Macro Budget & Diary Dashboard
  */
 
 const DashboardModule = {
@@ -12,15 +12,19 @@ const DashboardModule = {
     const addWaterBtn = document.getElementById('addWaterBtn');
 
     if (resetBtn) {
-      resetBtn.addEventListener('click', () => this.resetDailyDiary());
+      resetBtn.addEventListener('click', () => {
+        playAudioFx('click');
+        this.resetDailyDiary();
+      });
     }
 
     if (addWaterBtn) {
       addWaterBtn.addEventListener('click', () => {
-        AppState.dailyConsumed.water_liters += 0.25;
+        playAudioFx('toggle');
+        AppState.dailyConsumed.water_liters = Math.round(((AppState.dailyConsumed.water_liters || 0) + 0.25) * 100) / 100;
         saveConsumedState();
         this.renderDashboard();
-        showToast('Logged +250ml water hydration', 'info');
+        showToast('Logged +250ml Jal hydration', 'info');
       });
     }
   },
@@ -29,46 +33,48 @@ const DashboardModule = {
     const targets = AppState.dailyTargets;
     const consumed = AppState.dailyConsumed;
 
-    // Calories Ring
+    // Agni / Calories Ring
     this.updateRadialRing('calRing', consumed.calories, targets.calories_kcal);
-    const calVal = document.getElementById('dashCalVal');
+    animateNumber('dashCalVal', Math.round(consumed.calories));
     const calSub = document.getElementById('dashCalSub');
-    if (calVal) calVal.textContent = Math.round(consumed.calories);
     if (calSub) calSub.textContent = `of ${targets.calories_kcal} kcal (${Math.max(0, targets.calories_kcal - Math.round(consumed.calories))} left)`;
 
-    // Protein Ring
+    // Prithvi / Protein Ring
     this.updateRadialRing('proteinRing', consumed.protein_g, targets.protein_g);
-    const pVal = document.getElementById('dashProteinVal');
+    animateNumber('dashProteinVal', Math.round(consumed.protein_g), 600, 'g');
     const pSub = document.getElementById('dashProteinSub');
-    if (pVal) pVal.textContent = `${Math.round(consumed.protein_g)}g`;
-    if (pSub) pSub.textContent = `of ${targets.protein_g}g (${Math.max(0, targets.protein_g - Math.round(consumed.protein_g))}g left)`;
+    if (pSub) pSub.textContent = `of ${targets.protein_g}g (${Math.max(0, Math.round(targets.protein_g - consumed.protein_g))}g left)`;
 
-    // Carbs Ring
+    // Vayu / Carbs Ring
     this.updateRadialRing('carbsRing', consumed.carbs_g, targets.carbs_g);
-    const cVal = document.getElementById('dashCarbsVal');
+    animateNumber('dashCarbsVal', Math.round(consumed.carbs_g), 600, 'g');
     const cSub = document.getElementById('dashCarbsSub');
-    if (cVal) cVal.textContent = `${Math.round(consumed.carbs_g)}g`;
-    if (cSub) cSub.textContent = `of ${targets.carbs_g}g (${Math.max(0, targets.carbs_g - Math.round(consumed.carbs_g))}g left)`;
+    if (cSub) cSub.textContent = `of ${targets.carbs_g}g (${Math.max(0, Math.round(targets.carbs_g - consumed.carbs_g))}g left)`;
 
-    // Fat Ring
+    // Sneha / Fat Ring
     this.updateRadialRing('fatRing', consumed.fat_g, targets.fat_g);
-    const fVal = document.getElementById('dashFatVal');
+    animateNumber('dashFatVal', Math.round(consumed.fat_g), 600, 'g');
     const fSub = document.getElementById('dashFatSub');
-    if (fVal) fVal.textContent = `${Math.round(consumed.fat_g)}g`;
-    if (fSub) fSub.textContent = `of ${targets.fat_g}g (${Math.max(0, targets.fat_g - Math.round(consumed.fat_g))}g left)`;
+    if (fSub) fSub.textContent = `of ${targets.fat_g}g (${Math.max(0, Math.round(targets.fat_g - consumed.fat_g))}g left)`;
 
-    // Fiber Ring
+    // Prakriti / Fiber Ring
     this.updateRadialRing('fiberRing', consumed.fiber_g, targets.fiber_g);
-    const fibVal = document.getElementById('dashFiberVal');
+    animateNumber('dashFiberVal', Math.round(consumed.fiber_g), 600, 'g');
     const fibSub = document.getElementById('dashFiberSub');
-    if (fibVal) fibVal.textContent = `${Math.round(consumed.fiber_g)}g`;
-    if (fibSub) fibSub.textContent = `of ${targets.fiber_g}g (${Math.max(0, targets.fiber_g - Math.round(consumed.fiber_g))}g left)`;
+    if (fibSub) fibSub.textContent = `of ${targets.fiber_g}g (${Math.max(0, Math.round(targets.fiber_g - consumed.fiber_g))}g left)`;
 
-    // Water
+    // Jal / Water
     const wVal = document.getElementById('dashWaterVal');
     const wSub = document.getElementById('dashWaterSub');
     if (wVal) wVal.textContent = `${(consumed.water_liters || 0).toFixed(1)}L`;
     if (wSub) wSub.textContent = `Target: ${targets.water_liters}L / day`;
+
+    // Header Status Ticker Update
+    const headerStatus = document.getElementById('headerLiveStatus');
+    if (headerStatus) {
+      const pct = Math.min(100, Math.round((consumed.calories / (targets.calories_kcal || 1)) * 100));
+      headerStatus.textContent = `${pct}% of Daily Tatva Intake Met • ${Math.round(consumed.calories)}/${targets.calories_kcal} kcal`;
+    }
 
     // Render Timeline Meals
     this.renderMealTimeline();
@@ -94,10 +100,10 @@ const DashboardModule = {
     const meals = AppState.dailyConsumed.meals || [];
     if (meals.length === 0) {
       container.innerHTML = `
-        <div style="text-align: center; padding: 30px; color: var(--text-muted);">
-          <div style="font-size: 32px; margin-bottom: 8px;">🍽️</div>
-          <p>No meals logged yet today.</p>
-          <p style="font-size: 11px;">Use the Plate Scanner or Leftover Comparator to log your pre/post meals.</p>
+        <div style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
+          <div style="font-size: 38px; margin-bottom: 10px;">🍽️</div>
+          <p style="font-weight: 600; color: var(--text-secondary);">No meals logged yet today.</p>
+          <p style="font-size: 11.5px; margin-top: 4px;">Use the Plate Scanner or Leftover Comparator to log your pre/post meals.</p>
         </div>
       `;
       return;
@@ -115,23 +121,41 @@ const DashboardModule = {
       if (m.type === 'Dinner') icon = '🍲';
 
       item.innerHTML = `
-        <div class="timeline-icon">${icon}</div>
-        <div class="timeline-details">
-          <div class="timeline-header">
-            <h4>${m.type}: ${m.title}</h4>
-            <span class="timeline-time">${m.time}</span>
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="font-size: 24px;">${icon}</div>
+          <div>
+            <div style="font-weight: 700; color: #fff; font-size: 14px;">${m.type}: ${m.title}</div>
+            <div style="display: flex; gap: 12px; font-size: 11.5px; margin-top: 4px; flex-wrap: wrap;">
+              <span style="color: #34d399; font-weight: 700;">🔥 ${Math.round(m.calories)} kcal ऊर्जा</span>
+              <span style="color: #22d3ee; font-weight: 600;">🥩 ${m.protein_g}g प्रथिन (Protein)</span>
+              <span style="color: #fbbf24; font-weight: 600;">🌾 ${m.carbs_g}g कार्बोज (Carbs)</span>
+              <span style="color: #fb7185; font-weight: 600;">🥑 ${m.fat_g}g स्नेह (Fat)</span>
+            </div>
+            ${m.items && m.items.length ? `<div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">${m.items.join(' • ')}</div>` : ''}
           </div>
-          <div class="timeline-macros">
-            <span style="color: #34d399; font-weight: 600;">🔥 ${Math.round(m.calories)} kcal</span>
-            <span style="color: #22d3ee;">🥩 ${m.protein_g}g Protein</span>
-            <span style="color: #fbbf24;">🌾 ${m.carbs_g}g Carbs</span>
-            <span style="color: #fb7185;">🥑 ${m.fat_g}g Fat</span>
-          </div>
-          ${m.items && m.items.length ? `<div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${m.items.join(' • ')}</div>` : ''}
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 11px; color: var(--text-muted);">${m.time}</span>
+          <button class="btn-icon" style="width: 28px; height: 28px; font-size: 12px;" title="Remove Entry" onclick="DashboardModule.removeMeal(${idx})">✕</button>
         </div>
       `;
       container.appendChild(item);
     });
+  },
+
+  removeMeal(index) {
+    playAudioFx('click');
+    const removed = AppState.dailyConsumed.meals.splice(index, 1)[0];
+    if (removed) {
+      AppState.dailyConsumed.calories = Math.max(0, AppState.dailyConsumed.calories - removed.calories);
+      AppState.dailyConsumed.protein_g = Math.max(0, AppState.dailyConsumed.protein_g - removed.protein_g);
+      AppState.dailyConsumed.carbs_g = Math.max(0, AppState.dailyConsumed.carbs_g - removed.carbs_g);
+      AppState.dailyConsumed.fat_g = Math.max(0, AppState.dailyConsumed.fat_g - removed.fat_g);
+      AppState.dailyConsumed.fiber_g = Math.max(0, AppState.dailyConsumed.fiber_g - (removed.fiber_g || 0));
+      saveConsumedState();
+      this.renderDashboard();
+      showToast('Meal entry removed', 'info');
+    }
   },
 
   resetDailyDiary() {

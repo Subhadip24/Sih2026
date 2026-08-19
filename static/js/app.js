@@ -1,10 +1,11 @@
 /**
- * NutriVision AI - Central State & Navigation Router
+ * ThaalTatva AI - Central State, Navigation Router & Interactive Audio-Visual Engine
  */
 
 const AppState = {
   activeTab: 'scanner',
-  apiKey: localStorage.getItem('nutrivision_gemini_key') || '',
+  apiKey: localStorage.getItem('thaaltatva_gemini_key') || localStorage.getItem('nutrivision_gemini_key') || '',
+  audioEnabled: localStorage.getItem('thaaltatva_audio_enabled') !== 'false',
   clientProfile: {
     age: 25,
     gender: 'male',
@@ -40,7 +41,220 @@ const AppState = {
   comparisonResult: null
 };
 
-// Toast notification system
+// ==================== WEB AUDIO SYNTHESIZER SOUND ENGINE ====================
+let audioCtx = null;
+
+function getAudioContext() {
+  if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playAudioFx(type = 'click') {
+  if (!AppState.audioEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+
+    if (type === 'click') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, now);
+      osc.frequency.exponentialRampToValueAtTime(400, now + 0.04);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } else if (type === 'toggle') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(780, now + 0.06);
+      gain.gain.setValueAtTime(0.09, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.06);
+    } else if (type === 'shutter') {
+      // Futuristic shutter chirp
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(1200, now);
+      osc.frequency.exponentialRampToValueAtTime(200, now + 0.12);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.12);
+    } else if (type === 'scan') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.linearRampToValueAtTime(900, now + 0.25);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } else if (type === 'celebrate') {
+      // Harmonic Triad Chord (C5 - E5 - G5)
+      const freqs = [523.25, 659.25, 783.99, 1046.50];
+      freqs.forEach((f, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, now + (idx * 0.07));
+        gain.gain.setValueAtTime(0.08, now + (idx * 0.07));
+        gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.07) + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + (idx * 0.07));
+        osc.stop(now + (idx * 0.07) + 0.35);
+      });
+    }
+  } catch (err) {
+    // Audio contexts can be blocked if user has not interacted
+  }
+}
+
+function toggleAudioFx() {
+  AppState.audioEnabled = !AppState.audioEnabled;
+  localStorage.setItem('thaaltatva_audio_enabled', AppState.audioEnabled);
+  updateAudioToggleUI();
+  if (AppState.audioEnabled) {
+    playAudioFx('toggle');
+    showToast('Sound FX Enabled', 'info');
+  } else {
+    showToast('Sound FX Muted', 'info');
+  }
+}
+
+function updateAudioToggleUI() {
+  const btn = document.getElementById('soundToggleBtn');
+  const icon = document.getElementById('soundToggleIcon');
+  const text = document.getElementById('soundToggleText');
+  if (btn && icon && text) {
+    if (AppState.audioEnabled) {
+      icon.textContent = '🔊';
+      text.textContent = 'Audio ON';
+      btn.classList.remove('muted');
+    } else {
+      icon.textContent = '🔇';
+      text.textContent = 'Audio Muted';
+      btn.classList.add('muted');
+    }
+  }
+}
+
+// ==================== CONFETTI CELEBRATION ENGINE ====================
+function triggerCelebration(originX = window.innerWidth / 2, originY = window.innerHeight / 2) {
+  const canvas = document.getElementById('celebrationCanvas');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = [];
+  const colors = ['#f59e0b', '#10b981', '#06b6d4', '#8b5cf6', '#f43f5e', '#38bdf8', '#ffffff'];
+
+  for (let i = 0; i < 60; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 4 + Math.random() * 8;
+    particles.push({
+      x: originX,
+      y: originY,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      size: 4 + Math.random() * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: 1,
+      decay: 0.015 + Math.random() * 0.02,
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 12
+    });
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+
+    particles.forEach(p => {
+      if (p.alpha > 0.01) {
+        alive = true;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.15; // gravity
+        p.vx *= 0.98; // drag
+        p.alpha -= p.decay;
+        p.rotation += p.rotSpeed;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
+      }
+    });
+
+    if (alive) {
+      requestAnimationFrame(render);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  requestAnimationFrame(render);
+  playAudioFx('celebrate');
+}
+
+// ==================== ANIMATED NUMBER COUNTER UTILITY ====================
+function animateNumber(elementId, targetVal, duration = 650, suffix = '') {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  const currentVal = parseFloat(el.textContent.replace(/[^0-9.-]/g, '')) || 0;
+  const start = currentVal;
+  const end = typeof targetVal === 'number' ? targetVal : parseFloat(targetVal) || 0;
+  const isFloat = end % 1 !== 0;
+  const startTime = performance.now();
+
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easeProgress = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+    const val = start + (end - start) * easeProgress;
+
+    el.textContent = `${isFloat ? val.toFixed(1) : Math.round(val)}${suffix}`;
+
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    } else {
+      el.textContent = `${isFloat ? end.toFixed(1) : Math.round(end)}${suffix}`;
+    }
+  }
+
+  requestAnimationFrame(update);
+}
+
+// ==================== TOAST NOTIFICATION SYSTEM ====================
 function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
@@ -63,9 +277,10 @@ function showToast(message, type = 'info') {
   }, 3500);
 }
 
-// Tab Switching
+// ==================== TAB SWITCHING ====================
 function switchTab(tabId) {
   AppState.activeTab = tabId;
+  playAudioFx('click');
 
   // Update tab buttons
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -87,7 +302,7 @@ function switchTab(tabId) {
   }
 }
 
-// API Fetch Helper
+// ==================== API FETCH HELPER ====================
 async function apiRequest(endpoint, method = 'GET', body = null) {
   const options = {
     method,
@@ -109,8 +324,9 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
   }
 }
 
-// API Key Modal Management
+// ==================== API KEY MODAL MANAGEMENT ====================
 function openApiKeyModal() {
+  playAudioFx('click');
   const modal = document.getElementById('apiKeyModal');
   const input = document.getElementById('apiKeyInput');
   if (input) input.value = AppState.apiKey;
@@ -118,6 +334,7 @@ function openApiKeyModal() {
 }
 
 function closeApiKeyModal() {
+  playAudioFx('click');
   const modal = document.getElementById('apiKeyModal');
   if (modal) modal.classList.remove('show');
 }
@@ -126,8 +343,9 @@ function saveApiKey() {
   const input = document.getElementById('apiKeyInput');
   if (input) {
     AppState.apiKey = input.value.trim();
-    localStorage.setItem('nutrivision_gemini_key', AppState.apiKey);
+    localStorage.setItem('thaaltatva_gemini_key', AppState.apiKey);
     showToast('Gemini Vision API Key updated successfully!', 'success');
+    playAudioFx('celebrate');
     closeApiKeyModal();
     updateApiStatusBadge();
   }
@@ -146,23 +364,23 @@ function updateApiStatusBadge() {
   }
 }
 
-// Local Storage Persistence
+// ==================== LOCAL STORAGE PERSISTENCE ====================
 function loadStoredState() {
-  const savedProfile = localStorage.getItem('nutrivision_client_profile');
+  const savedProfile = localStorage.getItem('thaaltatva_client_profile') || localStorage.getItem('nutrivision_client_profile');
   if (savedProfile) {
     try {
       AppState.clientProfile = JSON.parse(savedProfile);
     } catch (e) {}
   }
 
-  const savedTargets = localStorage.getItem('nutrivision_daily_targets');
+  const savedTargets = localStorage.getItem('thaaltatva_daily_targets') || localStorage.getItem('nutrivision_daily_targets');
   if (savedTargets) {
     try {
       AppState.dailyTargets = JSON.parse(savedTargets);
     } catch (e) {}
   }
 
-  const savedConsumed = localStorage.getItem('nutrivision_daily_consumed');
+  const savedConsumed = localStorage.getItem('thaaltatva_daily_consumed') || localStorage.getItem('nutrivision_daily_consumed');
   if (savedConsumed) {
     try {
       AppState.dailyConsumed = JSON.parse(savedConsumed);
@@ -171,13 +389,14 @@ function loadStoredState() {
 }
 
 function saveConsumedState() {
-  localStorage.setItem('nutrivision_daily_consumed', JSON.stringify(AppState.dailyConsumed));
+  localStorage.setItem('thaaltatva_daily_consumed', JSON.stringify(AppState.dailyConsumed));
 }
 
-// Init App on DOM Loaded
+// ==================== INIT APP ON DOM LOADED ====================
 document.addEventListener('DOMContentLoaded', () => {
   loadStoredState();
   updateApiStatusBadge();
+  updateAudioToggleUI();
 
   // Tab listeners
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -198,5 +417,5 @@ document.addEventListener('DOMContentLoaded', () => {
   DietPlannerModule.init();
   ClientProfileModule.init();
 
-  showToast('NutriVision AI ready: Vision detection & Leftover tracker online', 'success');
+  showToast('ThaalTatva AI online: Pancha-Tatva Vision Scanner active', 'success');
 });

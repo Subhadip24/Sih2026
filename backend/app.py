@@ -1,5 +1,5 @@
 """
-NutriVision AI - FastAPI Main Backend Application.
+ThaalTatva AI - FastAPI Main Backend Application.
 Provides RESTful APIs for AI Multimodal Plate Detection, Leftover Consumption Delta, Fitness Metrics, and Diet Planning.
 """
 
@@ -22,8 +22,8 @@ from backend.mock_plates import PRESET_PLATES
 from backend.nutrition_db import calculate_nutrients_for_portion, FOOD_DATABASE
 
 app = FastAPI(
-    title="NutriVision AI API",
-    description="Intelligent AI Plate Detection, Leftover Consumption Tracker, and Adaptive Diet Engine for SIH 2026",
+    title="ThaalTatva AI API",
+    description="Vision-Based Plate Nutrition & Consumption Intelligence with Panch-Tatva Macro Balance for SIH 2026",
     version="1.0.0"
 )
 
@@ -98,7 +98,7 @@ async def health_check():
     """Health check endpoint."""
     return {
         "status": "healthy",
-        "service": "NutriVision AI",
+        "service": "ThaalTatva AI",
         "version": "1.0.0",
         "gemini_api_configured": bool(os.environ.get("GEMINI_API_KEY") or GEMINI_API_KEY)
     }

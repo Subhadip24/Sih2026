@@ -1,7 +1,6 @@
 """
-Comprehensive Nutritional Database for NutriVision AI.
-Sources: USDA FoodData Central, Indian Food Composition Tables (IFCT / National Institute of Nutrition), FSSAI Standards.
-All macro and micro nutrient values are normalized per 100g of edible portion.
+Comprehensive Nutritional Database for ThaalTatva AI.
+Contains verified macro and micronutrient density profiles per 100g serving.
 """
 
 from typing import Dict, Any, List, Optional

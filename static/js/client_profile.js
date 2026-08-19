@@ -1,5 +1,5 @@
 /**
- * NutriVision AI - Client Fitness Profile & Metabolic Target Manager
+ * ThaalTatva AI - Client Fitness Profile & Metabolic Target Manager
  */
 
 const ClientProfileModule = {
@@ -17,11 +17,14 @@ const ClientProfileModule = {
       });
     }
 
-    // Dynamic auto-calculate on change
+    // Dynamic auto-calculate on change with audio feedback
     ['profileAge', 'profileGender', 'profileHeight', 'profileWeight', 'profileTargetWeight', 'profileActivity', 'profileGoal', 'profileDietPref'].forEach(id => {
       const el = document.getElementById(id);
       if (el) {
-        el.addEventListener('change', () => this.previewTargets());
+        el.addEventListener('change', () => {
+          playAudioFx('toggle');
+          this.previewTargets();
+        });
       }
     });
   },
@@ -112,12 +115,14 @@ const ClientProfileModule = {
         AppState.clientProfile = res.data.client_profile;
         AppState.dailyTargets = res.data.daily_targets;
 
-        localStorage.setItem('nutrivision_client_profile', JSON.stringify(AppState.clientProfile));
-        localStorage.setItem('nutrivision_daily_targets', JSON.stringify(AppState.dailyTargets));
+        localStorage.setItem('thaaltatva_client_profile', JSON.stringify(AppState.clientProfile));
+        localStorage.setItem('thaaltatva_daily_targets', JSON.stringify(AppState.dailyTargets));
 
         this.updateHeaderBadge();
-        showToast('Client Profile & Nutrition Targets Updated!', 'success');
-        switchTab('dashboard');
+        playAudioFx('celebrate');
+        triggerCelebration();
+        showToast('Client Profile & Pancha-Tatva Targets Recalculated!', 'success');
+        setTimeout(() => switchTab('dashboard'), 600);
       }
     } catch (e) {
       showToast('Failed to update profile', 'error');

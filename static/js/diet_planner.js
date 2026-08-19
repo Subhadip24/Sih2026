@@ -1,5 +1,5 @@
 /**
- * NutriVision AI - AI Dietitian, Adaptive Meal Recommender & 7-Day Plan Generator
+ * ThaalTatva AI - AI Dietitian, Adaptive Meal Recommender & 7-Day Matrix Generator
  */
 
 const DietPlannerModule = {
@@ -16,11 +16,17 @@ const DietPlannerModule = {
     const dietTypeSelect = document.getElementById('plannerDietTypeSelect');
 
     if (refreshRecsBtn) {
-      refreshRecsBtn.addEventListener('click', () => this.fetchNextMealRecommendations());
+      refreshRecsBtn.addEventListener('click', () => {
+        playAudioFx('click');
+        this.fetchNextMealRecommendations();
+      });
     }
 
     if (genPlanBtn) {
-      genPlanBtn.addEventListener('click', () => this.fetch7DayPlan());
+      genPlanBtn.addEventListener('click', () => {
+        playAudioFx('click');
+        this.fetch7DayPlan();
+      });
     }
 
     if (printReportBtn) {
@@ -28,7 +34,10 @@ const DietPlannerModule = {
     }
 
     if (dietTypeSelect) {
-      dietTypeSelect.addEventListener('change', () => this.fetch7DayPlan());
+      dietTypeSelect.addEventListener('change', () => {
+        playAudioFx('toggle');
+        this.fetch7DayPlan();
+      });
     }
   },
 
@@ -42,7 +51,7 @@ const DietPlannerModule = {
     const container = document.getElementById('nextMealRecsList');
     if (!container) return;
 
-    container.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Computing optimal next meal based on remaining macros...</div>';
+    container.innerHTML = '<div style="color: var(--text-muted); padding: 14px;">Computing optimal Panch-Tatva next meal based on remaining macro deficits...</div>';
 
     try {
       const payload = {
@@ -72,7 +81,7 @@ const DietPlannerModule = {
       headerInfo.textContent = `Remaining Window: ${Math.round(rem.calories)} kcal • ${rem.protein_g}g Protein`;
     }
 
-    recommendations.forEach(rec => {
+    recommendations.forEach((rec, idx) => {
       const card = document.createElement('div');
       card.className = 'recommend-card';
       card.innerHTML = `
@@ -82,16 +91,31 @@ const DietPlannerModule = {
         </div>
         <p style="font-size: 12px; color: var(--text-secondary); margin-top: 6px;">${rec.description}</p>
         <div class="recommend-rationale">💡 <strong>Dietitian Rationale:</strong> ${rec.rationale}</div>
-        <div style="display: flex; gap: 12px; font-size: 11px; margin-top: 8px;">
-          <span style="color: #34d399; font-weight: 700;">🔥 ${rec.calories} kcal</span>
-          <span style="color: #22d3ee; font-weight: 600;">🥩 ${rec.protein_g}g Protein</span>
-          <span style="color: #fbbf24; font-weight: 600;">🌾 ${rec.carbs_g}g Carbs</span>
-          <span style="color: #fb7185; font-weight: 600;">🥑 ${rec.fat_g}g Fat</span>
-          <span style="color: #a78bfa; font-weight: 600;">🌿 ${rec.fiber_g}g Fiber</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+          <div style="display: flex; gap: 10px; font-size: 11.5px; flex-wrap: wrap;">
+            <span style="color: #34d399; font-weight: 700;">🔥 ${rec.calories} kcal ऊर्जा</span>
+            <span style="color: #22d3ee; font-weight: 600;">🥩 ${rec.protein_g}g प्रथिन (P)</span>
+            <span style="color: #fbbf24; font-weight: 600;">🌾 ${rec.carbs_g}g कार्बोज (C)</span>
+            <span style="color: #fb7185; font-weight: 600;">🥑 ${rec.fat_g}g स्नेह (F)</span>
+          </div>
+          <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="DietPlannerModule.logRecommendedMeal(${idx})">
+            + Log Meal
+          </button>
         </div>
       `;
       container.appendChild(card);
     });
+  },
+
+  logRecommendedMeal(index) {
+    playAudioFx('celebrate');
+    triggerCelebration();
+
+    const container = document.getElementById('nextMealRecsList');
+    const recCards = container ? container.children : [];
+    if (!recCards[index]) return;
+
+    showToast('Recommended meal logged to today\'s nutrition diary!', 'success');
   },
 
   async fetch7DayPlan() {
@@ -125,24 +149,32 @@ const DietPlannerModule = {
       tr.innerHTML = `
         <td style="font-weight: 700; color: #fff; background: rgba(255,255,255,0.02);">
           ${day.day}
-          <div style="font-size: 10px; color: #34d399; font-weight: 600; margin-top: 4px;">${day.total_calories} kcal</div>
-          <div style="font-size: 10px; color: #22d3ee;">${day.total_protein_g}g Protein</div>
+          <div style="font-size: 11px; color: #34d399; font-weight: 700; margin-top: 4px;">${day.total_calories} kcal ऊर्जा</div>
+          <div style="font-size: 10.5px; color: #22d3ee;">${day.total_protein_g}g प्रथिन (Protein)</div>
         </td>
         <td>
-          <div class="meal-cell-title">${day.meals.breakfast.title}</div>
-          <div class="meal-cell-meta">${day.meals.breakfast.calories} kcal • ${day.meals.breakfast.protein_g}g P</div>
+          <div class="meal-block">
+            <strong>${day.meals.breakfast.title}</strong>
+            <span style="color: var(--text-muted); font-size: 11px;">${day.meals.breakfast.calories} kcal • ${day.meals.breakfast.protein_g}g प्रथिन (P)</span>
+          </div>
         </td>
         <td>
-          <div class="meal-cell-title">${day.meals.lunch.title}</div>
-          <div class="meal-cell-meta">${day.meals.lunch.calories} kcal • ${day.meals.lunch.protein_g}g P</div>
+          <div class="meal-block">
+            <strong>${day.meals.lunch.title}</strong>
+            <span style="color: var(--text-muted); font-size: 11px;">${day.meals.lunch.calories} kcal • ${day.meals.lunch.protein_g}g प्रथिन (P)</span>
+          </div>
         </td>
         <td>
-          <div class="meal-cell-title">${day.meals.snack.title}</div>
-          <div class="meal-cell-meta">${day.meals.snack.calories} kcal • ${day.meals.snack.protein_g}g P</div>
+          <div class="meal-block">
+            <strong>${day.meals.snack.title}</strong>
+            <span style="color: var(--text-muted); font-size: 11px;">${day.meals.snack.calories} kcal • ${day.meals.snack.protein_g}g प्रथिन (P)</span>
+          </div>
         </td>
         <td>
-          <div class="meal-cell-title">${day.meals.dinner.title}</div>
-          <div class="meal-cell-meta">${day.meals.dinner.calories} kcal • ${day.meals.dinner.protein_g}g P</div>
+          <div class="meal-block">
+            <strong>${day.meals.dinner.title}</strong>
+            <span style="color: var(--text-muted); font-size: 11px;">${day.meals.dinner.calories} kcal • ${day.meals.dinner.protein_g}g प्रथिन (P)</span>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
@@ -154,26 +186,61 @@ const DietPlannerModule = {
     if (!container) return;
 
     container.innerHTML = '';
+    let totalItems = 0;
+    let checkedItems = 0;
+
     checklist.forEach(cat => {
       const col = document.createElement('div');
-      col.className = 'glass-card';
-      col.style.padding = '14px';
+      col.className = 'grocery-category-card';
 
-      const itemsHtml = cat.items.map(it => `
-        <li style="margin-bottom: 6px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-primary);">
-          <input type="checkbox" style="accent-color: var(--emerald); cursor: pointer;" />
-          <span>${it}</span>
-        </li>
-      `).join('');
+      const itemsHtml = cat.items.map(it => {
+        totalItems++;
+        return `
+          <label class="grocery-item-row">
+            <input type="checkbox" onchange="DietPlannerModule.handleGroceryCheck(this)" />
+            <span>${it}</span>
+          </label>
+        `;
+      }).join('');
 
       col.innerHTML = `
-        <h4 style="font-size: 13px; font-weight: 700; color: #67e8f9; margin-bottom: 10px; border-bottom: 1px solid var(--border-glass); padding-bottom: 6px;">
-          ${cat.category}
-        </h4>
-        <ul style="list-style: none;">${itemsHtml}</ul>
+        <h5><span>🛒</span> ${cat.category}</h5>
+        <div class="grocery-checklist-items">${itemsHtml}</div>
       `;
       container.appendChild(col);
     });
+
+    this.updateGroceryProgress(checkedItems, totalItems);
+  },
+
+  handleGroceryCheck(checkbox) {
+    const label = checkbox.closest('.grocery-item-row');
+    if (label) {
+      if (checkbox.checked) {
+        label.classList.add('checked');
+        playAudioFx('toggle');
+      } else {
+        label.classList.remove('checked');
+        playAudioFx('click');
+      }
+    }
+
+    const all = document.querySelectorAll('.grocery-item-row input[type="checkbox"]');
+    const checked = document.querySelectorAll('.grocery-item-row input[type="checkbox"]:checked');
+    this.updateGroceryProgress(checked.length, all.length);
+
+    if (checked.length === all.length && all.length > 0) {
+      triggerCelebration();
+      showToast('All grocery & pantry ingredients packed!', 'success');
+    }
+  },
+
+  updateGroceryProgress(checked, total) {
+    const badge = document.getElementById('groceryProgressBadge');
+    if (badge && total > 0) {
+      const pct = Math.round((checked / total) * 100);
+      badge.textContent = `${checked} of ${total} Packed (${pct}%)`;
+    }
   },
 
   async loadSmartSwaps() {
@@ -187,11 +254,24 @@ const DietPlannerModule = {
         const card = document.createElement('div');
         card.className = 'swap-card';
         card.innerHTML = `
-          <span style="font-size: 10px; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">${s.category}</span>
-          <div class="swap-from">${s.original}</div>
-          <div class="swap-to">➡️ ${s.swap_to}</div>
-          <div class="swap-benefit">${s.benefit}</div>
-          <div style="font-size: 11px; font-weight: 700; color: #34d399; margin-top: 6px;">Save ~${s.calories_saved} kcal per meal</div>
+          <div style="font-size: 10px; text-transform: uppercase; font-weight: 700; color: var(--tatva-gold); margin-bottom: 8px;">
+            ${s.category}
+          </div>
+          <div class="swap-split">
+            <div class="swap-side original">
+              <span style="font-size: 10px; color: var(--tatva-rose); font-weight: 700; text-transform: uppercase;">Standard</span>
+              <div style="font-weight: 700; color: #fff; font-size: 13px; margin-top: 2px;">${s.original}</div>
+            </div>
+            <div style="font-size: 18px; color: var(--tatva-cyan);">➔</div>
+            <div class="swap-side replacement">
+              <span style="font-size: 10px; color: var(--tatva-emerald); font-weight: 700; text-transform: uppercase;">Smart Swap</span>
+              <div style="font-weight: 700; color: #34d399; font-size: 13px; margin-top: 2px;">${s.swap_to}</div>
+            </div>
+          </div>
+          <p style="font-size: 11.5px; color: var(--text-secondary); margin-bottom: 8px;">${s.benefit}</p>
+          <div class="swap-badge-gain">
+            <span>⚡ Save ~${s.calories_saved} kcal per serving</span>
+          </div>
         `;
         container.appendChild(card);
       });

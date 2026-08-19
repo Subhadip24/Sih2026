@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NutriVision AI - Vision-Based Nutrition & Fitness Intelligence</title>
-  <meta name="description" content="AI-powered computer vision meal plate detection, pre vs post-meal leftover consumption tracking, metabolic target calculation, and adaptive diet planning for SIH 2026." />
+  <title>ThaalTatva AI - Vision-Based Nutrition & Precision Metabolic Intelligence</title>
+  <meta name="description" content="AI-powered computer vision meal plate detection, pre vs post-meal leftover consumption tracking, Pancha-Tatva metabolic target calculation, and adaptive diet planning for SIH 2026." />
   
   <!-- Core Design System CSS -->
   <link rel="stylesheet" href="/static/css/style.css" />
@@ -12,22 +12,39 @@
 </head>
 <body>
 
+  <!-- Celebration Confetti Canvas -->
+  <canvas id="celebrationCanvas"></canvas>
+
   <!-- ==================== HEADER ==================== -->
   <header class="app-header">
-    <a href="#" class="logo-wrapper">
+    <a href="#" class="logo-wrapper" onclick="switchTab('scanner'); return false;">
       <div class="logo-icon">🥗</div>
       <div class="logo-text">
-        <h1>NutriVision AI</h1>
-        <p>Vision Nutrition & Fitness Intelligence</p>
+        <h1>ThaalTatva AI <span class="brand-tag">VISION CV</span></h1>
+        <p>Panch-Tatva Nutrition & Biomarker Intelligence</p>
       </div>
     </a>
 
+    <!-- Live Status Ticker -->
+    <div class="header-status-ticker">
+      <span style="color: var(--tatva-gold);">🔥</span>
+      <span id="headerLiveStatus">Ready • Calibrated for Indian & Global Meal Plates</span>
+    </div>
+
     <div class="header-actions">
-      <div class="client-status-badge" id="clientStatusBadge" title="Click to edit client profile & targets">
+      <!-- Sound FX Toggle Button -->
+      <button class="sound-toggle-btn" id="soundToggleBtn" onclick="toggleAudioFx()" title="Toggle Synthesized Audio Feedback">
+        <span id="soundToggleIcon">🔊</span>
+        <span id="soundToggleText">Audio FX</span>
+      </button>
+
+      <!-- Client Target Status Badge -->
+      <div class="client-status-badge" id="clientStatusBadge" title="Click to view & edit client targets">
         <div class="status-dot"></div>
         <span id="headerClientGoalText">75kg • LEAN HYPERTROPHY (2200 kcal)</span>
       </div>
 
+      <!-- API Configuration Button -->
       <button class="api-status-btn" id="openApiKeyBtn" onclick="openApiKeyModal()">
         <span>⚙️</span>
         <span id="apiStatusText">Offline AI CV Active</span>
@@ -45,10 +62,10 @@
         <span>⚖️</span> Pre vs Post Leftovers
       </button>
       <button class="tab-btn" data-tab="dashboard">
-        <span>📊</span> Daily Nutrition & Targets
+        <span>📊</span> Panch-Tatva Dashboard
       </button>
       <button class="tab-btn" data-tab="diet_planner">
-        <span>🥗</span> AI Diet Planner & 7-Day Plan
+        <span>🥗</span> AI Diet Planner & 7-Day Matrix
       </button>
       <button class="tab-btn" data-tab="client_profile">
         <span>👤</span> Client Profile & BMR
@@ -65,14 +82,14 @@
     <!-- ==================== TAB 1: PLATE SCANNER ==================== -->
     <section class="tab-pane active" id="scannerPane">
       <div class="grid-2col">
-        <!-- Left: Camera Viewport & Presets -->
+        <!-- Left: Holographic Camera Viewport & Presets -->
         <div>
           <div class="camera-viewport-card">
             <div class="viewport-toolbar">
-              <span style="font-size: 12px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 6px;">
-                <span style="color: var(--emerald);">●</span> Live AI Plate Viewport
+              <span style="font-size: 12px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                <span class="status-dot"></span> Holographic AI Plate Viewfinder
               </span>
-              <div class="viewport-actions">
+              <div style="display: flex; gap: 8px;">
                 <button class="btn-icon" id="startCameraBtn" title="Toggle Live Webcam Feed">📷</button>
                 <button class="btn-icon" id="switchCameraBtn" title="Switch Camera (Front/Rear)">🔄</button>
                 <button class="btn-icon" id="uploadTriggerBtn" title="Upload Plate Photo">📁</button>
@@ -81,10 +98,26 @@
             </div>
 
             <div class="canvas-wrapper">
+              <!-- Holographic Corner Reticles -->
+              <div class="hud-corner hud-corner-tl"></div>
+              <div class="hud-corner hud-corner-tr"></div>
+              <div class="hud-corner hud-corner-bl"></div>
+              <div class="hud-corner hud-corner-br"></div>
+
+              <!-- Media Feed -->
               <video id="cameraVideo" playsinline autoplay muted></video>
               <img id="plateImageDisplay" src="/static/images/presets/indian_thali_pre.jpg" alt="Active Food Plate" />
               <canvas id="detectionCanvas"></canvas>
               <div class="scan-beam" id="scanBeam"></div>
+            </div>
+
+            <!-- Real-time Live CV Telemetry Feed -->
+            <div class="telemetry-ticker">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="color: var(--tatva-emerald);">● [AI_TELEMETRY]:</span>
+                <span class="telemetry-text" id="telemetryFeedText">Visual segmentation engine online • 0-1000 coordinate space active</span>
+              </div>
+              <span id="fpsCounter" style="color: var(--text-muted); font-size: 10px;">60 FPS</span>
             </div>
 
             <div class="shutter-bar">
@@ -95,8 +128,10 @@
           <!-- Benchmark Preset Plate Selector -->
           <div class="preset-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">BENCHMARK DEMO PLATES</span>
-              <span style="font-size: 11px; color: var(--text-muted);">Click to load instant analysis</span>
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+                ⭐ BENCHMARK DEMO PLATES
+              </span>
+              <span style="font-size: 11px; color: var(--tatva-cyan);">Instant Multimodal Analysis</span>
             </div>
             <div class="preset-carousel" id="presetCarousel">
               <!-- Dynamically populated -->
@@ -110,7 +145,7 @@
             <div class="card-header">
               <div>
                 <h2 class="card-title" id="detectedMealTitle">Traditional Indian Thali</h2>
-                <p id="detectedMealDesc" style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                <p id="detectedMealDesc" style="font-size: 11.5px; color: var(--text-secondary); margin-top: 3px;">
                   Vegetarian • Balanced Diet — Wholesome Indian platter.
                 </p>
               </div>
@@ -123,33 +158,33 @@
             <!-- Macro Pills -->
             <div class="macro-pill-row">
               <div class="macro-pill cals">
-                <div class="macro-label">Calories</div>
+                <div class="macro-label">⚡ ऊर्जा • Ūrjā (Energy)</div>
                 <div class="macro-value" id="plateTotalCals">680</div>
                 <div class="macro-unit">kcal</div>
               </div>
               <div class="macro-pill protein">
-                <div class="macro-label">Protein</div>
+                <div class="macro-label">🥩 प्रथिन • Prathina (Protein)</div>
                 <div class="macro-value" id="plateTotalProtein">29.4g</div>
                 <div class="macro-unit">31% goal</div>
               </div>
               <div class="macro-pill carbs">
-                <div class="macro-label">Carbs</div>
+                <div class="macro-label">🌾 कार्बोज • Kārboja (Carbs)</div>
                 <div class="macro-value" id="plateTotalCarbs">84.2g</div>
                 <div class="macro-unit">net carbs</div>
               </div>
               <div class="macro-pill fat">
-                <div class="macro-label">Fat</div>
+                <div class="macro-label">🥑 स्नेह • Sneha (Fats)</div>
                 <div class="macro-value" id="plateTotalFat">24.5g</div>
-                <div class="macro-unit">healthy fats</div>
+                <div class="macro-unit">healthy lipids</div>
               </div>
             </div>
 
             <!-- Itemized Food Detection List with Sliders -->
             <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 12px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
-                Detected Items & Portion Adjuster
+                Detected Food Clusters & Gram Slider
               </span>
-              <span style="font-size: 11px; color: var(--cyan);">Drag sliders to customize grams</span>
+              <span style="font-size: 11px; color: var(--tatva-cyan);">Drag sliders for real-time recalculation</span>
             </div>
 
             <div class="food-items-list" id="plateFoodItemsList">
@@ -169,53 +204,67 @@
 
     <!-- ==================== TAB 2: LEFTOVER CONSUMPTION TRACKER ==================== -->
     <section class="tab-pane" id="consumptionPane">
-      <div class="glass-card" style="margin-bottom: 20px;">
+      <div class="glass-card gold-highlight" style="margin-bottom: 20px;">
         <div class="card-header">
-          <h2 class="card-title">
-            <span>⚖️</span> Before & After Leftover Consumption Delta Engine
-          </h2>
-          <span class="card-badge">AI Precision Intake Calculator</span>
+          <div>
+            <h2 class="card-title">
+              <span>⚖️</span> Pre vs Post Leftover Consumption Delta Engine
+            </h2>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">
+              Quantify <strong>exact net nutrients consumed</strong> by analyzing plate leftover volume and density differentials.
+            </p>
+          </div>
+          <span class="card-badge" style="background: rgba(245,158,11,0.15); color: #fbbf24; border-color: var(--tatva-gold);">
+            Biomarker Intake Calculator
+          </span>
         </div>
-        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">
-          Compare the initial served plate against the post-meal leftover plate to compute the <strong>exact grams and nutrients consumed</strong> by the client.
+
+        <!-- Mode Selectors: Interactive Split Lens vs Dual Split -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <label class="form-label" style="margin: 0;">Pre-Meal Plate:</label>
+            <select class="form-control" id="preMealPresetSelect" style="width: auto; padding: 5px 10px; font-size: 12px;">
+              <option value="/static/images/presets/indian_thali_pre.jpg">Indian Thali (Pre-Meal)</option>
+              <option value="/static/images/presets/chicken_rice_pre.jpg">Chicken & Rice (Pre-Meal)</option>
+              <option value="/static/images/presets/salmon_bowl_pre.jpg">Salmon Quinoa Bowl</option>
+              <option value="/static/images/presets/mediterranean_salad.jpg">Mediterranean Salad</option>
+              <option value="/static/images/presets/fitness_oatmeal.jpg">Fitness Oatmeal Bowl</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <label class="form-label" style="margin: 0;">Post-Meal Plate (Leftovers):</label>
+            <select class="form-control" id="postMealPresetSelect" style="width: auto; padding: 5px 10px; font-size: 12px;">
+              <option value="/static/images/presets/indian_thali_post.jpg">Indian Thali (Post Leftovers)</option>
+              <option value="/static/images/presets/chicken_rice_post.jpg">Chicken & Rice (Post Leftovers)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Interactive Draggable Split-Lens Viewer -->
+        <div class="split-lens-container" id="splitLensContainer">
+          <!-- Pre Layer (Underneath) -->
+          <div class="split-lens-pre-layer">
+            <span class="split-lens-badge left">Served Plate (Pre 100%)</span>
+            <img id="splitLensPreImg" src="/static/images/presets/indian_thali_pre.jpg" alt="Served Plate Pre" />
+          </div>
+
+          <!-- Post Layer (Overlaid with variable width) -->
+          <div class="split-lens-post-layer" id="splitLensPostLayer">
+            <span class="split-lens-badge right">Leftover Plate (Post)</span>
+            <img id="splitLensPostImg" src="/static/images/presets/indian_thali_post.jpg" alt="Leftover Plate Post" />
+          </div>
+
+          <!-- Draggable Divider Handle -->
+          <div class="split-lens-handle" id="splitLensHandle">
+            <div class="split-lens-handle-btn">◀ ▶</div>
+          </div>
+        </div>
+        <p style="text-align: center; font-size: 11px; color: var(--tatva-cyan); margin-bottom: 16px;">
+          👆 Drag the slider left & right to interactively inspect pre vs post leftover delta
         </p>
 
-        <!-- Dual Image Selectors -->
-        <div class="comparison-split-wrapper">
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label class="form-label" style="margin: 0;">Pre-Meal Plate (Initial Served)</label>
-              <select class="form-control" id="preMealPresetSelect" style="width: auto; padding: 4px 8px; font-size: 11px;">
-                <option value="/static/images/presets/indian_thali_pre.jpg">Indian Thali (Pre-Meal)</option>
-                <option value="/static/images/presets/chicken_rice_pre.jpg">Chicken & Rice (Pre-Meal)</option>
-                <option value="/static/images/presets/salmon_bowl_pre.jpg">Salmon Quinoa Bowl</option>
-                <option value="/static/images/presets/mediterranean_salad.jpg">Mediterranean Salad</option>
-                <option value="/static/images/presets/fitness_oatmeal.jpg">Fitness Oatmeal Bowl</option>
-              </select>
-            </div>
-            <div class="plate-view-box">
-              <span class="plate-tag pre">Pre-Meal (Served)</span>
-              <img id="preMealViewImg" src="/static/images/presets/indian_thali_pre.jpg" alt="Pre Meal" />
-            </div>
-          </div>
-
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label class="form-label" style="margin: 0;">Post-Meal Plate (Leftovers Remaining)</label>
-              <select class="form-control" id="postMealPresetSelect" style="width: auto; padding: 4px 8px; font-size: 11px;">
-                <option value="/static/images/presets/indian_thali_post.jpg">Indian Thali (Post Leftovers)</option>
-                <option value="/static/images/presets/chicken_rice_post.jpg">Chicken & Rice (Post Leftovers)</option>
-              </select>
-            </div>
-            <div class="plate-view-box">
-              <span class="plate-tag post">Post-Meal (Leftovers)</span>
-              <img id="postMealViewImg" src="/static/images/presets/indian_thali_post.jpg" alt="Post Meal" />
-            </div>
-          </div>
-        </div>
-
         <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-          <button class="btn btn-cyan" id="runComparisonBtn" style="padding: 12px 28px; font-size: 14px;">
+          <button class="btn btn-gold" id="runComparisonBtn" style="padding: 12px 28px; font-size: 14px;">
             <span>⚡</span> Compute Exact Consumed Nutrients
           </button>
         </div>
@@ -224,10 +273,10 @@
         <div class="consumption-meter-card">
           <div class="meter-title">
             <h3>Net Intake Summary</h3>
-            <p id="consumedAdherenceDesc">Client consumed most protein and vegetables; left 50% rice unconsumed.</p>
+            <p id="consumedAdherenceDesc">Client consumed all protein & dal; left 50% rice unconsumed.</p>
             <div style="display: flex; gap: 14px; margin-top: 10px; font-size: 12px;">
-              <span style="color: #67e8f9;">Initial: <strong id="initialCalsStat">680 kcal</strong></span>
-              <span style="color: #f59e0b;">Leftover: <strong id="leftoverPctStat">17.1%</strong> (<span id="savedCalsStat">116 kcal</span> saved)</span>
+              <span style="color: #67e8f9;">Initial Served: <strong id="initialCalsStat">680 kcal</strong></span>
+              <span style="color: #f59e0b;">Leftover Unconsumed: <strong id="leftoverPctStat">17.1%</strong> (<span id="savedCalsStat">116 kcal</span> not ingested)</span>
             </div>
           </div>
           <div style="text-align: right;">
@@ -241,19 +290,19 @@
         <!-- Consumed Macros Row -->
         <div class="macro-pill-row">
           <div class="macro-pill protein">
-            <div class="macro-label">Net Consumed Protein</div>
+            <div class="macro-label">🥩 प्रथिन • Prathina (Protein)</div>
             <div class="macro-value" id="consumedProteinStat">28.1g</div>
           </div>
           <div class="macro-pill carbs">
-            <div class="macro-label">Net Consumed Carbs</div>
+            <div class="macro-label">🌾 कार्बोज • Kārboja (Carbs)</div>
             <div class="macro-value" id="consumedCarbsStat">61.5g</div>
           </div>
           <div class="macro-pill fat">
-            <div class="macro-label">Net Consumed Fat</div>
+            <div class="macro-label">🥑 स्नेह • Sneha (Fats)</div>
             <div class="macro-value" id="consumedFatStat">22.8g</div>
           </div>
           <div class="macro-pill cals">
-            <div class="macro-label">Net Consumed Fiber</div>
+            <div class="macro-label">🌿 रुक्षांश • Rūkṣāṃśa (Fiber)</div>
             <div class="macro-value" id="consumedFiberStat">5.9g</div>
           </div>
         </div>
@@ -267,7 +316,7 @@
                 <th>Served (Pre)</th>
                 <th>Leftover (Post)</th>
                 <th>Exact Consumed</th>
-                <th>Calories</th>
+                <th>Net Calories</th>
                 <th>Macros (P • C • F)</th>
               </tr>
             </thead>
@@ -278,9 +327,9 @@
         </div>
 
         <!-- Log to Diary Action -->
-        <div style="margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 12px; font-weight: 600; color: #fff;">Record to Daily Timeline:</span>
+            <span style="font-size: 12.5px; font-weight: 700; color: #fff;">Record to Daily Timeline:</span>
             <select class="form-control" id="logMealTypeSelect" style="width: auto; padding: 6px 12px;">
               <option value="Lunch" selected>Lunch</option>
               <option value="Breakfast">Breakfast</option>
@@ -295,13 +344,13 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 3: DAILY NUTRITION DASHBOARD ==================== -->
+    <!-- ==================== TAB 3: PANCH-TATVA DASHBOARD ==================== -->
     <section class="tab-pane" id="dashboardPane">
-      <!-- Radial Progress Grid -->
+      <!-- Radial Progress Grid (5 Tatvas + Water) -->
       <div class="budget-radial-grid">
-        <!-- Calories -->
+        <!-- Calories (Urja) -->
         <div class="radial-gauge-card">
-          <div class="gauge-title">Calories</div>
+          <div class="gauge-title"><span>⚡</span> ऊर्जा • Ūrjā (Energy)</div>
           <div class="gauge-svg-wrap">
             <svg class="gauge-svg" viewBox="0 0 100 100">
               <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
@@ -312,9 +361,9 @@
           <div class="gauge-sub" id="dashCalSub">of 2200 kcal</div>
         </div>
 
-        <!-- Protein -->
+        <!-- Protein (Prathina) -->
         <div class="radial-gauge-card">
-          <div class="gauge-title">Protein</div>
+          <div class="gauge-title"><span>🥩</span> प्रथिन • Prathina (Protein)</div>
           <div class="gauge-svg-wrap">
             <svg class="gauge-svg" viewBox="0 0 100 100">
               <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
@@ -325,9 +374,9 @@
           <div class="gauge-sub" id="dashProteinSub">of 140g</div>
         </div>
 
-        <!-- Carbs -->
+        <!-- Carbs (Karboja) -->
         <div class="radial-gauge-card">
-          <div class="gauge-title">Carbohydrates</div>
+          <div class="gauge-title"><span>🌾</span> कार्बोज • Kārboja (Carbs)</div>
           <div class="gauge-svg-wrap">
             <svg class="gauge-svg" viewBox="0 0 100 100">
               <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
@@ -338,9 +387,9 @@
           <div class="gauge-sub" id="dashCarbsSub">of 240g</div>
         </div>
 
-        <!-- Fat -->
+        <!-- Fat (Sneha) -->
         <div class="radial-gauge-card">
-          <div class="gauge-title">Fats</div>
+          <div class="gauge-title"><span>🥑</span> स्नेह • Sneha (Fats)</div>
           <div class="gauge-svg-wrap">
             <svg class="gauge-svg" viewBox="0 0 100 100">
               <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
@@ -351,9 +400,9 @@
           <div class="gauge-sub" id="dashFatSub">of 65g</div>
         </div>
 
-        <!-- Fiber -->
+        <!-- Fiber (Rukshamsha) -->
         <div class="radial-gauge-card">
-          <div class="gauge-title">Dietary Fiber</div>
+          <div class="gauge-title"><span>🌿</span> रुक्षांश • Rūkṣāṃśa (Fiber)</div>
           <div class="gauge-svg-wrap">
             <svg class="gauge-svg" viewBox="0 0 100 100">
               <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
@@ -364,14 +413,14 @@
           <div class="gauge-sub" id="dashFiberSub">of 30g</div>
         </div>
 
-        <!-- Water Hydration -->
+        <!-- Water (Jala) -->
         <div class="radial-gauge-card">
-          <div class="gauge-title">Hydration</div>
+          <div class="gauge-title"><span>💧</span> जल • Jala (Hydration)</div>
           <div style="font-family: var(--font-heading); font-size: 26px; font-weight: 800; color: #38bdf8; margin: 16px 0 6px;" id="dashWaterVal">
             1.5L
           </div>
           <div class="gauge-sub" id="dashWaterSub">Target: 3.0L</div>
-          <button class="btn btn-secondary" id="addWaterBtn" style="padding: 4px 10px; font-size: 10px; margin-top: 8px;">+250ml Water</button>
+          <button class="btn btn-secondary" id="addWaterBtn" style="padding: 5px 12px; font-size: 11px; margin-top: 8px;">+250ml Water</button>
         </div>
       </div>
 
@@ -379,7 +428,7 @@
       <div class="glass-card">
         <div class="card-header">
           <h3 class="card-title">
-            <span>📅</span> Today's Consumption Timeline
+            <span>📅</span> Today's Intake Timeline
           </h3>
           <div style="display: flex; gap: 8px;">
             <button class="btn btn-secondary" id="resetDiaryBtn" style="padding: 6px 12px; font-size: 11px;">Reset Day</button>
@@ -393,7 +442,7 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 4: AI DIET PLANNER & 7-DAY PLAN ==================== -->
+    <!-- ==================== TAB 4: AI DIET PLANNER & 7-DAY MATRIX ==================== -->
     <section class="tab-pane" id="diet_plannerPane">
       <!-- Real-Time Next Meal Recommender -->
       <div class="glass-card highlight" style="margin-bottom: 24px;">
@@ -402,8 +451,8 @@
             <h3 class="card-title">
               <span>🤖</span> Adaptive AI Next-Meal Recommender
             </h3>
-            <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
-              Clinically formulated suggestions designed to close your remaining calorie & protein deficit today.
+            <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 2px;">
+              Formulated to close your remaining calorie & protein deficit today.
             </p>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -424,11 +473,11 @@
             <h3 class="card-title">
               <span>📋</span> 7-Day Structured Meal Schedule
             </h3>
-            <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+            <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 2px;">
               Personalized macro-balanced weekly roadmap tailored to client targets.
             </p>
           </div>
-          <div style="display: flex; gap: 10px; align-items: center;">
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <select class="form-control" id="plannerDietTypeSelect" style="width: auto; padding: 6px 12px;">
               <option value="balanced" selected>Balanced High-Protein</option>
               <option value="vegetarian">Indian Vegetarian</option>
@@ -460,9 +509,12 @@
 
         <!-- Smart Grocery Shopping Checklist -->
         <div style="margin-top: 28px;">
-          <h4 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            <span>🛒</span> Smart Grocery & Pantry Checklist
-          </h4>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h4 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+              <span>🛒</span> Smart Grocery & Pantry Checklist
+            </h4>
+            <span id="groceryProgressBadge" style="font-size: 11px; color: var(--tatva-emerald); font-weight: 600;">0 of 0 Packed</span>
+          </div>
           <div class="grid-4col" id="groceryChecklistContainer">
             <!-- Dynamically populated -->
           </div>
@@ -574,32 +626,32 @@
               </div>
             </div>
 
-            <div class="macro-pill" style="margin-bottom: 16px; background: rgba(16, 185, 129, 0.1); border-color: var(--emerald);">
-              <div class="macro-label" style="color: var(--emerald);">Recommended Daily Calorie Target</div>
+            <div class="macro-pill" style="margin-bottom: 16px; background: rgba(16, 185, 129, 0.1); border-color: var(--tatva-emerald);">
+              <div class="macro-label" style="color: var(--tatva-emerald);">Recommended Daily Calorie Target</div>
               <div class="macro-value" id="metricTargetCals" style="font-size: 24px; color: #fff;">2200 kcal / day</div>
             </div>
 
             <!-- Target Macros Breakdown -->
-            <div style="font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 10px;">OPTIMAL TARGET MACRO SPLIT</div>
+            <div style="font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 10px;">OPTIMAL TARGET MACRO SPLIT (PANCHA-TATVA)</div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                <span style="color: #22d3ee; font-weight: 600;">🥩 Daily Protein Target:</span>
+                <span style="color: #22d3ee; font-weight: 600;">🥩 प्रथिन • Prathina (Daily Protein):</span>
                 <strong id="metricTargetProtein" style="color: #fff;">140.0g (25.5%)</strong>
               </div>
               <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                <span style="color: #fbbf24; font-weight: 600;">🌾 Daily Carbohydrates Target:</span>
+                <span style="color: #fbbf24; font-weight: 600;">🌾 कार्बोज • Kārboja (Daily Carbs):</span>
                 <strong id="metricTargetCarbs" style="color: #fff;">240.0g (43.6%)</strong>
               </div>
               <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                <span style="color: #fb7185; font-weight: 600;">🥑 Daily Healthy Fats Target:</span>
+                <span style="color: #fb7185; font-weight: 600;">🥑 स्नेह • Sneha (Daily Healthy Fats):</span>
                 <strong id="metricTargetFat" style="color: #fff;">65.0g (26.6%)</strong>
               </div>
               <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                <span style="color: #a78bfa; font-weight: 600;">🌿 Minimum Dietary Fiber:</span>
+                <span style="color: #a78bfa; font-weight: 600;">🌿 रुक्षांश • Rūkṣāṃśa (Dietary Fiber):</span>
                 <strong id="metricTargetFiber" style="color: #fff;">30.8g</strong>
               </div>
               <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                <span style="color: #38bdf8; font-weight: 600;">💧 Daily Hydration Requirement:</span>
+                <span style="color: #38bdf8; font-weight: 600;">💧 जल • Jala (Daily Hydration):</span>
                 <strong id="metricTargetWater" style="color: #fff;">2.6 L</strong>
               </div>
             </div>
@@ -614,7 +666,7 @@
         <div class="card-header">
           <div>
             <h3 class="card-title"><span>💡</span> Smart Nutritional Food Swaps Library</h3>
-            <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+            <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 2px;">
               Evidence-based ingredient alternatives to reduce empty calories, lower glycemic spikes, and boost nutrient density.
             </p>
           </div>
@@ -637,7 +689,7 @@
         <span>⚙️</span> Gemini Vision AI Configuration
       </h3>
       <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">
-        NutriVision AI works 100% out of the box with built-in heuristic computer vision. To enable live multimodal cloud AI with Google Gemini, enter your API key below.
+        ThaalTatva AI works 100% out of the box with built-in heuristic computer vision. To enable live multimodal cloud AI with Google Gemini, enter your API key below.
       </p>
 
       <div class="form-group">

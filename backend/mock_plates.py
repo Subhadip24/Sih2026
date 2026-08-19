@@ -1,6 +1,6 @@
 """
-Preset benchmark meal plates and ground truth annotations for NutriVision AI.
-Includes verified bounding boxes normalized to 0-1000 coordinate space and segmentation polygons.
+Preset benchmark meal plates and ground truth annotations for ThaalTatva AI.
+Provides rich bounding boxes, polygon coordinates, and reference gram weights for demo plates.
 """
 
 from typing import Dict, Any, List
