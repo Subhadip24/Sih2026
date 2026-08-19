@@ -7,7 +7,7 @@
   <meta name="description" content="AI-powered computer vision meal plate detection, pre vs post-meal leftover consumption tracking, Pancha-Tatva metabolic target calculation, and adaptive diet planning for SIH 2026." />
   
   <!-- Core Design System CSS -->
-  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="./css/style.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥗</text></svg>" />
 </head>
 <body>
@@ -106,7 +106,7 @@
 
               <!-- Media Feed -->
               <video id="cameraVideo" playsinline autoplay muted></video>
-              <img id="plateImageDisplay" src="/static/images/presets/indian_thali_pre.jpg" alt="Active Food Plate" />
+              <img id="plateImageDisplay" src="./images/presets/indian_thali_pre.jpg" alt="Active Food Plate" />
               <canvas id="detectionCanvas"></canvas>
               <div class="scan-beam" id="scanBeam"></div>
             </div>
@@ -224,18 +224,18 @@
           <div style="display: flex; gap: 12px; align-items: center;">
             <label class="form-label" style="margin: 0;">Pre-Meal Plate:</label>
             <select class="form-control" id="preMealPresetSelect" style="width: auto; padding: 5px 10px; font-size: 12px;">
-              <option value="/static/images/presets/indian_thali_pre.jpg">Indian Thali (Pre-Meal)</option>
-              <option value="/static/images/presets/chicken_rice_pre.jpg">Chicken & Rice (Pre-Meal)</option>
-              <option value="/static/images/presets/salmon_bowl_pre.jpg">Salmon Quinoa Bowl</option>
-              <option value="/static/images/presets/mediterranean_salad.jpg">Mediterranean Salad</option>
-              <option value="/static/images/presets/fitness_oatmeal.jpg">Fitness Oatmeal Bowl</option>
+              <option value="./images/presets/indian_thali_pre.jpg">Indian Thali (Pre-Meal)</option>
+              <option value="./images/presets/chicken_rice_pre.jpg">Chicken & Rice (Pre-Meal)</option>
+              <option value="./images/presets/salmon_bowl_pre.jpg">Salmon Quinoa Bowl</option>
+              <option value="./images/presets/mediterranean_salad.jpg">Mediterranean Salad</option>
+              <option value="./images/presets/fitness_oatmeal.jpg">Fitness Oatmeal Bowl</option>
             </select>
           </div>
           <div style="display: flex; gap: 12px; align-items: center;">
             <label class="form-label" style="margin: 0;">Post-Meal Plate (Leftovers):</label>
             <select class="form-control" id="postMealPresetSelect" style="width: auto; padding: 5px 10px; font-size: 12px;">
-              <option value="/static/images/presets/indian_thali_post.jpg">Indian Thali (Post Leftovers)</option>
-              <option value="/static/images/presets/chicken_rice_post.jpg">Chicken & Rice (Post Leftovers)</option>
+              <option value="./images/presets/indian_thali_post.jpg">Indian Thali (Post Leftovers)</option>
+              <option value="./images/presets/chicken_rice_post.jpg">Chicken & Rice (Post Leftovers)</option>
             </select>
           </div>
         </div>
@@ -245,13 +245,13 @@
           <!-- Pre Layer (Underneath) -->
           <div class="split-lens-pre-layer">
             <span class="split-lens-badge left">Served Plate (Pre 100%)</span>
-            <img id="splitLensPreImg" src="/static/images/presets/indian_thali_pre.jpg" alt="Served Plate Pre" />
+            <img id="splitLensPreImg" src="./images/presets/indian_thali_pre.jpg" alt="Served Plate Pre" />
           </div>
 
           <!-- Post Layer (Overlaid with variable width) -->
           <div class="split-lens-post-layer" id="splitLensPostLayer">
             <span class="split-lens-badge right">Leftover Plate (Post)</span>
-            <img id="splitLensPostImg" src="/static/images/presets/indian_thali_post.jpg" alt="Leftover Plate Post" />
+            <img id="splitLensPostImg" src="./images/presets/indian_thali_post.jpg" alt="Leftover Plate Post" />
           </div>
 
           <!-- Draggable Divider Handle -->
@@ -708,13 +708,13 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
-  <script src="/static/js/camera.js"></script>
-  <script src="/static/js/visualizer.js"></script>
-  <script src="/static/js/consumption.js"></script>
-  <script src="/static/js/dashboard.js"></script>
-  <script src="/static/js/diet_planner.js"></script>
-  <script src="/static/js/client_profile.js"></script>
-  <script src="/static/js/app.js"></script>
+  <script src="./js/camera.js"></script>
+  <script src="./js/visualizer.js"></script>
+  <script src="./js/consumption.js"></script>
+  <script src="./js/dashboard.js"></script>
+  <script src="./js/diet_planner.js"></script>
+  <script src="./js/client_profile.js"></script>
+  <script src="./js/app.js"></script>
 
 </body>
 </html>

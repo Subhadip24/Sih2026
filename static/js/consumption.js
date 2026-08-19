@@ -3,8 +3,8 @@
  */
 
 const ConsumptionModule = {
-  selectedPreImage: '/static/images/presets/indian_thali_pre.jpg',
-  selectedPostImage: '/static/images/presets/indian_thali_post.jpg',
+  selectedPreImage: './images/presets/indian_thali_pre.jpg',
+  selectedPostImage: './images/presets/indian_thali_post.jpg',
   isDraggingLens: false,
 
   init() {
