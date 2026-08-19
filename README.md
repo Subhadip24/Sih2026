@@ -95,7 +95,7 @@ python3 -m uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
 ### 3. Open in Browser
 Open your browser and navigate to:
 ```
-http://127.0.0.1:8000
+https://subhadip24.github.io/Sih2026/
 ```
 
 ---
