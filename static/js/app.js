@@ -225,6 +225,119 @@ function triggerCelebration(originX = window.innerWidth / 2, originY = window.in
   playAudioFx('celebrate');
 }
 
+// ==================== QUANTUM NEURAL MATRIX CANVAS ====================
+function initNeuralMatrixCanvas() {
+  const canvas = document.getElementById('neuralMatrixCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  const mouse = { x: -1000, y: -1000 };
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+  window.addEventListener('mouseleave', () => {
+    mouse.x = -1000;
+    mouse.y = -1000;
+  });
+
+  const particleCount = Math.min(Math.floor((width * height) / 24000), 55);
+  const particles = [];
+  const colors = ['rgba(0, 242, 254, ', 'rgba(0, 245, 155, ', 'rgba(255, 183, 3, ', 'rgba(157, 78, 221, '];
+
+  for (let i = 0; i < particleCount; i++) {
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.45,
+      vy: (Math.random() - 0.5) * 0.45,
+      radius: Math.random() * 1.8 + 0.8,
+      baseColor: colors[Math.floor(Math.random() * colors.length)],
+      alpha: Math.random() * 0.5 + 0.25,
+      pulseSpeed: Math.random() * 0.02 + 0.01,
+      pulseVal: Math.random() * Math.PI
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw neural filaments between close particles
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 130) {
+          const alpha = (1 - dist / 130) * 0.18;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(0, 242, 254, ${alpha})`;
+          ctx.lineWidth = 0.75;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Connect to mouse cursor
+    if (mouse.x > 0 && mouse.y > 0) {
+      for (let i = 0; i < particles.length; i++) {
+        const dx = mouse.x - particles[i].x;
+        const dy = mouse.y - particles[i].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 160) {
+          const alpha = (1 - dist / 160) * 0.35;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = `rgba(0, 245, 155, ${alpha})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Update & draw particles
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+
+      if (p.x < 0) p.x = width;
+      if (p.x > width) p.x = 0;
+      if (p.y < 0) p.y = height;
+      if (p.y > height) p.y = 0;
+
+      p.pulseVal += p.pulseSpeed;
+      const currentAlpha = p.alpha + Math.sin(p.pulseVal) * 0.15;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = p.baseColor + Math.max(0.1, currentAlpha) + ')';
+      ctx.shadowColor = 'rgba(0, 242, 254, 0.6)';
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+}
+
+
 // ==================== ANIMATED NUMBER COUNTER UTILITY ====================
 function animateNumber(elementId, targetVal, duration = 650, suffix = '') {
   const el = document.getElementById(elementId);
@@ -664,6 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadStoredState();
   updateApiStatusBadge();
   updateAudioToggleUI();
+  initNeuralMatrixCanvas();
 
   // Tab listeners
   document.querySelectorAll('.tab-btn').forEach(btn => {
