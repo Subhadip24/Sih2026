@@ -15,6 +15,9 @@ const CameraModule = {
 
   bindEvents() {
     const startCamBtn = document.getElementById('startCameraBtn');
+    const toggleLiveCamBtn = document.getElementById('toggleLiveCamBtn');
+    const livePhotoCaptureBtn = document.getElementById('livePhotoCaptureBtn');
+    const mobileSnapBtn = document.getElementById('mobileSnapBtn');
     const shutterBtn = document.getElementById('shutterBtn');
     const switchCamBtn = document.getElementById('switchCameraBtn');
     const uploadInput = document.getElementById('plateFileInput');
@@ -27,10 +30,43 @@ const CameraModule = {
       });
     }
 
+    if (toggleLiveCamBtn) {
+      toggleLiveCamBtn.addEventListener('click', () => {
+        playAudioFx('click');
+        this.toggleCamera();
+      });
+    }
+
+    if (livePhotoCaptureBtn) {
+      livePhotoCaptureBtn.addEventListener('click', async () => {
+        playAudioFx('click');
+        if (!this.isCameraActive) {
+          await this.startCamera();
+        } else {
+          this.captureSnapshot();
+        }
+      });
+    }
+
+    if (mobileSnapBtn && uploadInput) {
+      mobileSnapBtn.addEventListener('click', () => {
+        playAudioFx('click');
+        uploadInput.click();
+      });
+    }
+
     if (shutterBtn) {
-      shutterBtn.addEventListener('click', () => {
+      shutterBtn.addEventListener('click', async () => {
         playAudioFx('shutter');
-        this.captureSnapshot();
+        if (!this.isCameraActive) {
+          showToast('Activating live camera... Tap shutter again to snap!', 'info');
+          const started = await this.startCamera();
+          if (!started && uploadInput) {
+            uploadInput.click();
+          }
+        } else {
+          this.captureSnapshot();
+        }
       });
     }
 
@@ -62,25 +98,44 @@ const CameraModule = {
     const video = document.getElementById('cameraVideo');
     const imgDisplay = document.getElementById('plateImageDisplay');
     const startCamBtn = document.getElementById('startCameraBtn');
+    const toggleLiveCamBtn = document.getElementById('toggleLiveCamBtn');
+    const livePhotoCaptureBtn = document.getElementById('livePhotoCaptureBtn');
+    const shutterBtn = document.getElementById('shutterBtn');
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      showToast('Live camera API not supported on this browser. Launching device camera...', 'warning');
+      const uploadInput = document.getElementById('plateFileInput');
+      if (uploadInput) uploadInput.click();
+      return false;
+    }
 
     try {
       this.videoStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: this.facingMode, width: { ideal: 1280 }, height: { ideal: 1280 } }
+        video: { facingMode: this.facingMode, width: { ideal: 1280 }, height: { ideal: 1280 } },
+        audio: false
       });
       video.srcObject = this.videoStream;
-      video.play();
+      await video.play();
       video.style.display = 'block';
       imgDisplay.style.display = 'none';
 
       this.isCameraActive = true;
       if (startCamBtn) startCamBtn.classList.add('active');
-      showToast('Live Holographic Camera Feed Active', 'info');
+      if (toggleLiveCamBtn) toggleLiveCamBtn.innerHTML = '<span>⏹️</span> Stop Camera';
+      if (livePhotoCaptureBtn) livePhotoCaptureBtn.innerHTML = '<span>⚡</span> Snap Live Frame';
+      if (shutterBtn) shutterBtn.classList.add('camera-live');
+
+      showToast('Live Realtime Camera Feed Active — Tap shutter to snap photo!', 'success');
 
       const telemetry = document.getElementById('telemetryFeedText');
-      if (telemetry) telemetry.textContent = 'Camera sensor stream synchronized • Auto-focusing plate centroid';
+      if (telemetry) telemetry.textContent = 'Realtime HD video stream online • Auto-focusing plate centroid • Ready to snap';
+      return true;
     } catch (err) {
       console.warn('Camera access error:', err);
-      showToast('Camera unavailable or denied. You can select preset demo plates or upload a photo.', 'warning');
+      showToast('Camera access unavailable or denied. Opening device camera picker...', 'warning');
+      const uploadInput = document.getElementById('plateFileInput');
+      if (uploadInput) uploadInput.click();
+      return false;
     }
   },
 
@@ -92,11 +147,17 @@ const CameraModule = {
     const video = document.getElementById('cameraVideo');
     const imgDisplay = document.getElementById('plateImageDisplay');
     const startCamBtn = document.getElementById('startCameraBtn');
+    const toggleLiveCamBtn = document.getElementById('toggleLiveCamBtn');
+    const livePhotoCaptureBtn = document.getElementById('livePhotoCaptureBtn');
+    const shutterBtn = document.getElementById('shutterBtn');
 
     if (video) video.style.display = 'none';
     if (imgDisplay) imgDisplay.style.display = 'block';
     this.isCameraActive = false;
     if (startCamBtn) startCamBtn.classList.remove('active');
+    if (toggleLiveCamBtn) toggleLiveCamBtn.innerHTML = '<span>📷</span> Start Live Camera';
+    if (livePhotoCaptureBtn) livePhotoCaptureBtn.innerHTML = '<span>📸</span> Realtime Photo';
+    if (shutterBtn) shutterBtn.classList.remove('camera-live');
   },
 
   async switchFacingMode() {
@@ -113,20 +174,23 @@ const CameraModule = {
 
     if (this.isCameraActive && video) {
       const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 640;
+      canvas.width = video.videoWidth || 800;
+      canvas.height = video.videoHeight || 800;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
 
       this.stopCamera();
       imgDisplay.src = dataUrl;
       imgDisplay.style.display = 'block';
 
+      showToast('📸 Realtime photo captured! Running Pancha-Tatva vision analysis...', 'success');
+      playAudioFx('celebrate');
       this.processPlateImage(dataUrl);
     } else {
-      // Re-scan current active displayed image
+      // If camera was inactive, prompt camera start or process current view
       if (imgDisplay && imgDisplay.src) {
+        showToast('Analyzing active plate photo...', 'info');
         this.processPlateImage(imgDisplay.src);
       }
     }

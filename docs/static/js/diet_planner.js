@@ -13,6 +13,8 @@ const DietPlannerModule = {
     const refreshRecsBtn = document.getElementById('refreshNextMealBtn');
     const genPlanBtn = document.getElementById('generate7DayPlanBtn');
     const printReportBtn = document.getElementById('printDietitianReportBtn');
+    const copyDietPlanBtn = document.getElementById('copyDietPlanBtn');
+    const syncWithProfileBtn = document.getElementById('syncWithProfileBtn');
     const dietTypeSelect = document.getElementById('plannerDietTypeSelect');
 
     if (refreshRecsBtn) {
@@ -29,16 +31,76 @@ const DietPlannerModule = {
       });
     }
 
+    if (syncWithProfileBtn) {
+      syncWithProfileBtn.addEventListener('click', () => {
+        playAudioFx('toggle');
+        this.syncWithClientProfile();
+      });
+    }
+
+    if (copyDietPlanBtn) {
+      copyDietPlanBtn.addEventListener('click', () => {
+        playAudioFx('click');
+        this.copyDietPlanToClipboard();
+      });
+    }
+
     if (printReportBtn) {
-      printReportBtn.addEventListener('click', () => window.print());
+      printReportBtn.addEventListener('click', () => {
+        playAudioFx('click');
+        window.print();
+      });
     }
 
     if (dietTypeSelect) {
       dietTypeSelect.addEventListener('change', () => {
         playAudioFx('toggle');
-        this.fetch7DayPlan();
+        const badge = document.getElementById('activeDietPlanBadge');
+        if (badge) {
+          const selectedText = dietTypeSelect.options[dietTypeSelect.selectedIndex]?.text || dietTypeSelect.value;
+          badge.textContent = selectedText.split('(')[0].trim();
+        }
       });
     }
+  },
+
+  syncWithClientProfile() {
+    const targetCalsInput = document.getElementById('plannerTargetCalsInput');
+    const targetProteinInput = document.getElementById('plannerTargetProteinInput');
+    const syncBadge = document.getElementById('plannerCalorieSyncBadge');
+
+    const cals = AppState.dailyTargets?.calories_kcal || 2100;
+    const protein = AppState.dailyTargets?.protein_g || 135;
+
+    if (targetCalsInput) targetCalsInput.value = cals;
+    if (targetProteinInput) targetProteinInput.value = protein;
+    if (syncBadge) syncBadge.textContent = `Synced: ${cals} kcal • ${protein}g P`;
+
+    showToast(`Synced targets with Client Profile: ${cals} kcal • ${protein}g Protein`, 'success');
+  },
+
+  copyDietPlanToClipboard() {
+    if (!this.current7DayPlan || !this.current7DayPlan.weekly_schedule) {
+      showToast('Please generate a 7-day plan first!', 'warning');
+      return;
+    }
+
+    let text = `📋 THAALTATVA AI - 7-DAY DIET PLAN (${this.current7DayPlan.diet_type.toUpperCase()})\n`;
+    text += `Target Daily Energy: ${this.current7DayPlan.client_target_calories} kcal | Protein: ${this.current7DayPlan.client_target_protein_g}g\n\n`;
+
+    this.current7DayPlan.weekly_schedule.forEach(day => {
+      text += `📅 ${day.day.toUpperCase()} (${day.total_calories} kcal | ${day.total_protein_g}g Protein)\n`;
+      text += `  • Breakfast: ${day.meals.breakfast.title} (${day.meals.breakfast.calories} kcal, ${day.meals.breakfast.protein_g}g P)\n`;
+      text += `  • Lunch:     ${day.meals.lunch.title} (${day.meals.lunch.calories} kcal, ${day.meals.lunch.protein_g}g P)\n`;
+      text += `  • Snack:     ${day.meals.snack.title} (${day.meals.snack.calories} kcal, ${day.meals.snack.protein_g}g P)\n`;
+      text += `  • Dinner:    ${day.meals.dinner.title} (${day.meals.dinner.calories} kcal, ${day.meals.dinner.protein_g}g P)\n\n`;
+    });
+
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('📋 7-Day Diet Plan copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast('Failed to copy to clipboard.', 'warning');
+    });
   },
 
   async loadDietPlanner() {
@@ -120,12 +182,35 @@ const DietPlannerModule = {
 
   async fetch7DayPlan() {
     const dietTypeSelect = document.getElementById('plannerDietTypeSelect');
+    const targetCalsInput = document.getElementById('plannerTargetCalsInput');
+    const targetProteinInput = document.getElementById('plannerTargetProteinInput');
+    const goalSelect = document.getElementById('plannerGoalSelect');
+    const genPlanBtn = document.getElementById('generate7DayPlanBtn');
+    const syncBadge = document.getElementById('plannerCalorieSyncBadge');
+    const activeBadge = document.getElementById('activeDietPlanBadge');
+
     const dietType = dietTypeSelect ? dietTypeSelect.value : 'balanced';
+    const targetCals = targetCalsInput ? parseInt(targetCalsInput.value) || 2100 : 2100;
+    const targetProtein = targetProteinInput ? parseInt(targetProteinInput.value) || 135 : 135;
+    const goal = goalSelect ? goalSelect.value : 'lean_hypertrophy';
+
+    if (genPlanBtn) {
+      genPlanBtn.disabled = true;
+      genPlanBtn.innerHTML = '<span class="btn-spinner"></span> 🧠 AI Synthesizing Plan...';
+    }
 
     try {
       const payload = {
-        client_targets: { daily_targets: AppState.dailyTargets },
-        diet_type: dietType
+        client_targets: {
+          daily_targets: {
+            calories_kcal: targetCals,
+            protein_g: targetProtein
+          },
+          calories_kcal: targetCals,
+          protein_g: targetProtein
+        },
+        diet_type: dietType,
+        goal: goal
       };
 
       const res = await apiRequest('generate-diet-plan', 'POST', payload);
@@ -133,9 +218,25 @@ const DietPlannerModule = {
         this.current7DayPlan = res.data;
         this.render7DaySchedule(res.data.weekly_schedule);
         this.renderGroceryList(res.data.grocery_checklist);
+
+        if (syncBadge) syncBadge.textContent = `Target: ${targetCals} kcal`;
+        if (activeBadge) {
+          const optText = dietTypeSelect ? dietTypeSelect.options[dietTypeSelect.selectedIndex]?.text : dietType;
+          activeBadge.textContent = optText ? optText.split('(')[0].trim() : dietType.toUpperCase();
+        }
+
+        playAudioFx('celebrate');
+        triggerCelebration();
+        showToast(`🎉 AI 7-Day Diet Plan Generated for ${dietType.toUpperCase()} (${targetCals} kcal)!`, 'success');
       }
     } catch (e) {
       console.error('Failed to generate 7 day plan:', e);
+      showToast('Using smart offline nutritional matrix template.', 'info');
+    } finally {
+      if (genPlanBtn) {
+        genPlanBtn.disabled = false;
+        genPlanBtn.innerHTML = '<span>⚡</span> Generate AI 7-Day Plan';
+      }
     }
   },
 

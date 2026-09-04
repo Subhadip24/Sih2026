@@ -225,6 +225,119 @@ function triggerCelebration(originX = window.innerWidth / 2, originY = window.in
   playAudioFx('celebrate');
 }
 
+// ==================== QUANTUM NEURAL MATRIX CANVAS ====================
+function initNeuralMatrixCanvas() {
+  const canvas = document.getElementById('neuralMatrixCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  const mouse = { x: -1000, y: -1000 };
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+  window.addEventListener('mouseleave', () => {
+    mouse.x = -1000;
+    mouse.y = -1000;
+  });
+
+  const particleCount = Math.min(Math.floor((width * height) / 24000), 55);
+  const particles = [];
+  const colors = ['rgba(0, 242, 254, ', 'rgba(0, 245, 155, ', 'rgba(255, 183, 3, ', 'rgba(157, 78, 221, '];
+
+  for (let i = 0; i < particleCount; i++) {
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.45,
+      vy: (Math.random() - 0.5) * 0.45,
+      radius: Math.random() * 1.8 + 0.8,
+      baseColor: colors[Math.floor(Math.random() * colors.length)],
+      alpha: Math.random() * 0.5 + 0.25,
+      pulseSpeed: Math.random() * 0.02 + 0.01,
+      pulseVal: Math.random() * Math.PI
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw neural filaments between close particles
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 130) {
+          const alpha = (1 - dist / 130) * 0.18;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(0, 242, 254, ${alpha})`;
+          ctx.lineWidth = 0.75;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Connect to mouse cursor
+    if (mouse.x > 0 && mouse.y > 0) {
+      for (let i = 0; i < particles.length; i++) {
+        const dx = mouse.x - particles[i].x;
+        const dy = mouse.y - particles[i].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 160) {
+          const alpha = (1 - dist / 160) * 0.35;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = `rgba(0, 245, 155, ${alpha})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Update & draw particles
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+
+      if (p.x < 0) p.x = width;
+      if (p.x > width) p.x = 0;
+      if (p.y < 0) p.y = height;
+      if (p.y > height) p.y = 0;
+
+      p.pulseVal += p.pulseSpeed;
+      const currentAlpha = p.alpha + Math.sin(p.pulseVal) * 0.15;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = p.baseColor + Math.max(0.1, currentAlpha) + ')';
+      ctx.shadowColor = 'rgba(0, 242, 254, 0.6)';
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+}
+
+
 // ==================== ANIMATED NUMBER COUNTER UTILITY ====================
 function animateNumber(elementId, targetVal, duration = 650, suffix = '') {
   const el = document.getElementById(elementId);
@@ -299,6 +412,10 @@ function switchTab(tabId) {
     DietPlannerModule.loadDietPlanner();
   } else if (tabId === 'client_profile') {
     ClientProfileModule.loadProfileUI();
+  } else if (tabId === 'fitness') {
+    FitnessHubModule.calculateFuelBurn();
+  } else if (tabId === 'gyms') {
+    GymLocatorModule.loadGyms();
   }
 }
 
@@ -528,24 +645,130 @@ function handleClientSideFallback(endpoint, method, body) {
   }
 
   if (endpoint === 'generate-diet-plan') {
+    const dietType = (body && body.diet_type) ? body.diet_type.toLowerCase() : 'balanced';
+    let targetCals = 2100;
+    let targetP = 135;
+
+    if (body && body.client_targets) {
+      const ct = body.client_targets;
+      targetCals = ct.calories_kcal || (ct.daily_targets && ct.daily_targets.calories_kcal) || 2100;
+      targetP = ct.protein_g || (ct.daily_targets && ct.daily_targets.protein_g) || 135;
+    }
+
+    const bCals = Math.round(targetCals * 0.25);
+    const lCals = Math.round(targetCals * 0.35);
+    const sCals = Math.round(targetCals * 0.15);
+    const dCals = Math.round(targetCals * 0.25);
+
+    let days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    let schedule = [];
+    let grocery = [];
+
+    if (dietType.includes('veg') && !dietType.includes('vegan')) {
+      // Vegetarian
+      schedule = days.map((day, i) => ({
+        day: day,
+        total_calories: targetCals,
+        total_protein_g: targetP,
+        meals: {
+          breakfast: { title: i % 2 === 0 ? "Moong Dal Cheela with Mint Paneer Stuffing" : "Paneer Bhurji with Multigrain Toast", calories: bCals, protein_g: Math.round(targetP * 0.26) },
+          lunch: { title: i % 2 === 0 ? "Yellow Dal Tadka with Paneer Tikka & Brown Basmati" : "Rajma Masala with Steamed Quinoa & Raita", calories: lCals, protein_g: Math.round(targetP * 0.36) },
+          snack: { title: i % 2 === 0 ? "Sprouted Chana Chaat with Fresh Lemon & Herbs" : "Roasted Makhana with 12 Almonds", calories: sCals, protein_g: Math.round(targetP * 0.14) },
+          dinner: { title: i % 2 === 0 ? "Soya Chunks Curry with Steamed Broccoli & Jowar Roti" : "Palak Paneer with Cucumber Salad", calories: dCals, protein_g: Math.round(targetP * 0.28) }
+        }
+      }));
+      grocery = [
+        { category: "Vegetarian Proteins", items: ["Fresh Low-Fat Paneer (1kg)", "Organic Soya Chunks (500g)", "Greek Dahi / Curd (1kg)", "Whey Protein / Sattu", "Sprouted Moong & Black Chana"] },
+        { category: "Complex Grains & Dal", items: ["Yellow Moong Dal & Toor Dal", "Rajma & Chole", "Organic Quinoa & Brown Basmati", "Jowar & Multigrain Flour", "Rolled Oats"] },
+        { category: "Fresh Vegetables & Greens", items: ["Baby Spinach (Palak)", "Fresh Broccoli Florets", "Cucumbers, Tomatoes & Mint", "Asparagus & Bell Peppers", "Lemons & Ginger"] },
+        { category: "Healthy Fats & Extras", items: ["Raw Almonds & Walnuts", "Black Chia & Flax Seeds", "Cold-Pressed Mustard / Olive Oil", "Roasted Makhana", "Himalayan Pink Salt & Turmeric"] }
+      ];
+    } else if (dietType.includes('vegan')) {
+      // Vegan
+      schedule = days.map((day, i) => ({
+        day: day,
+        total_calories: targetCals,
+        total_protein_g: targetP,
+        meals: {
+          breakfast: { title: i % 2 === 0 ? "Turmeric Tofu Scramble with Avocado Whole Grain Toast" : "Almond Milk Chia Pudding with Berries & Hemp Seeds", calories: bCals, protein_g: Math.round(targetP * 0.25) },
+          lunch: { title: i % 2 === 0 ? "Air-Fried Crispy Tofu & Edamame Quinoa Bowl" : "Spiced Lentil Dal Tadka with Brown Basmati & Kale", calories: lCals, protein_g: Math.round(targetP * 0.35) },
+          snack: { title: i % 2 === 0 ? "Steamed Sea-Salt Edamame Pods" : "Sprouted Chickpea Chaat with Lime & Coriander", calories: sCals, protein_g: Math.round(targetP * 0.15) },
+          dinner: { title: i % 2 === 0 ? "Tempeh Vegetable Stir-Fry with Tri-Color Quinoa" : "Hearty Green Lentil Broth with Multigrain Toast", calories: dCals, protein_g: Math.round(targetP * 0.28) }
+        }
+      }));
+      grocery = [
+        { category: "Plant Proteins", items: ["Organic Firm Tofu (1kg)", "Organic Tempeh (500g)", "Shelled Edamame (500g)", "Pea Protein Powder", "Sprouted Moong & Lentils"] },
+        { category: "Whole Grains & Pulses", items: ["Tri-Color Quinoa", "Brown Basmati Rice", "Yellow Moong & Green Lentils", "Rolled Oats", "Hemp Hearts"] },
+        { category: "Produce & Greens", items: ["Broccoli Florets & Kale", "Baby Spinach & Asparagus", "Hass Avocados (4 pcs)", "Cherry Tomatoes & Bell Peppers", "Limes & Fresh Ginger"] },
+        { category: "Healthy Fats & Extras", items: ["Tahini & Pumpkin Seeds", "Raw Walnuts & Chia Seeds", "Extra Virgin Olive Oil", "Unsweetened Almond Milk", "Nutritional Yeast"] }
+      ];
+    } else if (dietType.includes('keto')) {
+      // Keto
+      schedule = days.map((day, i) => ({
+        day: day,
+        total_calories: targetCals,
+        total_protein_g: targetP,
+        meals: {
+          breakfast: { title: i % 2 === 0 ? "Spinach & Mushroom Omelette with Sliced Avocado" : "Grilled Herbed Paneer Steak with Sautéed Asparagus", calories: bCals, protein_g: Math.round(targetP * 0.28) },
+          lunch: { title: i % 2 === 0 ? "Pan-Seared Salmon Fillet with Garlic Cauliflower Rice" : "Grilled Chicken Thighs with Roasted Zucchini & Feta", calories: lCals, protein_g: Math.round(targetP * 0.36) },
+          snack: { title: i % 2 === 0 ? "Whole Hass Avocado with Sea Salt & Lemon" : "Roasted Almonds & Macadamia Nuts", calories: sCals, protein_g: Math.round(targetP * 0.10) },
+          dinner: { title: i % 2 === 0 ? "Grilled Herb Chicken Breast with Broccoli Cheddar Sauce" : "Pan-Roasted Lemon Paneer with Sautéed Spinach", calories: dCals, protein_g: Math.round(targetP * 0.30) }
+        }
+      }));
+      grocery = [
+        { category: "Keto Proteins", items: ["Wild Salmon Fillets / Chicken Thighs", "Full-Fat Fresh Paneer", "Free-Range Pastured Eggs", "Greek Feta Cheese", "Zero-Carb Whey Isolate"] },
+        { category: "Low-Carb Produce", items: ["Cauliflower (for rice)", "Fresh Zucchini & Broccoli", "Asparagus Spears", "Baby Spinach & Salad Greens", "Hass Avocados (6 pcs)"] },
+        { category: "Healthy Fats & Oils", items: ["Extra Virgin Olive Oil", "Grass-Fed Butter / Ghee", "MCT Oil", "Kalamata Olives", "Full-Fat Coconut Cream"] },
+        { category: "Keto Crunch & Extras", items: ["Macadamia Nuts & Pecans", "Raw Almonds", "Chia & Hemp Seeds", "Pink Himalayan Rock Salt", "Herbes de Provence"] }
+      ];
+    } else if (dietType.includes('diabetic')) {
+      // Diabetic
+      schedule = days.map((day, i) => ({
+        day: day,
+        total_calories: targetCals,
+        total_protein_g: targetP,
+        meals: {
+          breakfast: { title: i % 2 === 0 ? "Sprouted Moong & Methi Cheela with Flaxseed Chutney" : "Steel-Cut Cinnamon Oats with Chia Seeds & Sliced Almonds", calories: bCals, protein_g: Math.round(targetP * 0.26) },
+          lunch: { title: i % 2 === 0 ? "Bitter Gourd (Karela) & Paneer Bhurji with 2 Jowar Bhakris" : "Yellow Dal with Methi Leaves, Brown Basmati & Salad", calories: lCals, protein_g: Math.round(targetP * 0.34) },
+          snack: { title: i % 2 === 0 ? "Roasted Sprouted Chana with Lemon & Chaat Masala" : "Fenugreek-Infused Green Tea with Steamed Edamame", calories: sCals, protein_g: Math.round(targetP * 0.14) },
+          dinner: { title: i % 2 === 0 ? "Moong Dal Soup with Sautéed Palak & 1 Multigrain Roti" : "Pan-Seared Salmon Fillet with Steamed Broccoli & Zucchini", calories: dCals, protein_g: Math.round(targetP * 0.28) }
+        }
+      }));
+      grocery = [
+        { category: "Low-GI Proteins", items: ["Low-Fat Paneer & Greek Yogurt", "Egg Whites / Lean Chicken", "Organic Firm Tofu", "Sprouted Moong & Black Chana", "Chana Dal & Yellow Dal"] },
+        { category: "Low-GI Complex Carbs", items: ["Jowar & Ragi Flour", "Steel-Cut Oats", "Organic Quinoa", "Brown Basmati Rice", "Flaxseed Meal"] },
+        { category: "Glycemic-Regulating Produce", items: ["Bitter Gourd (Karela)", "Fresh Fenugreek (Methi) Leaves", "Baby Spinach (Palak)", "Broccoli & Asparagus", "Cucumbers & Limes"] },
+        { category: "Healthy Lipids & Spices", items: ["Ceylon Cinnamon Powder", "Raw Walnuts & Almonds", "Extra Virgin Olive Oil", "Chia Seeds", "Roasted Makhana"] }
+      ];
+    } else {
+      // Balanced High-Protein
+      schedule = days.map((day, i) => ({
+        day: day,
+        total_calories: targetCals,
+        total_protein_g: targetP,
+        meals: {
+          breakfast: { title: i % 2 === 0 ? "Protein Oatmeal with Blueberries, Chia & Whey" : "Egg White & Spinach Omelette with Whole Wheat Toast", calories: bCals, protein_g: Math.round(targetP * 0.26) },
+          lunch: { title: i % 2 === 0 ? "Grilled Chicken Breast / Tofu with Brown Rice & Asparagus" : "Traditional Indian Thali (Yellow Dal, Paneer Tikka, 2 Rotis)", calories: lCals, protein_g: Math.round(targetP * 0.36) },
+          snack: { title: i % 2 === 0 ? "Sprouted Chana Chaat with Lemon & Herbs" : "Whey Isolate Shake with 1 Apple", calories: sCals, protein_g: Math.round(targetP * 0.16) },
+          dinner: { title: i % 2 === 0 ? "Pan-Seared Salmon Fillet / Paneer with Roasted Broccoli" : "Lentil Soup with 1 Multigrain Roti & Salad", calories: dCals, protein_g: Math.round(targetP * 0.28) }
+        }
+      }));
+      grocery = [
+        { category: "Proteins", items: ["Chicken Breast / Firm Tofu", "Fresh Low-Fat Paneer", "Greek Yogurt (Non-Fat)", "Eggs / Egg Whites", "Whey Protein Isolate"] },
+        { category: "Complex Carbs & Grains", items: ["Rolled Oats", "Organic Quinoa", "Brown Basmati Rice", "Whole Wheat / Multigrain Flour", "Sprouted Moong & Black Chickpeas"] },
+        { category: "Vegetables & Fruits", items: ["Fresh Broccoli Florets", "Baby Spinach / Palak", "Cucumbers & Cherry Tomatoes", "Fresh Blueberries & Bananas", "Asparagus Spears"] },
+        { category: "Healthy Fats & Extras", items: ["Raw Almonds & Walnuts", "Black Chia Seeds", "Extra Virgin Olive Oil", "Natural Peanut Butter", "Turmeric & Herbs"] }
+      ];
+    }
+
     return {
       status: "success",
       data: {
-        weekly_schedule: [
-          { day: "Monday", total_calories: 2200, total_protein_g: 142, meals: { breakfast: { title: "Oatmeal with Almonds & Berries", calories: 520, protein_g: 28 }, lunch: { title: "Paneer Tikka with Yellow Dal & Brown Rice", calories: 780, protein_g: 52 }, snack: { title: "Roasted Chana & Green Tea", calories: 280, protein_g: 18 }, dinner: { title: "Grilled Soya Chunks with Stir-Fried Veggies", calories: 620, protein_g: 44 } } },
-          { day: "Tuesday", total_calories: 2180, total_protein_g: 138, meals: { breakfast: { title: "Sprouted Moong Salad with Boiled Eggs", calories: 490, protein_g: 32 }, lunch: { title: "Rajma Masala with Quinoa & Cucumber Raita", calories: 750, protein_g: 48 }, snack: { title: "Greek Yogurt with Chia Seeds", calories: 310, protein_g: 20 }, dinner: { title: "Tofu Palak Gravy with Multigrain Roti", calories: 630, protein_g: 38 } } },
-          { day: "Wednesday", total_calories: 2220, total_protein_g: 145, meals: { breakfast: { title: "Paneer Bhurji with Whole Wheat Toast", calories: 540, protein_g: 34 }, lunch: { title: "Chole Chickpea Curry with Steamed Basmati", calories: 770, protein_g: 46 }, snack: { title: "Mixed Nuts & Pumpkin Seeds", calories: 290, protein_g: 16 }, dinner: { title: "Grilled Fish / Dal Makhani Lite with Salad", calories: 620, protein_g: 49 } } },
-          { day: "Thursday", total_calories: 2190, total_protein_g: 140, meals: { breakfast: { title: "Besan Chilla with Mint Chutney", calories: 480, protein_g: 26 }, lunch: { title: "Chicken Breast / Soya Bowl with Brown Rice", calories: 790, protein_g: 56 }, snack: { title: "Protein Shake with Banana", calories: 300, protein_g: 24 }, dinner: { title: "Lentil Soup with Roasted Paneer Skewers", calories: 620, protein_g: 34 } } },
-          { day: "Friday", total_calories: 2210, total_protein_g: 144, meals: { breakfast: { title: "Chia Seed Pudding with Whey Protein", calories: 510, protein_g: 30 }, lunch: { title: "Salmon Quinoa Bowl with Steamed Greens", calories: 780, protein_g: 52 }, snack: { title: "Makhana Fox Nuts Roasted in Ghee", calories: 270, protein_g: 14 }, dinner: { title: "Palak Paneer with Jowar Bhakri", calories: 650, protein_g: 48 } } },
-          { day: "Saturday", total_calories: 2250, total_protein_g: 140, meals: { breakfast: { title: "Egg White Omelette with Sautéed Spinach", calories: 530, protein_g: 36 }, lunch: { title: "South Indian Sambar, Brown Rice & Sundal", calories: 760, protein_g: 44 }, snack: { title: "Walnuts & Dark Chocolate Square", calories: 310, protein_g: 12 }, dinner: { title: "Stir-Fried Tofu Bell Peppers with Millet Roti", calories: 650, protein_g: 48 } } },
-          { day: "Sunday", total_calories: 2200, total_protein_g: 142, meals: { breakfast: { title: "Protein Pancakes with Honey Drizzle", calories: 540, protein_g: 32 }, lunch: { title: "Traditional Indian Thali (Balanced Macro Version)", calories: 780, protein_g: 50 }, snack: { title: "Cucumber Carrot Sticks with Hummus", calories: 260, protein_g: 16 }, dinner: { title: "Clear Vegetable Lentil Broth with Paneer Salad", calories: 620, protein_g: 44 } } }
-        ],
-        grocery_checklist: [
-          { category: "Proteins & Dairy", items: ["Low-fat Paneer (500g)", "Organic Tofu (400g)", "Greek Yogurt (1kg)", "Farm Eggs (1 dozen)", "Moong Dal (1kg)", "Chickpeas / Chole (500g)"] },
-          { category: "Complex Carbs & Grains", items: ["Rolled Oats (1kg)", "Brown Rice (1kg)", "Tri-Color Quinoa (500g)", "Whole Wheat Atta (2kg)", "Millet / Jowar Flour (1kg)"] },
-          { category: "Fresh Vegetables & Greens", items: ["Baby Spinach / Palak (500g)", "Broccoli Florets (2 heads)", "Cucumbers & Tomatoes (1kg)", "Asparagus (250g)", "Bell Peppers (3 pcs)"] },
-          { category: "Healthy Fats & Nuts", items: ["Hass Avocados (3 pcs)", "Raw Almonds & Walnuts (250g)", "Chia & Flax Seeds (200g)", "Extra Virgin Olive Oil (500ml)", "Roasted Makhana (200g)"] }
-        ]
+        client_target_calories: targetCals,
+        client_target_protein_g: targetP,
+        diet_type: dietType,
+        weekly_schedule: schedule,
+        grocery_checklist: grocery
       }
     };
   }
@@ -585,6 +808,168 @@ function handleClientSideFallback(endpoint, method, body) {
         carbs: Math.round((g * 0.22) * 10) / 10,
         fat: Math.round((g * 0.08) * 10) / 10
       }
+    };
+  }
+
+  if (endpoint.startsWith('fitness/burn-calculator')) {
+    const act = (body && body.activity) || 'hypertrophy_weightlifting';
+    const dur = (body && body.duration_min) || 45;
+    const wt = (body && body.weight_kg) || 75;
+    const mets = {
+      zone2_cardio: { met: 6.0, fat: 0.65, carb: 0.35, epoc: 0.06, name: "Zone 2 Incline Walk / Steady Cardio", fuel: "Fat Lipolysis (Mitochondrial Beta-Oxidation)" },
+      hypertrophy_weightlifting: { met: 5.5, fat: 0.40, carb: 0.60, epoc: 0.16, name: "Hypertrophy Resistance Training (Gym)", fuel: "Intramuscular Glycogen & Afterburn EPOC" },
+      hiit_circuits: { met: 9.2, fat: 0.28, carb: 0.72, epoc: 0.20, name: "High-Intensity Interval Training (HIIT)", fuel: "Rapid Glycogen Depletion + Massive EPOC" },
+      stairmaster: { met: 8.5, fat: 0.50, carb: 0.50, epoc: 0.12, name: "Stairmaster / High Incline Climber", fuel: "Balanced Glute-Driven Fat & Glycogen Burn" },
+      jump_rope: { met: 10.0, fat: 0.32, carb: 0.68, epoc: 0.15, name: "Speed Jump Rope / Boxer Conditioning", fuel: "Glycogen & Fast-Twitch Muscle Burn" },
+      crossfit_metcon: { met: 9.5, fat: 0.30, carb: 0.70, epoc: 0.18, name: "CrossFit MetCon / Functional Circuit", fuel: "High Lactate Glycolysis + 36h Afterburn" },
+      outdoor_cycling: { met: 7.5, fat: 0.55, carb: 0.45, epoc: 0.08, name: "Road / Stationary Cycling", fuel: "Quad Fueling & Aerobic Lipolysis" },
+      swimming_laps: { met: 8.0, fat: 0.45, carb: 0.55, epoc: 0.10, name: "Swimming Freestyle / Butterfly Laps", fuel: "Full Body Resistance & Aerobic Burn" }
+    };
+    const prof = mets[act] || mets.hypertrophy_weightlifting;
+    const totalCals = Math.round(prof.met * wt * (dur / 60.0));
+    return {
+      status: "success",
+      data: {
+        activity: act,
+        activity_name: prof.name,
+        duration_min: dur,
+        weight_kg: wt,
+        total_calories_kcal: totalCals,
+        fat_oxidized_grams: Math.round((totalCals * prof.fat / 9.0) * 10) / 10,
+        carbs_burned_grams: Math.round((totalCals * prof.carb / 4.0) * 10) / 10,
+        fat_ratio_pct: Math.round(prof.fat * 100),
+        carb_ratio_pct: Math.round(prof.carb * 100),
+        epoc_afterburn_kcal: Math.round(totalCals * prof.epoc),
+        primary_fuel_source: prof.fuel,
+        approx_equivalent_steps: Math.round((totalCals / 0.04) * 0.75)
+      }
+    };
+  }
+
+  if (endpoint.startsWith('fitness/avatar-recomp')) {
+    const cw = (body && body.current_weight_kg) || 75;
+    const tw = (body && body.target_weight_kg) || 70;
+    const h = (body && body.height_cm) || 175;
+    const g = (body && body.gender) || 'male';
+    const cbf = (body && body.current_body_fat_pct) || 24;
+    const tbf = g === 'female' ? 19.0 : 12.0;
+
+    const cfm = Math.round(cw * (cbf / 100) * 10) / 10;
+    const tfm = Math.round(tw * (tbf / 100) * 10) / 10;
+    const fatToLose = Math.max(0, Math.round((cfm - tfm) * 10) / 10);
+    const totalDeficit = Math.round(fatToLose * 7700);
+    const weeks = (body && body.timeline_weeks) || 12;
+
+    const waistEst = Math.round((cw * 0.95 + (h * 0.15) - (g === 'male' ? 5 : 10)) * 10) / 10;
+    const targetWaist = Math.round((waistEst - (fatToLose * 1.3)) * 10) / 10;
+
+    return {
+      status: "success",
+      data: {
+        current_composition: { weight_kg: cw, body_fat_pct: cbf, fat_mass_kg: cfm, waist_est_cm: waistEst },
+        target_composition: { weight_kg: tw, body_fat_pct: tbf, fat_mass_kg: tfm, waist_est_cm: targetWaist },
+        transformation_delta: {
+          fat_loss_kg: fatToLose,
+          muscle_gain_kg: Math.max(0, Math.round(((tw - tfm) - (cw - cfm)) * 10) / 10),
+          waist_reduction_cm: Math.round((waistEst - targetWaist) * 10) / 10,
+          total_kcal_burn_needed: totalDeficit,
+          recommended_daily_deficit_kcal: Math.round(totalDeficit / (weeks * 7)),
+          timeline_weeks: weeks,
+          zone2_heart_rate_target: "120-138 BPM"
+        }
+      }
+    };
+  }
+
+  if (endpoint.startsWith('gyms/nearby')) {
+    return {
+      status: "success",
+      gyms: [
+        {
+          id: "golds_gym_metro",
+          name: "Gold's Gym Super-Club",
+          city: "Mumbai",
+          rating: 4.8,
+          review_count: 482,
+          address: "Bandra West, Linking Road, Mumbai",
+          distance_km: 0.8,
+          amenities: ["Olympic Racks", "Heavy Dumbbells (up to 60kg)", "Cardio Deck", "Steam & Sauna", "Certified Trainers", "24/7 Access"],
+          price_tier: "$$$",
+          hours: "Open 24 Hours",
+          highlight: "Legendary strength training equipment with dedicated deadlift platforms and saunas.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=Gold's+Gym+Linking+Road+Bandra+Mumbai"
+        },
+        {
+          id: "cult_fit_elite",
+          name: "Cult.fit Elite Fitness Studio",
+          city: "Bengaluru",
+          rating: 4.9,
+          review_count: 612,
+          address: "Indiranagar 100ft Road, Bengaluru",
+          distance_km: 1.2,
+          amenities: ["HIIT MetCon Area", "Cardio Zone", "Boxing Ring", "Functional Turf", "Shower & Lockers"],
+          price_tier: "$$",
+          hours: "6:00 AM - 10:00 PM",
+          highlight: "High-energy group strength, conditioning, and boxing classes with world-class coaches.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=Cult+fit+Indiranagar+Bengaluru"
+        },
+        {
+          id: "anytime_fitness_express",
+          name: "Anytime Fitness 24/7",
+          city: "Delhi",
+          rating: 4.7,
+          review_count: 340,
+          address: "Connaught Place, Outer Circle, New Delhi",
+          distance_km: 1.5,
+          amenities: ["24/7 Access", "Precor Cardio Deck", "Free Weights Zone", "Private Showers", "Key-Fob Entry"],
+          price_tier: "$$",
+          hours: "Open 24 Hours",
+          highlight: "Round-the-clock convenience with state-of-the-art biometrics and global club access.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=Anytime+Fitness+Connaught+Place+New+Delhi"
+        },
+        {
+          id: "iron_sanctuary_barbell",
+          name: "The Iron Sanctuary Barbell Club",
+          city: "Pune",
+          rating: 4.95,
+          review_count: 290,
+          address: "Koregaon Park North Main Road, Pune",
+          distance_km: 1.9,
+          amenities: ["Eleiko Competition Plates", "6 Power Racks", "Chalk Allowed", "Prowler Turf", "Ice Bath Recovery"],
+          price_tier: "$$",
+          hours: "5:30 AM - 11:00 PM",
+          highlight: "Pure athletic hardcore lifting culture with calibrated steel plates and ice bath recovery tubs.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=Barbell+Club+Koregaon+Park+Pune"
+        },
+        {
+          id: "crossfit_hyperion",
+          name: "CrossFit Hyperion Box",
+          city: "Hyderabad",
+          rating: 4.85,
+          review_count: 315,
+          address: "Jubilee Hills Road No. 36, Hyderabad",
+          distance_km: 2.3,
+          amenities: ["Gymnastic Rings", "Concept2 Rowers & SkiErgs", "Echo Bikes", "Outdoor Rig", "Physio On-Site"],
+          price_tier: "$$$",
+          hours: "6:00 AM - 9:30 PM",
+          highlight: "Official CrossFit affiliate with Olympic lifting platforms, gymnastic rings, and metabolic conditioning.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=CrossFit+Jubilee+Hills+Hyderabad"
+        },
+        {
+          id: "equinox_wellness_haven",
+          name: "Aura Luxury Health & Wellness Club",
+          city: "Kolkata",
+          rating: 4.88,
+          review_count: 270,
+          address: "Park Street Lifestyle Hub, Kolkata",
+          distance_km: 2.1,
+          amenities: ["Olympic Swimming Pool", "Cryotherapy", "Technogym Biostrength", "Nutrition Cafe", "Sauna & Steam"],
+          price_tier: "$$$$",
+          hours: "6:00 AM - 11:00 PM",
+          highlight: "Five-star holistic fitness experience featuring AI Technogym machines, heated pool, and post-workout smoothies.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=Luxury+Gym+Park+Street+Kolkata"
+        }
+      ]
     };
   }
 
@@ -664,6 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadStoredState();
   updateApiStatusBadge();
   updateAudioToggleUI();
+  initNeuralMatrixCanvas();
 
   // Tab listeners
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -684,5 +1070,16 @@ document.addEventListener('DOMContentLoaded', () => {
   DietPlannerModule.init();
   ClientProfileModule.init();
 
-  showToast('ThaalTatva AI online: Pancha-Tatva Vision Scanner active', 'success');
+  if (typeof AvatarEngine !== 'undefined') {
+    AvatarEngine.init();
+    AvatarEngine.updateTopBarAvatarPill();
+  }
+  if (typeof FitnessHubModule !== 'undefined') {
+    FitnessHubModule.init();
+  }
+  if (typeof GymLocatorModule !== 'undefined') {
+    GymLocatorModule.init();
+  }
+
+  showToast('ThaalTatva AI online: Pancha-Tatva Vision & Fitness Scanner active', 'success');
 });

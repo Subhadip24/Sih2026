@@ -645,24 +645,130 @@ function handleClientSideFallback(endpoint, method, body) {
   }
 
   if (endpoint === 'generate-diet-plan') {
+    const dietType = (body && body.diet_type) ? body.diet_type.toLowerCase() : 'balanced';
+    let targetCals = 2100;
+    let targetP = 135;
+
+    if (body && body.client_targets) {
+      const ct = body.client_targets;
+      targetCals = ct.calories_kcal || (ct.daily_targets && ct.daily_targets.calories_kcal) || 2100;
+      targetP = ct.protein_g || (ct.daily_targets && ct.daily_targets.protein_g) || 135;
+    }
+
+    const bCals = Math.round(targetCals * 0.25);
+    const lCals = Math.round(targetCals * 0.35);
+    const sCals = Math.round(targetCals * 0.15);
+    const dCals = Math.round(targetCals * 0.25);
+
+    let days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    let schedule = [];
+    let grocery = [];
+
+    if (dietType.includes('veg') && !dietType.includes('vegan')) {
+      // Vegetarian
+      schedule = days.map((day, i) => ({
+        day: day,
+        total_calories: targetCals,
+        total_protein_g: targetP,
+        meals: {
+          breakfast: { title: i % 2 === 0 ? "Moong Dal Cheela with Mint Paneer Stuffing" : "Paneer Bhurji with Multigrain Toast", calories: bCals, protein_g: Math.round(targetP * 0.26) },
+          lunch: { title: i % 2 === 0 ? "Yellow Dal Tadka with Paneer Tikka & Brown Basmati" : "Rajma Masala with Steamed Quinoa & Raita", calories: lCals, protein_g: Math.round(targetP * 0.36) },
+          snack: { title: i % 2 === 0 ? "Sprouted Chana Chaat with Fresh Lemon & Herbs" : "Roasted Makhana with 12 Almonds", calories: sCals, protein_g: Math.round(targetP * 0.14) },
+          dinner: { title: i % 2 === 0 ? "Soya Chunks Curry with Steamed Broccoli & Jowar Roti" : "Palak Paneer with Cucumber Salad", calories: dCals, protein_g: Math.round(targetP * 0.28) }
+        }
+      }));
+      grocery = [
+        { category: "Vegetarian Proteins", items: ["Fresh Low-Fat Paneer (1kg)", "Organic Soya Chunks (500g)", "Greek Dahi / Curd (1kg)", "Whey Protein / Sattu", "Sprouted Moong & Black Chana"] },
+        { category: "Complex Grains & Dal", items: ["Yellow Moong Dal & Toor Dal", "Rajma & Chole", "Organic Quinoa & Brown Basmati", "Jowar & Multigrain Flour", "Rolled Oats"] },
+        { category: "Fresh Vegetables & Greens", items: ["Baby Spinach (Palak)", "Fresh Broccoli Florets", "Cucumbers, Tomatoes & Mint", "Asparagus & Bell Peppers", "Lemons & Ginger"] },
+        { category: "Healthy Fats & Extras", items: ["Raw Almonds & Walnuts", "Black Chia & Flax Seeds", "Cold-Pressed Mustard / Olive Oil", "Roasted Makhana", "Himalayan Pink Salt & Turmeric"] }
+      ];
+    } else if (dietType.includes('vegan')) {
+      // Vegan
+      schedule = days.map((day, i) => ({
+        day: day,
+        total_calories: targetCals,
+        total_protein_g: targetP,
+        meals: {
+          breakfast: { title: i % 2 === 0 ? "Turmeric Tofu Scramble with Avocado Whole Grain Toast" : "Almond Milk Chia Pudding with Berries & Hemp Seeds", calories: bCals, protein_g: Math.round(targetP * 0.25) },
+          lunch: { title: i % 2 === 0 ? "Air-Fried Crispy Tofu & Edamame Quinoa Bowl" : "Spiced Lentil Dal Tadka with Brown Basmati & Kale", calories: lCals, protein_g: Math.round(targetP * 0.35) },
+          snack: { title: i % 2 === 0 ? "Steamed Sea-Salt Edamame Pods" : "Sprouted Chickpea Chaat with Lime & Coriander", calories: sCals, protein_g: Math.round(targetP * 0.15) },
+          dinner: { title: i % 2 === 0 ? "Tempeh Vegetable Stir-Fry with Tri-Color Quinoa" : "Hearty Green Lentil Broth with Multigrain Toast", calories: dCals, protein_g: Math.round(targetP * 0.28) }
+        }
+      }));
+      grocery = [
+        { category: "Plant Proteins", items: ["Organic Firm Tofu (1kg)", "Organic Tempeh (500g)", "Shelled Edamame (500g)", "Pea Protein Powder", "Sprouted Moong & Lentils"] },
+        { category: "Whole Grains & Pulses", items: ["Tri-Color Quinoa", "Brown Basmati Rice", "Yellow Moong & Green Lentils", "Rolled Oats", "Hemp Hearts"] },
+        { category: "Produce & Greens", items: ["Broccoli Florets & Kale", "Baby Spinach & Asparagus", "Hass Avocados (4 pcs)", "Cherry Tomatoes & Bell Peppers", "Limes & Fresh Ginger"] },
+        { category: "Healthy Fats & Extras", items: ["Tahini & Pumpkin Seeds", "Raw Walnuts & Chia Seeds", "Extra Virgin Olive Oil", "Unsweetened Almond Milk", "Nutritional Yeast"] }
+      ];
+    } else if (dietType.includes('keto')) {
+      // Keto
+      schedule = days.map((day, i) => ({
+        day: day,
+        total_calories: targetCals,
+        total_protein_g: targetP,
+        meals: {
+          breakfast: { title: i % 2 === 0 ? "Spinach & Mushroom Omelette with Sliced Avocado" : "Grilled Herbed Paneer Steak with Sautéed Asparagus", calories: bCals, protein_g: Math.round(targetP * 0.28) },
+          lunch: { title: i % 2 === 0 ? "Pan-Seared Salmon Fillet with Garlic Cauliflower Rice" : "Grilled Chicken Thighs with Roasted Zucchini & Feta", calories: lCals, protein_g: Math.round(targetP * 0.36) },
+          snack: { title: i % 2 === 0 ? "Whole Hass Avocado with Sea Salt & Lemon" : "Roasted Almonds & Macadamia Nuts", calories: sCals, protein_g: Math.round(targetP * 0.10) },
+          dinner: { title: i % 2 === 0 ? "Grilled Herb Chicken Breast with Broccoli Cheddar Sauce" : "Pan-Roasted Lemon Paneer with Sautéed Spinach", calories: dCals, protein_g: Math.round(targetP * 0.30) }
+        }
+      }));
+      grocery = [
+        { category: "Keto Proteins", items: ["Wild Salmon Fillets / Chicken Thighs", "Full-Fat Fresh Paneer", "Free-Range Pastured Eggs", "Greek Feta Cheese", "Zero-Carb Whey Isolate"] },
+        { category: "Low-Carb Produce", items: ["Cauliflower (for rice)", "Fresh Zucchini & Broccoli", "Asparagus Spears", "Baby Spinach & Salad Greens", "Hass Avocados (6 pcs)"] },
+        { category: "Healthy Fats & Oils", items: ["Extra Virgin Olive Oil", "Grass-Fed Butter / Ghee", "MCT Oil", "Kalamata Olives", "Full-Fat Coconut Cream"] },
+        { category: "Keto Crunch & Extras", items: ["Macadamia Nuts & Pecans", "Raw Almonds", "Chia & Hemp Seeds", "Pink Himalayan Rock Salt", "Herbes de Provence"] }
+      ];
+    } else if (dietType.includes('diabetic')) {
+      // Diabetic
+      schedule = days.map((day, i) => ({
+        day: day,
+        total_calories: targetCals,
+        total_protein_g: targetP,
+        meals: {
+          breakfast: { title: i % 2 === 0 ? "Sprouted Moong & Methi Cheela with Flaxseed Chutney" : "Steel-Cut Cinnamon Oats with Chia Seeds & Sliced Almonds", calories: bCals, protein_g: Math.round(targetP * 0.26) },
+          lunch: { title: i % 2 === 0 ? "Bitter Gourd (Karela) & Paneer Bhurji with 2 Jowar Bhakris" : "Yellow Dal with Methi Leaves, Brown Basmati & Salad", calories: lCals, protein_g: Math.round(targetP * 0.34) },
+          snack: { title: i % 2 === 0 ? "Roasted Sprouted Chana with Lemon & Chaat Masala" : "Fenugreek-Infused Green Tea with Steamed Edamame", calories: sCals, protein_g: Math.round(targetP * 0.14) },
+          dinner: { title: i % 2 === 0 ? "Moong Dal Soup with Sautéed Palak & 1 Multigrain Roti" : "Pan-Seared Salmon Fillet with Steamed Broccoli & Zucchini", calories: dCals, protein_g: Math.round(targetP * 0.28) }
+        }
+      }));
+      grocery = [
+        { category: "Low-GI Proteins", items: ["Low-Fat Paneer & Greek Yogurt", "Egg Whites / Lean Chicken", "Organic Firm Tofu", "Sprouted Moong & Black Chana", "Chana Dal & Yellow Dal"] },
+        { category: "Low-GI Complex Carbs", items: ["Jowar & Ragi Flour", "Steel-Cut Oats", "Organic Quinoa", "Brown Basmati Rice", "Flaxseed Meal"] },
+        { category: "Glycemic-Regulating Produce", items: ["Bitter Gourd (Karela)", "Fresh Fenugreek (Methi) Leaves", "Baby Spinach (Palak)", "Broccoli & Asparagus", "Cucumbers & Limes"] },
+        { category: "Healthy Lipids & Spices", items: ["Ceylon Cinnamon Powder", "Raw Walnuts & Almonds", "Extra Virgin Olive Oil", "Chia Seeds", "Roasted Makhana"] }
+      ];
+    } else {
+      // Balanced High-Protein
+      schedule = days.map((day, i) => ({
+        day: day,
+        total_calories: targetCals,
+        total_protein_g: targetP,
+        meals: {
+          breakfast: { title: i % 2 === 0 ? "Protein Oatmeal with Blueberries, Chia & Whey" : "Egg White & Spinach Omelette with Whole Wheat Toast", calories: bCals, protein_g: Math.round(targetP * 0.26) },
+          lunch: { title: i % 2 === 0 ? "Grilled Chicken Breast / Tofu with Brown Rice & Asparagus" : "Traditional Indian Thali (Yellow Dal, Paneer Tikka, 2 Rotis)", calories: lCals, protein_g: Math.round(targetP * 0.36) },
+          snack: { title: i % 2 === 0 ? "Sprouted Chana Chaat with Lemon & Herbs" : "Whey Isolate Shake with 1 Apple", calories: sCals, protein_g: Math.round(targetP * 0.16) },
+          dinner: { title: i % 2 === 0 ? "Pan-Seared Salmon Fillet / Paneer with Roasted Broccoli" : "Lentil Soup with 1 Multigrain Roti & Salad", calories: dCals, protein_g: Math.round(targetP * 0.28) }
+        }
+      }));
+      grocery = [
+        { category: "Proteins", items: ["Chicken Breast / Firm Tofu", "Fresh Low-Fat Paneer", "Greek Yogurt (Non-Fat)", "Eggs / Egg Whites", "Whey Protein Isolate"] },
+        { category: "Complex Carbs & Grains", items: ["Rolled Oats", "Organic Quinoa", "Brown Basmati Rice", "Whole Wheat / Multigrain Flour", "Sprouted Moong & Black Chickpeas"] },
+        { category: "Vegetables & Fruits", items: ["Fresh Broccoli Florets", "Baby Spinach / Palak", "Cucumbers & Cherry Tomatoes", "Fresh Blueberries & Bananas", "Asparagus Spears"] },
+        { category: "Healthy Fats & Extras", items: ["Raw Almonds & Walnuts", "Black Chia Seeds", "Extra Virgin Olive Oil", "Natural Peanut Butter", "Turmeric & Herbs"] }
+      ];
+    }
+
     return {
       status: "success",
       data: {
-        weekly_schedule: [
-          { day: "Monday", total_calories: 2200, total_protein_g: 142, meals: { breakfast: { title: "Oatmeal with Almonds & Berries", calories: 520, protein_g: 28 }, lunch: { title: "Paneer Tikka with Yellow Dal & Brown Rice", calories: 780, protein_g: 52 }, snack: { title: "Roasted Chana & Green Tea", calories: 280, protein_g: 18 }, dinner: { title: "Grilled Soya Chunks with Stir-Fried Veggies", calories: 620, protein_g: 44 } } },
-          { day: "Tuesday", total_calories: 2180, total_protein_g: 138, meals: { breakfast: { title: "Sprouted Moong Salad with Boiled Eggs", calories: 490, protein_g: 32 }, lunch: { title: "Rajma Masala with Quinoa & Cucumber Raita", calories: 750, protein_g: 48 }, snack: { title: "Greek Yogurt with Chia Seeds", calories: 310, protein_g: 20 }, dinner: { title: "Tofu Palak Gravy with Multigrain Roti", calories: 630, protein_g: 38 } } },
-          { day: "Wednesday", total_calories: 2220, total_protein_g: 145, meals: { breakfast: { title: "Paneer Bhurji with Whole Wheat Toast", calories: 540, protein_g: 34 }, lunch: { title: "Chole Chickpea Curry with Steamed Basmati", calories: 770, protein_g: 46 }, snack: { title: "Mixed Nuts & Pumpkin Seeds", calories: 290, protein_g: 16 }, dinner: { title: "Grilled Fish / Dal Makhani Lite with Salad", calories: 620, protein_g: 49 } } },
-          { day: "Thursday", total_calories: 2190, total_protein_g: 140, meals: { breakfast: { title: "Besan Chilla with Mint Chutney", calories: 480, protein_g: 26 }, lunch: { title: "Chicken Breast / Soya Bowl with Brown Rice", calories: 790, protein_g: 56 }, snack: { title: "Protein Shake with Banana", calories: 300, protein_g: 24 }, dinner: { title: "Lentil Soup with Roasted Paneer Skewers", calories: 620, protein_g: 34 } } },
-          { day: "Friday", total_calories: 2210, total_protein_g: 144, meals: { breakfast: { title: "Chia Seed Pudding with Whey Protein", calories: 510, protein_g: 30 }, lunch: { title: "Salmon Quinoa Bowl with Steamed Greens", calories: 780, protein_g: 52 }, snack: { title: "Makhana Fox Nuts Roasted in Ghee", calories: 270, protein_g: 14 }, dinner: { title: "Palak Paneer with Jowar Bhakri", calories: 650, protein_g: 48 } } },
-          { day: "Saturday", total_calories: 2250, total_protein_g: 140, meals: { breakfast: { title: "Egg White Omelette with Sautéed Spinach", calories: 530, protein_g: 36 }, lunch: { title: "South Indian Sambar, Brown Rice & Sundal", calories: 760, protein_g: 44 }, snack: { title: "Walnuts & Dark Chocolate Square", calories: 310, protein_g: 12 }, dinner: { title: "Stir-Fried Tofu Bell Peppers with Millet Roti", calories: 650, protein_g: 48 } } },
-          { day: "Sunday", total_calories: 2200, total_protein_g: 142, meals: { breakfast: { title: "Protein Pancakes with Honey Drizzle", calories: 540, protein_g: 32 }, lunch: { title: "Traditional Indian Thali (Balanced Macro Version)", calories: 780, protein_g: 50 }, snack: { title: "Cucumber Carrot Sticks with Hummus", calories: 260, protein_g: 16 }, dinner: { title: "Clear Vegetable Lentil Broth with Paneer Salad", calories: 620, protein_g: 44 } } }
-        ],
-        grocery_checklist: [
-          { category: "Proteins & Dairy", items: ["Low-fat Paneer (500g)", "Organic Tofu (400g)", "Greek Yogurt (1kg)", "Farm Eggs (1 dozen)", "Moong Dal (1kg)", "Chickpeas / Chole (500g)"] },
-          { category: "Complex Carbs & Grains", items: ["Rolled Oats (1kg)", "Brown Rice (1kg)", "Tri-Color Quinoa (500g)", "Whole Wheat Atta (2kg)", "Millet / Jowar Flour (1kg)"] },
-          { category: "Fresh Vegetables & Greens", items: ["Baby Spinach / Palak (500g)", "Broccoli Florets (2 heads)", "Cucumbers & Tomatoes (1kg)", "Asparagus (250g)", "Bell Peppers (3 pcs)"] },
-          { category: "Healthy Fats & Nuts", items: ["Hass Avocados (3 pcs)", "Raw Almonds & Walnuts (250g)", "Chia & Flax Seeds (200g)", "Extra Virgin Olive Oil (500ml)", "Roasted Makhana (200g)"] }
-        ]
+        client_target_calories: targetCals,
+        client_target_protein_g: targetP,
+        diet_type: dietType,
+        weekly_schedule: schedule,
+        grocery_checklist: grocery
       }
     };
   }

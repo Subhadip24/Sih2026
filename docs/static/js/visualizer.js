@@ -7,13 +7,13 @@ const VisualizerModule = {
   ctx: null,
   activeHoverItemIndex: -1,
   colorPalette: {
-    protein: { stroke: '#06b6d4', fill: 'rgba(6, 182, 212, 0.18)', text: '#22d3ee', glow: 'rgba(6, 182, 212, 0.4)' },
-    carbs: { stroke: '#f59e0b', fill: 'rgba(245, 158, 11, 0.18)', text: '#fbbf24', glow: 'rgba(245, 158, 11, 0.4)' },
-    vegetables: { stroke: '#10b981', fill: 'rgba(16, 185, 129, 0.18)', text: '#34d399', glow: 'rgba(16, 185, 129, 0.4)' },
-    fats: { stroke: '#f43f5e', fill: 'rgba(244, 63, 94, 0.18)', text: '#fb7185', glow: 'rgba(244, 63, 94, 0.4)' },
-    dairy: { stroke: '#8b5cf6', fill: 'rgba(139, 92, 246, 0.18)', text: '#a78bfa', glow: 'rgba(139, 92, 246, 0.4)' },
-    fruits: { stroke: '#ec4899', fill: 'rgba(236, 72, 153, 0.18)', text: '#f472b6', glow: 'rgba(236, 72, 153, 0.4)' },
-    composite: { stroke: '#10b981', fill: 'rgba(16, 185, 129, 0.18)', text: '#6ee7b7', glow: 'rgba(16, 185, 129, 0.4)' }
+    protein: { stroke: '#00f2fe', fill: 'rgba(0, 242, 254, 0.18)', text: '#70f7ff', glow: 'rgba(0, 242, 254, 0.6)' },
+    carbs: { stroke: '#ffb703', fill: 'rgba(255, 183, 3, 0.18)', text: '#ffd166', glow: 'rgba(255, 183, 3, 0.6)' },
+    vegetables: { stroke: '#00f59b', fill: 'rgba(0, 245, 155, 0.18)', text: '#57ffbe', glow: 'rgba(0, 245, 155, 0.6)' },
+    fats: { stroke: '#ff007f', fill: 'rgba(255, 0, 127, 0.18)', text: '#ff54a4', glow: 'rgba(255, 0, 127, 0.6)' },
+    dairy: { stroke: '#9d4edd', fill: 'rgba(157, 78, 221, 0.18)', text: '#c77dff', glow: 'rgba(157, 78, 221, 0.6)' },
+    fruits: { stroke: '#ff007f', fill: 'rgba(255, 0, 127, 0.18)', text: '#ff54a4', glow: 'rgba(255, 0, 127, 0.6)' },
+    composite: { stroke: '#00f59b', fill: 'rgba(0, 245, 155, 0.18)', text: '#57ffbe', glow: 'rgba(0, 245, 155, 0.6)' }
   },
 
   init() {

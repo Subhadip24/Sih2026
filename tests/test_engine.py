@@ -93,10 +93,37 @@ class TestThaalTatva(unittest.TestCase):
         self.assertGreaterEqual(len(recs), 1)
         self.assertIn("protein_g", recs[0])
 
-        plan = generate_7day_diet_plan({"daily_targets": {"calories_kcal": 2200, "protein_g": 140}})
+        plan = generate_7day_diet_plan({"daily_targets": {"calories_kcal": 2200, "protein_g": 140}}, "balanced")
         self.assertEqual(len(plan["weekly_schedule"]), 7)
         self.assertIn("grocery_checklist", plan)
+
+        # Test Vegetarian Plan (Must NOT contain chicken or fish)
+        veg_plan = generate_7day_diet_plan({"daily_targets": {"calories_kcal": 1900, "protein_g": 120}}, "vegetarian")
+        self.assertEqual(len(veg_plan["weekly_schedule"]), 7)
+        self.assertEqual(veg_plan["client_target_calories"], 1900)
+        self.assertEqual(veg_plan["diet_type"], "vegetarian")
+        mon_meals = veg_plan["weekly_schedule"][0]["meals"]
+        self.assertIn("Paneer", mon_meals["breakfast"]["title"])
+        self.assertIn("Dal", mon_meals["lunch"]["title"])
+
+        # Test Vegan Plan (Must NOT contain dairy or eggs)
+        vegan_plan = generate_7day_diet_plan({"calories_kcal": 1800, "protein_g": 110}, "vegan")
+        self.assertEqual(len(vegan_plan["weekly_schedule"]), 7)
+        self.assertEqual(vegan_plan["client_target_calories"], 1800)
+        self.assertEqual(vegan_plan["diet_type"], "vegan")
+        self.assertIn("Tofu", vegan_plan["weekly_schedule"][0]["meals"]["breakfast"]["title"])
+
+        # Test Keto Plan
+        keto_plan = generate_7day_diet_plan({"calories_kcal": 2100, "protein_g": 140}, "keto")
+        self.assertEqual(len(keto_plan["weekly_schedule"]), 7)
+        self.assertEqual(keto_plan["diet_type"], "keto")
+
+        # Test Diabetic Plan
+        diabetic_plan = generate_7day_diet_plan({"calories_kcal": 1850, "protein_g": 115}, "diabetic")
+        self.assertEqual(len(diabetic_plan["weekly_schedule"]), 7)
+        self.assertEqual(diabetic_plan["diet_type"], "diabetic")
 
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -7,688 +7,1743 @@
   <meta name="description" content="AI-powered computer vision meal plate detection, pre vs post-meal leftover consumption tracking, Pancha-Tatva metabolic target calculation, and adaptive diet planning for SIH 2026." />
   
   <!-- Core Design System CSS -->
-  <link rel="stylesheet" href="./static/css/style.css" />
+  <link rel="stylesheet" href="./css/style.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥗</text></svg>" />
 </head>
 <body>
 
+  <!-- Futuristic Quantum Neural Particle Canvas & Sacred Geometry Watermark -->
+  <canvas id="neuralMatrixCanvas"></canvas>
+  <div class="yantra-watermark"></div>
+
   <!-- Celebration Confetti Canvas -->
   <canvas id="celebrationCanvas"></canvas>
 
-  <!-- ==================== HEADER ==================== -->
-  <header class="app-header">
-    <a href="#" class="logo-wrapper" onclick="switchTab('scanner'); return false;">
-      <div class="logo-icon">🥗</div>
-      <div class="logo-text">
-        <h1>ThaalTatva AI <span class="brand-tag">VISION CV</span></h1>
-        <p>Panch-Tatva Nutrition & Biomarker Intelligence</p>
-      </div>
-    </a>
+  <!-- ==================== COMMAND DECK APP SHELL ==================== -->
+  <div class="app-shell">
 
-    <!-- Live Status Ticker -->
-    <div class="header-status-ticker">
-      <span style="color: var(--tatva-gold);">🔥</span>
-      <span id="headerLiveStatus">Ready • Calibrated for Indian & Global Meal Plates</span>
-    </div>
-
-    <div class="header-actions">
-      <!-- Sound FX Toggle Button -->
-      <button class="sound-toggle-btn" id="soundToggleBtn" onclick="toggleAudioFx()" title="Toggle Synthesized Audio Feedback">
-        <span id="soundToggleIcon">🔊</span>
-        <span id="soundToggleText">Audio FX</span>
-      </button>
-
-      <!-- Client Target Status Badge -->
-      <div class="client-status-badge" id="clientStatusBadge" title="Click to view & edit client targets">
-        <div class="status-dot"></div>
-        <span id="headerClientGoalText">75kg • LEAN HYPERTROPHY (2200 kcal)</span>
-      </div>
-
-      <!-- API Configuration Button -->
-      <button class="api-status-btn" id="openApiKeyBtn" onclick="openApiKeyModal()">
-        <span>⚙️</span>
-        <span id="apiStatusText">Offline AI CV Active</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- ==================== NAVIGATION TABS ==================== -->
-  <nav class="tabs-container">
-    <div class="nav-tabs">
-      <button class="tab-btn active" data-tab="scanner">
-        <span>📸</span> Plate Scanner
-      </button>
-      <button class="tab-btn" data-tab="consumption">
-        <span>⚖️</span> Pre vs Post Leftovers
-      </button>
-      <button class="tab-btn" data-tab="dashboard">
-        <span>📊</span> Panch-Tatva Dashboard
-      </button>
-      <button class="tab-btn" data-tab="diet_planner">
-        <span>🥗</span> AI Diet Planner & 7-Day Matrix
-      </button>
-      <button class="tab-btn" data-tab="client_profile">
-        <span>👤</span> Client Profile & BMR
-      </button>
-      <button class="tab-btn" data-tab="swaps">
-        <span>💡</span> Smart Swaps
-      </button>
-    </div>
-  </nav>
-
-  <!-- ==================== MAIN CONTENT PANES ==================== -->
-  <main class="main-content">
-
-    <!-- ==================== TAB 1: PLATE SCANNER ==================== -->
-    <section class="tab-pane active" id="scannerPane">
-      <div class="grid-2col">
-        <!-- Left: Holographic Camera Viewport & Presets -->
-        <div>
-          <div class="camera-viewport-card">
-            <div class="viewport-toolbar">
-              <span style="font-size: 12px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
-                <span class="status-dot"></span> Holographic AI Plate Viewfinder
-              </span>
-              <div style="display: flex; gap: 8px;">
-                <button class="btn-icon" id="startCameraBtn" title="Toggle Live Webcam Feed">📷</button>
-                <button class="btn-icon" id="switchCameraBtn" title="Switch Camera (Front/Rear)">🔄</button>
-                <button class="btn-icon" id="uploadTriggerBtn" title="Upload Plate Photo">📁</button>
-                <input type="file" id="plateFileInput" accept="image/*" style="display: none;" />
-              </div>
+    <!-- ==================== INTELLIGENCE SIDEBAR ==================== -->
+    <aside class="app-sidebar">
+      <div>
+        <!-- Brand Header -->
+        <div class="sidebar-header">
+          <a href="#" class="brand-badge" onclick="switchTab('scanner'); return false;">
+            <div class="brand-logo-icon">🥗</div>
+            <div class="brand-title">
+              <h2>ThaalTatva <span class="ai-chip">CV 2.0</span></h2>
+              <p>Panch-Tatva Multimodal AI</p>
             </div>
-
-            <div class="canvas-wrapper">
-              <!-- Holographic Corner Reticles -->
-              <div class="hud-corner hud-corner-tl"></div>
-              <div class="hud-corner hud-corner-tr"></div>
-              <div class="hud-corner hud-corner-bl"></div>
-              <div class="hud-corner hud-corner-br"></div>
-
-              <!-- Media Feed -->
-              <video id="cameraVideo" playsinline autoplay muted></video>
-              <img id="plateImageDisplay" src="./static/images/presets/indian_thali_pre.jpg" alt="Active Food Plate" />
-              <canvas id="detectionCanvas"></canvas>
-              <div class="scan-beam" id="scanBeam"></div>
-            </div>
-
-            <!-- Real-time Live CV Telemetry Feed -->
-            <div class="telemetry-ticker">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="color: var(--tatva-emerald);">● [AI_TELEMETRY]:</span>
-                <span class="telemetry-text" id="telemetryFeedText">Visual segmentation engine online • 0-1000 coordinate space active</span>
-              </div>
-              <span id="fpsCounter" style="color: var(--text-muted); font-size: 10px;">60 FPS</span>
-            </div>
-
-            <div class="shutter-bar">
-              <button class="shutter-btn" id="shutterBtn" title="Capture / Re-analyze Plate">📸</button>
-            </div>
-          </div>
-
-          <!-- Benchmark Preset Plate Selector -->
-          <div class="preset-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                ⭐ BENCHMARK DEMO PLATES
-              </span>
-              <span style="font-size: 11px; color: var(--tatva-cyan);">Instant Multimodal Analysis</span>
-            </div>
-            <div class="preset-carousel" id="presetCarousel">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
+          </a>
         </div>
 
-        <!-- Right: Real-Time Nutrition Breakdown -->
-        <div>
-          <div class="glass-card highlight">
-            <div class="card-header">
-              <div>
-                <h2 class="card-title" id="detectedMealTitle">Traditional Indian Thali</h2>
-                <p id="detectedMealDesc" style="font-size: 11.5px; color: var(--text-secondary); margin-top: 3px;">
-                  Vegetarian • Balanced Diet — Wholesome Indian platter.
-                </p>
+        <!-- Navigation Hub -->
+        <nav class="sidebar-nav">
+          <div class="nav-section-title">COMMAND MODULES</div>
+          <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="scanner">
+              <div class="tab-btn-content">
+                <span>📸</span>
+                <span>Plate Scanner</span>
               </div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="card-badge" id="detectedGlycemicLoad">Glycemic Load: 24 (Moderate)</span>
-                <span class="nutri-score-badge A" id="detectedNutriScore" title="Nutri-Score">A</span>
+              <span class="tab-tag">Vision</span>
+            </button>
+            <button class="tab-btn" data-tab="consumption">
+              <div class="tab-btn-content">
+                <span>⚖️</span>
+                <span>Leftover Delta</span>
+              </div>
+              <span class="tab-tag">Delta</span>
+            </button>
+            <button class="tab-btn" data-tab="dashboard">
+              <div class="tab-btn-content">
+                <span>📊</span>
+                <span>Tatva Dashboard</span>
+              </div>
+              <span class="tab-tag">Live</span>
+            </button>
+            <button class="tab-btn" data-tab="diet_planner">
+              <div class="tab-btn-content">
+                <span>🥗</span>
+                <span>AI Diet Planner</span>
+              </div>
+              <span class="tab-tag">7-Day</span>
+            </button>
+            <button class="tab-btn" data-tab="fitness">
+              <div class="tab-btn-content">
+                <span>🏋️</span>
+                <span>Fitness & Shred Hub</span>
+              </div>
+              <span class="tab-tag">Science</span>
+            </button>
+            <button class="tab-btn" data-tab="gyms">
+              <div class="tab-btn-content">
+                <span>📍</span>
+                <span>Gym Radar</span>
+              </div>
+              <span class="tab-tag">Near Me</span>
+            </button>
+            <button class="tab-btn" data-tab="client_profile">
+              <div class="tab-btn-content">
+                <span>👤</span>
+                <span>Client Profile</span>
+              </div>
+              <span class="tab-tag">BMR</span>
+            </button>
+            <button class="tab-btn" data-tab="swaps">
+              <div class="tab-btn-content">
+                <span>💡</span>
+                <span>Smart Swaps</span>
+              </div>
+              <span class="tab-tag">Library</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Sidebar Footer Widgets -->
+      <div class="sidebar-footer">
+        <!-- Client Target Status Badge -->
+        <div class="client-status-badge" id="clientStatusBadge" title="Click to view & edit client targets">
+          <div class="client-badge-header">
+            <div class="status-dot"></div>
+            <span class="client-badge-label">Active Target Goal</span>
+          </div>
+          <div class="client-badge-value" id="headerClientGoalText">75kg • LEAN HYPERTROPHY (2200 kcal)</div>
+        </div>
+
+        <!-- Audio & API Controls -->
+        <div class="sidebar-controls-row">
+          <button class="sound-toggle-btn" id="soundToggleBtn" onclick="toggleAudioFx()" title="Toggle Synthesized Audio Feedback">
+            <span id="soundToggleIcon">🔊</span>
+            <span id="soundToggleText">Audio FX</span>
+          </button>
+
+          <button class="api-status-btn" id="openApiKeyBtn" onclick="openApiKeyModal()">
+            <span>⚙️</span>
+            <span id="apiStatusText">Offline AI</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN COMMAND WORKSPACE ==================== -->
+    <div class="app-main-deck">
+
+      <!-- Top Floating Telemetry Bar -->
+      <header class="top-telemetry-bar">
+        <div class="header-status-ticker">
+          <span style="color: var(--tatva-gold);">🔥</span>
+          <span id="headerLiveStatus">Ready • Calibrated for Indian & Global Meal Plates</span>
+        </div>
+
+        <div class="top-telemetry-right">
+          <!-- 3D Avatar Transformation Button -->
+          <button class="avatar-launcher-btn open-avatar-modal-btn" title="Open 3D Avatar Recomposition Portal">
+            <span>🧬</span>
+            <span>3D Body Recomp Avatar</span>
+          </button>
+
+          <!-- Avatar Snapshot Pill -->
+          <div class="header-avatar-pill open-avatar-modal-btn" title="Click to view or sculpt your avatar">
+            <div class="header-avatar-icon">👤</div>
+            <div class="header-avatar-meta">
+              <span class="header-avatar-name" id="headerAvatarName">Athlete</span>
+              <span class="header-avatar-stats" id="headerAvatarStats">75kg ➔ 70kg (♂)</span>
+            </div>
+          </div>
+
+          <div class="quick-action-pill">
+            <span>⚡ Pancha-Tatva Active</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main View Content Area -->
+      <main class="main-content">
+
+        <!-- ==================== TAB 1: PLATE SCANNER ==================== -->
+        <section class="tab-pane active" id="scannerPane">
+          <div class="grid-2col">
+            <!-- Left: Holographic Camera Viewport & Presets -->
+            <div>
+              <div class="camera-viewport-card">
+                <div class="viewport-toolbar">
+                  <span style="font-size: 12.5px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                    <span class="status-dot"></span> Holographic AI Plate Viewfinder
+                  </span>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="btn btn-primary-volt" id="livePhotoCaptureBtn" style="padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 6px;" title="Take Realtime Photo with Camera">
+                      <span>📸</span> Realtime Photo
+                    </button>
+                    <button class="btn-icon" id="startCameraBtn" title="Toggle Live Webcam Feed">📷</button>
+                    <button class="btn-icon" id="switchCameraBtn" title="Switch Camera (Front/Rear)">🔄</button>
+                    <button class="btn-icon" id="uploadTriggerBtn" title="Upload Plate Photo">📁</button>
+                    <input type="file" id="plateFileInput" accept="image/*" capture="environment" style="display: none;" />
+                  </div>
+                </div>
+
+                <div class="canvas-wrapper">
+                  <!-- Holographic Corner Reticles -->
+                  <div class="hud-corner hud-corner-tl"></div>
+                  <div class="hud-corner hud-corner-tr"></div>
+                  <div class="hud-corner hud-corner-bl"></div>
+                  <div class="hud-corner hud-corner-br"></div>
+
+                  <!-- Media Feed -->
+                  <video id="cameraVideo" playsinline autoplay muted></video>
+                  <img id="plateImageDisplay" src="./images/presets/indian_thali_pre.jpg" alt="Active Food Plate" />
+                  <canvas id="detectionCanvas"></canvas>
+                  <div class="scan-beam" id="scanBeam"></div>
+                </div>
+
+                <!-- Real-time Live CV Telemetry Feed -->
+                <div class="telemetry-ticker">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="color: var(--tatva-emerald);">● [AI_TELEMETRY]:</span>
+                    <span class="telemetry-text" id="telemetryFeedText">Visual segmentation engine online • 0-1000 coordinate space active</span>
+                  </div>
+                  <span id="fpsCounter" style="color: var(--text-muted); font-size: 10px;">60 FPS</span>
+                </div>
+
+                <div class="shutter-bar">
+                  <button class="btn btn-secondary" id="toggleLiveCamBtn" style="font-size: 12px; padding: 10px 16px; border-radius: 20px; display: flex; align-items: center; gap: 6px;">
+                    <span>📷</span> Start Live Camera
+                  </button>
+                  <button class="shutter-btn" id="shutterBtn" title="Capture / Snap Realtime Photo">📸</button>
+                  <button class="btn btn-secondary" id="mobileSnapBtn" style="font-size: 12px; padding: 10px 16px; border-radius: 20px; display: flex; align-items: center; gap: 6px;" title="Open Device Camera">
+                    <span>📱</span> Snap Device
+                  </button>
+                </div>
+              </div>
+
+              <!-- Benchmark Preset Plate Selector -->
+              <div class="preset-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+                    ⭐ BENCHMARK DEMO PLATES
+                  </span>
+                  <span style="font-size: 11px; color: var(--tatva-cyan); font-weight: 600;">Instant Multimodal Analysis</span>
+                </div>
+                <div class="preset-carousel" id="presetCarousel">
+                  <!-- Dynamically populated -->
+                </div>
               </div>
             </div>
 
-            <!-- Macro Pills -->
-            <div class="macro-pill-row">
-              <div class="macro-pill cals">
-                <div class="macro-label">⚡ ऊर्जा • Ūrjā (Energy)</div>
-                <div class="macro-value" id="plateTotalCals">680</div>
-                <div class="macro-unit">kcal</div>
+            <!-- Right: Real-Time Nutrition Breakdown -->
+            <div>
+              <div class="glass-card highlight">
+                <div class="card-header">
+                  <div>
+                    <h2 class="card-title" id="detectedMealTitle">Traditional Indian Thali</h2>
+                    <p id="detectedMealDesc" style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                      Vegetarian • Balanced Diet — Wholesome Indian platter.
+                    </p>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="card-badge" id="detectedGlycemicLoad">Glycemic Load: 24 (Moderate)</span>
+                    <span class="nutri-score-badge A" id="detectedNutriScore" title="Nutri-Score">A</span>
+                  </div>
+                </div>
+
+                <!-- Macro Pills -->
+                <div class="macro-pill-row">
+                  <div class="macro-pill cals">
+                    <div class="macro-label">⚡ ऊर्जा • Ūrjā (Energy)</div>
+                    <div class="macro-value" id="plateTotalCals">680</div>
+                    <div class="macro-unit">kcal</div>
+                  </div>
+                  <div class="macro-pill protein">
+                    <div class="macro-label">🥩 प्रथिन • Prathina (Protein)</div>
+                    <div class="macro-value" id="plateTotalProtein">29.4g</div>
+                    <div class="macro-unit">31% goal</div>
+                  </div>
+                  <div class="macro-pill carbs">
+                    <div class="macro-label">🌾 कार्बोज • Kārboja (Carbs)</div>
+                    <div class="macro-value" id="plateTotalCarbs">84.2g</div>
+                    <div class="macro-unit">net carbs</div>
+                  </div>
+                  <div class="macro-pill fat">
+                    <div class="macro-label">🥑 स्नेह • Sneha (Fats)</div>
+                    <div class="macro-value" id="plateTotalFat">24.5g</div>
+                    <div class="macro-unit">healthy lipids</div>
+                  </div>
+                </div>
+
+                <!-- Itemized Food Detection List with Sliders -->
+                <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 12px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Detected Food Clusters & Gram Slider
+                  </span>
+                  <span style="font-size: 11px; color: var(--tatva-cyan); font-weight: 600;">Drag sliders for real-time recalculation</span>
+                </div>
+
+                <div class="food-items-list" id="plateFoodItemsList">
+                  <!-- Dynamically rendered -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="margin-top: 22px; display: flex; gap: 10px;">
+                  <button class="btn" style="flex: 1;" onclick="switchTab('consumption')">
+                    <span>⚖️</span> Compare Pre vs Post Leftovers
+                  </button>
+                </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 2: LEFTOVER CONSUMPTION TRACKER ==================== -->
+        <section class="tab-pane" id="consumptionPane">
+          <div class="glass-card gold-highlight" style="margin-bottom: 20px;">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">
+                  <span>⚖️</span> Pre vs Post Leftover Consumption Delta Engine
+                </h2>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                  Quantify <strong>exact net nutrients consumed</strong> by analyzing plate leftover volume and density differentials.
+                </p>
+              </div>
+              <span class="card-badge" style="background: rgba(245,158,11,0.15); color: #fbbf24; border-color: var(--tatva-gold);">
+                Biomarker Intake Calculator
+              </span>
+            </div>
+
+            <!-- Mode Selectors: Interactive Split Lens vs Dual Split -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <label class="form-label" style="margin: 0;">Pre-Meal Plate:</label>
+                <select class="form-control" id="preMealPresetSelect" style="width: auto; padding: 6px 12px; font-size: 12px;">
+                  <option value="./images/presets/indian_thali_pre.jpg">Indian Thali (Pre-Meal)</option>
+                  <option value="./images/presets/chicken_rice_pre.jpg">Chicken & Rice (Pre-Meal)</option>
+                  <option value="./images/presets/salmon_bowl_pre.jpg">Salmon Quinoa Bowl</option>
+                  <option value="./images/presets/mediterranean_salad.jpg">Mediterranean Salad</option>
+                  <option value="./images/presets/fitness_oatmeal.jpg">Fitness Oatmeal Bowl</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <label class="form-label" style="margin: 0;">Post-Meal Plate (Leftovers):</label>
+                <select class="form-control" id="postMealPresetSelect" style="width: auto; padding: 6px 12px; font-size: 12px;">
+                  <option value="./images/presets/indian_thali_post.jpg">Indian Thali (Post Leftovers)</option>
+                  <option value="./images/presets/chicken_rice_post.jpg">Chicken & Rice (Post Leftovers)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Interactive Draggable Split-Lens Viewer -->
+            <div class="split-lens-container" id="splitLensContainer">
+              <!-- Pre Layer (Underneath) -->
+              <div class="split-lens-pre-layer">
+                <span class="split-lens-badge left">Served Plate (Pre 100%)</span>
+                <img id="splitLensPreImg" src="./images/presets/indian_thali_pre.jpg" alt="Served Plate Pre" />
+              </div>
+
+              <!-- Post Layer (Overlaid with variable width) -->
+              <div class="split-lens-post-layer" id="splitLensPostLayer">
+                <span class="split-lens-badge right">Leftover Plate (Post)</span>
+                <img id="splitLensPostImg" src="./images/presets/indian_thali_post.jpg" alt="Leftover Plate Post" />
+              </div>
+
+              <!-- Draggable Divider Handle -->
+              <div class="split-lens-handle" id="splitLensHandle">
+                <div class="split-lens-handle-btn">◀ ▶</div>
+              </div>
+            </div>
+            <p style="text-align: center; font-size: 11.5px; color: var(--tatva-cyan); margin-bottom: 18px; font-weight: 600;">
+              👆 Drag the slider left & right to interactively inspect pre vs post leftover delta
+            </p>
+
+            <div style="display: flex; justify-content: center; margin-bottom: 22px;">
+              <button class="btn btn-gold" id="runComparisonBtn" style="padding: 12px 30px; font-size: 14px;">
+                <span>⚡</span> Compute Exact Consumed Nutrients
+              </button>
+            </div>
+
+            <!-- Consumed Overview Banner -->
+            <div class="consumption-meter-card">
+              <div class="meter-title">
+                <h3>Net Intake Summary</h3>
+                <p id="consumedAdherenceDesc" style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">Client consumed all protein & dal; left 50% rice unconsumed.</p>
+                <div style="display: flex; gap: 16px; margin-top: 10px; font-size: 12.5px; flex-wrap: wrap;">
+                  <span style="color: #67e8f9;">Initial Served: <strong id="initialCalsStat">680 kcal</strong></span>
+                  <span style="color: #f59e0b;">Leftover Unconsumed: <strong id="leftoverPctStat">17.1%</strong> (<span id="savedCalsStat">116 kcal</span> not ingested)</span>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div class="meter-stat-big" id="consumedPctStat">82.9%</div>
+                <div style="font-size: 12px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; margin-top: 4px;">
+                  Plate Consumed (<span id="consumedCalsStat">564 kcal</span>)
+                </div>
+              </div>
+            </div>
+
+            <!-- Consumed Macros Row -->
+            <div class="macro-pill-row">
               <div class="macro-pill protein">
                 <div class="macro-label">🥩 प्रथिन • Prathina (Protein)</div>
-                <div class="macro-value" id="plateTotalProtein">29.4g</div>
-                <div class="macro-unit">31% goal</div>
+                <div class="macro-value" id="consumedProteinStat">28.1g</div>
               </div>
               <div class="macro-pill carbs">
                 <div class="macro-label">🌾 कार्बोज • Kārboja (Carbs)</div>
-                <div class="macro-value" id="plateTotalCarbs">84.2g</div>
-                <div class="macro-unit">net carbs</div>
+                <div class="macro-value" id="consumedCarbsStat">61.5g</div>
               </div>
               <div class="macro-pill fat">
                 <div class="macro-label">🥑 स्नेह • Sneha (Fats)</div>
-                <div class="macro-value" id="plateTotalFat">24.5g</div>
-                <div class="macro-unit">healthy lipids</div>
+                <div class="macro-value" id="consumedFatStat">22.8g</div>
+              </div>
+              <div class="macro-pill cals">
+                <div class="macro-label">🌿 रुक्षांश • Rūkṣāṃśa (Fiber)</div>
+                <div class="macro-value" id="consumedFiberStat">5.9g</div>
               </div>
             </div>
 
-            <!-- Itemized Food Detection List with Sliders -->
-            <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 12px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">
-                Detected Food Clusters & Gram Slider
-              </span>
-              <span style="font-size: 11px; color: var(--tatva-cyan);">Drag sliders for real-time recalculation</span>
+            <!-- Delta Table -->
+            <div style="overflow-x: auto; margin-top: 18px;">
+              <table class="delta-table">
+                <thead>
+                  <tr>
+                    <th>Food Item</th>
+                    <th>Served (Pre)</th>
+                    <th>Leftover (Post)</th>
+                    <th>Exact Consumed</th>
+                    <th>Net Calories</th>
+                    <th>Macros (P • C • F)</th>
+                  </tr>
+                </thead>
+                <tbody id="consumedDeltaTableBody">
+                  <!-- Dynamically rendered -->
+                </tbody>
+              </table>
             </div>
 
-            <div class="food-items-list" id="plateFoodItemsList">
-              <!-- Dynamically rendered -->
-            </div>
-
-            <!-- Action Buttons -->
-            <div style="margin-top: 20px; display: flex; gap: 10px;">
-              <button class="btn" style="flex: 1;" onclick="switchTab('consumption')">
-                <span>⚖️</span> Compare Pre vs Post Leftovers
+            <!-- Log to Diary Action -->
+            <div style="margin-top: 24px; padding: 18px; background: rgba(255,255,255,0.035); border-radius: 14px; border: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 13px; font-weight: 700; color: #fff;">Record to Daily Timeline:</span>
+                <select class="form-control" id="logMealTypeSelect" style="width: auto; padding: 7px 14px;">
+                  <option value="Lunch" selected>Lunch</option>
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Dinner">Dinner</option>
+                  <option value="Snacks">Snacks</option>
+                </select>
+              </div>
+              <button class="btn" id="logConsumedMealBtn">
+                <span>📝</span> Log Net Consumed Intake to Today's Diary
               </button>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <!-- ==================== TAB 2: LEFTOVER CONSUMPTION TRACKER ==================== -->
-    <section class="tab-pane" id="consumptionPane">
-      <div class="glass-card gold-highlight" style="margin-bottom: 20px;">
-        <div class="card-header">
-          <div>
-            <h2 class="card-title">
-              <span>⚖️</span> Pre vs Post Leftover Consumption Delta Engine
-            </h2>
-            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">
-              Quantify <strong>exact net nutrients consumed</strong> by analyzing plate leftover volume and density differentials.
-            </p>
-          </div>
-          <span class="card-badge" style="background: rgba(245,158,11,0.15); color: #fbbf24; border-color: var(--tatva-gold);">
-            Biomarker Intake Calculator
-          </span>
-        </div>
+        <!-- ==================== TAB 3: PANCH-TATVA DASHBOARD & TODAY'S INTAKE ==================== -->
+        <section class="tab-pane" id="dashboardPane">
 
-        <!-- Mode Selectors: Interactive Split Lens vs Dual Split -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
-          <div style="display: flex; gap: 12px; align-items: center;">
-            <label class="form-label" style="margin: 0;">Pre-Meal Plate:</label>
-            <select class="form-control" id="preMealPresetSelect" style="width: auto; padding: 5px 10px; font-size: 12px;">
-              <option value="./static/images/presets/indian_thali_pre.jpg">Indian Thali (Pre-Meal)</option>
-              <option value="./static/images/presets/chicken_rice_pre.jpg">Chicken & Rice (Pre-Meal)</option>
-              <option value="./static/images/presets/salmon_bowl_pre.jpg">Salmon Quinoa Bowl</option>
-              <option value="./static/images/presets/mediterranean_salad.jpg">Mediterranean Salad</option>
-              <option value="./static/images/presets/fitness_oatmeal.jpg">Fitness Oatmeal Bowl</option>
-            </select>
-          </div>
-          <div style="display: flex; gap: 12px; align-items: center;">
-            <label class="form-label" style="margin: 0;">Post-Meal Plate (Leftovers):</label>
-            <select class="form-control" id="postMealPresetSelect" style="width: auto; padding: 5px 10px; font-size: 12px;">
-              <option value="./static/images/presets/indian_thali_post.jpg">Indian Thali (Post Leftovers)</option>
-              <option value="./static/images/presets/chicken_rice_post.jpg">Chicken & Rice (Post Leftovers)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Interactive Draggable Split-Lens Viewer -->
-        <div class="split-lens-container" id="splitLensContainer">
-          <!-- Pre Layer (Underneath) -->
-          <div class="split-lens-pre-layer">
-            <span class="split-lens-badge left">Served Plate (Pre 100%)</span>
-            <img id="splitLensPreImg" src="./static/images/presets/indian_thali_pre.jpg" alt="Served Plate Pre" />
-          </div>
-
-          <!-- Post Layer (Overlaid with variable width) -->
-          <div class="split-lens-post-layer" id="splitLensPostLayer">
-            <span class="split-lens-badge right">Leftover Plate (Post)</span>
-            <img id="splitLensPostImg" src="./static/images/presets/indian_thali_post.jpg" alt="Leftover Plate Post" />
-          </div>
-
-          <!-- Draggable Divider Handle -->
-          <div class="split-lens-handle" id="splitLensHandle">
-            <div class="split-lens-handle-btn">◀ ▶</div>
-          </div>
-        </div>
-        <p style="text-align: center; font-size: 11px; color: var(--tatva-cyan); margin-bottom: 16px;">
-          👆 Drag the slider left & right to interactively inspect pre vs post leftover delta
-        </p>
-
-        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-          <button class="btn btn-gold" id="runComparisonBtn" style="padding: 12px 28px; font-size: 14px;">
-            <span>⚡</span> Compute Exact Consumed Nutrients
-          </button>
-        </div>
-
-        <!-- Consumed Overview Banner -->
-        <div class="consumption-meter-card">
-          <div class="meter-title">
-            <h3>Net Intake Summary</h3>
-            <p id="consumedAdherenceDesc">Client consumed all protein & dal; left 50% rice unconsumed.</p>
-            <div style="display: flex; gap: 14px; margin-top: 10px; font-size: 12px;">
-              <span style="color: #67e8f9;">Initial Served: <strong id="initialCalsStat">680 kcal</strong></span>
-              <span style="color: #f59e0b;">Leftover Unconsumed: <strong id="leftoverPctStat">17.1%</strong> (<span id="savedCalsStat">116 kcal</span> not ingested)</span>
-            </div>
-          </div>
-          <div style="text-align: right;">
-            <div class="meter-stat-big" id="consumedPctStat">82.9%</div>
-            <div style="font-size: 12px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase;">
-              Plate Consumed (<span id="consumedCalsStat">564 kcal</span>)
-            </div>
-          </div>
-        </div>
-
-        <!-- Consumed Macros Row -->
-        <div class="macro-pill-row">
-          <div class="macro-pill protein">
-            <div class="macro-label">🥩 प्रथिन • Prathina (Protein)</div>
-            <div class="macro-value" id="consumedProteinStat">28.1g</div>
-          </div>
-          <div class="macro-pill carbs">
-            <div class="macro-label">🌾 कार्बोज • Kārboja (Carbs)</div>
-            <div class="macro-value" id="consumedCarbsStat">61.5g</div>
-          </div>
-          <div class="macro-pill fat">
-            <div class="macro-label">🥑 स्नेह • Sneha (Fats)</div>
-            <div class="macro-value" id="consumedFatStat">22.8g</div>
-          </div>
-          <div class="macro-pill cals">
-            <div class="macro-label">🌿 रुक्षांश • Rūkṣāṃśa (Fiber)</div>
-            <div class="macro-value" id="consumedFiberStat">5.9g</div>
-          </div>
-        </div>
-
-        <!-- Delta Table -->
-        <div style="overflow-x: auto; margin-top: 16px;">
-          <table class="delta-table">
-            <thead>
-              <tr>
-                <th>Food Item</th>
-                <th>Served (Pre)</th>
-                <th>Leftover (Post)</th>
-                <th>Exact Consumed</th>
-                <th>Net Calories</th>
-                <th>Macros (P • C • F)</th>
-              </tr>
-            </thead>
-            <tbody id="consumedDeltaTableBody">
-              <!-- Dynamically rendered -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Log to Diary Action -->
-        <div style="margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 12.5px; font-weight: 700; color: #fff;">Record to Daily Timeline:</span>
-            <select class="form-control" id="logMealTypeSelect" style="width: auto; padding: 6px 12px;">
-              <option value="Lunch" selected>Lunch</option>
-              <option value="Breakfast">Breakfast</option>
-              <option value="Dinner">Dinner</option>
-              <option value="Snacks">Snacks</option>
-            </select>
-          </div>
-          <button class="btn" id="logConsumedMealBtn">
-            <span>📝</span> Log Net Consumed Intake to Today's Diary
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== TAB 3: PANCH-TATVA DASHBOARD ==================== -->
-    <section class="tab-pane" id="dashboardPane">
-      <!-- Radial Progress Grid (5 Tatvas + Water) -->
-      <div class="budget-radial-grid">
-        <!-- Calories (Urja) -->
-        <div class="radial-gauge-card">
-          <div class="gauge-title"><span>⚡</span> ऊर्जा • Ūrjā (Energy)</div>
-          <div class="gauge-svg-wrap">
-            <svg class="gauge-svg" viewBox="0 0 100 100">
-              <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
-              <circle class="gauge-circle-progress cals" id="calRing" cx="50" cy="50" r="38"></circle>
-            </svg>
-            <div class="gauge-center-text" id="dashCalVal">0</div>
-          </div>
-          <div class="gauge-sub" id="dashCalSub">of 2200 kcal</div>
-        </div>
-
-        <!-- Protein (Prathina) -->
-        <div class="radial-gauge-card">
-          <div class="gauge-title"><span>🥩</span> प्रथिन • Prathina (Protein)</div>
-          <div class="gauge-svg-wrap">
-            <svg class="gauge-svg" viewBox="0 0 100 100">
-              <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
-              <circle class="gauge-circle-progress protein" id="proteinRing" cx="50" cy="50" r="38"></circle>
-            </svg>
-            <div class="gauge-center-text" id="dashProteinVal">0g</div>
-          </div>
-          <div class="gauge-sub" id="dashProteinSub">of 140g</div>
-        </div>
-
-        <!-- Carbs (Karboja) -->
-        <div class="radial-gauge-card">
-          <div class="gauge-title"><span>🌾</span> कार्बोज • Kārboja (Carbs)</div>
-          <div class="gauge-svg-wrap">
-            <svg class="gauge-svg" viewBox="0 0 100 100">
-              <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
-              <circle class="gauge-circle-progress carbs" id="carbsRing" cx="50" cy="50" r="38"></circle>
-            </svg>
-            <div class="gauge-center-text" id="dashCarbsVal">0g</div>
-          </div>
-          <div class="gauge-sub" id="dashCarbsSub">of 240g</div>
-        </div>
-
-        <!-- Fat (Sneha) -->
-        <div class="radial-gauge-card">
-          <div class="gauge-title"><span>🥑</span> स्नेह • Sneha (Fats)</div>
-          <div class="gauge-svg-wrap">
-            <svg class="gauge-svg" viewBox="0 0 100 100">
-              <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
-              <circle class="gauge-circle-progress fat" id="fatRing" cx="50" cy="50" r="38"></circle>
-            </svg>
-            <div class="gauge-center-text" id="dashFatVal">0g</div>
-          </div>
-          <div class="gauge-sub" id="dashFatSub">of 65g</div>
-        </div>
-
-        <!-- Fiber (Rukshamsha) -->
-        <div class="radial-gauge-card">
-          <div class="gauge-title"><span>🌿</span> रुक्षांश • Rūkṣāṃśa (Fiber)</div>
-          <div class="gauge-svg-wrap">
-            <svg class="gauge-svg" viewBox="0 0 100 100">
-              <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
-              <circle class="gauge-circle-progress fiber" id="fiberRing" cx="50" cy="50" r="38"></circle>
-            </svg>
-            <div class="gauge-center-text" id="dashFiberVal">0g</div>
-          </div>
-          <div class="gauge-sub" id="dashFiberSub">of 30g</div>
-        </div>
-
-        <!-- Water (Jala) -->
-        <div class="radial-gauge-card">
-          <div class="gauge-title"><span>💧</span> जल • Jala (Hydration)</div>
-          <div style="font-family: var(--font-heading); font-size: 26px; font-weight: 800; color: #38bdf8; margin: 16px 0 6px;" id="dashWaterVal">
-            1.5L
-          </div>
-          <div class="gauge-sub" id="dashWaterSub">Target: 3.0L</div>
-          <button class="btn btn-secondary" id="addWaterBtn" style="padding: 5px 12px; font-size: 11px; margin-top: 8px;">+250ml Water</button>
-        </div>
-      </div>
-
-      <!-- Meal Diary Timeline -->
-      <div class="glass-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <span>📅</span> Today's Intake Timeline
-          </h3>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary" id="resetDiaryBtn" style="padding: 6px 12px; font-size: 11px;">Reset Day</button>
-            <button class="btn" onclick="switchTab('diet_planner')" style="padding: 6px 12px; font-size: 11px;">Get AI Next Meal</button>
-          </div>
-        </div>
-
-        <div class="timeline-list" id="dailyMealTimeline">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== TAB 4: AI DIET PLANNER & 7-DAY MATRIX ==================== -->
-    <section class="tab-pane" id="diet_plannerPane">
-      <!-- Real-Time Next Meal Recommender -->
-      <div class="glass-card highlight" style="margin-bottom: 24px;">
-        <div class="card-header">
-          <div>
-            <h3 class="card-title">
-              <span>🤖</span> Adaptive AI Next-Meal Recommender
-            </h3>
-            <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 2px;">
-              Formulated to close your remaining calorie & protein deficit today.
-            </p>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="card-badge" id="remainingDeficitBadge">Remaining Window: 1400 kcal • 80g Protein</span>
-            <button class="btn btn-secondary" id="refreshNextMealBtn" style="padding: 6px 12px; font-size: 11px;">🔄 Refresh AI</button>
-          </div>
-        </div>
-
-        <div class="recommendation-card-list" id="nextMealRecsList">
-          <!-- Dynamically generated -->
-        </div>
-      </div>
-
-      <!-- 7-Day Personalized Diet Plan -->
-      <div class="glass-card">
-        <div class="card-header">
-          <div>
-            <h3 class="card-title">
-              <span>📋</span> 7-Day Structured Meal Schedule
-            </h3>
-            <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 2px;">
-              Personalized macro-balanced weekly roadmap tailored to client targets.
-            </p>
-          </div>
-          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <select class="form-control" id="plannerDietTypeSelect" style="width: auto; padding: 6px 12px;">
-              <option value="balanced" selected>Balanced High-Protein</option>
-              <option value="vegetarian">Indian Vegetarian</option>
-              <option value="vegan">100% Plant-Based Vegan</option>
-              <option value="keto">Ketogenic (Low Carb)</option>
-              <option value="diabetic">Diabetic Glycemic Control</option>
-            </select>
-            <button class="btn btn-cyan" id="generate7DayPlanBtn" style="padding: 6px 14px; font-size: 11px;">Generate Plan</button>
-            <button class="btn btn-secondary" id="printDietitianReportBtn" style="padding: 6px 14px; font-size: 11px;">🖨️ Print Report</button>
-          </div>
-        </div>
-
-        <div class="schedule-table-wrap">
-          <table class="schedule-table">
-            <thead>
-              <tr>
-                <th style="width: 12%;">Day / Target</th>
-                <th style="width: 22%;">Breakfast (25%)</th>
-                <th style="width: 26%;">Lunch (35%)</th>
-                <th style="width: 18%;">Evening Snack (15%)</th>
-                <th style="width: 22%;">Dinner (25%)</th>
-              </tr>
-            </thead>
-            <tbody id="dietScheduleTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Smart Grocery Shopping Checklist -->
-        <div style="margin-top: 28px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h4 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
-              <span>🛒</span> Smart Grocery & Pantry Checklist
-            </h4>
-            <span id="groceryProgressBadge" style="font-size: 11px; color: var(--tatva-emerald); font-weight: 600;">0 of 0 Packed</span>
-          </div>
-          <div class="grid-4col" id="groceryChecklistContainer">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== TAB 5: CLIENT PROFILE & BMR ==================== -->
-    <section class="tab-pane" id="client_profilePane">
-      <div class="grid-2col">
-        <!-- Form -->
-        <div class="glass-card">
-          <div class="card-header">
-            <h3 class="card-title"><span>👤</span> Client Fitness & Metabolic Profile</h3>
-            <span class="card-badge">Mifflin-St Jeor Engine</span>
-          </div>
-
-          <form id="clientProfileForm">
-            <div class="grid-2col" style="gap: 12px;">
-              <div class="form-group">
-                <label class="form-label">Age (Years)</label>
-                <input type="number" class="form-control" id="profileAge" value="25" min="12" max="100" />
+          <!-- FitForge-Style Weekly Calendar Day Selector -->
+          <div class="calendar-strip-card">
+            <div class="calendar-strip-header">
+              <div class="calendar-title">
+                <span>🗓️</span> <strong>Daily Intake & Workout Schedule</strong> • <span style="color: var(--tatva-emerald-bright);">September 2026</span>
               </div>
-              <div class="form-group">
-                <label class="form-label">Biological Gender</label>
-                <select class="form-control" id="profileGender">
-                  <option value="male" selected>Male</option>
-                  <option value="female">Female</option>
-                </select>
+              <div style="font-size: 11.5px; font-family: var(--font-mono); color: var(--text-secondary);">
+                Active Streak: <strong style="color: var(--tatva-gold);">🔥 6 Days</strong>
               </div>
             </div>
 
-            <div class="grid-2col" style="gap: 12px;">
-              <div class="form-group">
-                <label class="form-label">Height (cm)</label>
-                <input type="number" class="form-control" id="profileHeight" value="175" min="100" max="240" step="0.5" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Current Weight (kg)</label>
-                <input type="number" class="form-control" id="profileWeight" value="75.0" min="30" max="250" step="0.5" />
+            <div class="calendar-days-row">
+              <button class="calendar-day-pill" data-day="Sun">
+                <span class="day-name">SUN</span>
+                <span class="day-num">30</span>
+              </button>
+              <button class="calendar-day-pill" data-day="Mon">
+                <span class="day-name">MON</span>
+                <span class="day-num">31</span>
+              </button>
+              <button class="calendar-day-pill" data-day="Tue">
+                <span class="day-name">TUE</span>
+                <span class="day-num">01</span>
+              </button>
+              <button class="calendar-day-pill" data-day="Wed">
+                <span class="day-name">WED</span>
+                <span class="day-num">02</span>
+              </button>
+              <button class="calendar-day-pill" data-day="Thu">
+                <span class="day-name">THU</span>
+                <span class="day-num">03</span>
+              </button>
+              <button class="calendar-day-pill active" data-day="Today">
+                <span class="day-name">TODAY</span>
+                <span class="day-num">04</span>
+              </button>
+              <button class="calendar-day-pill" data-day="Sat">
+                <span class="day-name">SAT</span>
+                <span class="day-num">05</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- FitForge Hero: Focus & Activity Overview Banner -->
+          <div class="fitforge-focus-card">
+            <div class="focus-card-left">
+              <div class="focus-chip">⚡ TODAY'S FOCUS</div>
+              <h2 class="focus-title">Upper Body Hypertrophy & Fat Loss</h2>
+              <p class="focus-sub">3 Exercises • 45 min • 380 kcal Target Burn • Incline Treadmill Finish</p>
+              <div class="focus-actions-row">
+                <button class="btn-volt-pill" onclick="switchTab('fitness')">
+                  <span>🏋️</span> View Workout Protocol
+                </button>
+                <button class="btn-ghost-pill open-avatar-modal-btn">
+                  <span>🧬</span> View 3D Avatar
+                </button>
               </div>
             </div>
 
-            <div class="grid-2col" style="gap: 12px;">
-              <div class="form-group">
-                <label class="form-label">Target Weight (kg)</label>
-                <input type="number" class="form-control" id="profileTargetWeight" value="72.0" min="30" max="250" step="0.5" />
+            <div class="focus-card-right">
+              <div class="overview-metric-tile">
+                <span class="metric-label">Consumed Today</span>
+                <div class="metric-val-wrap">
+                  <strong class="metric-val" id="overviewConsumedCals">0</strong>
+                  <span class="metric-target" id="overviewTargetCals">/ 2200 kcal</span>
+                </div>
               </div>
-              <div class="form-group">
-                <label class="form-label">Physical Activity Level</label>
-                <select class="form-control" id="profileActivity">
-                  <option value="sedentary">Sedentary (Desk job, no gym)</option>
-                  <option value="light">Light (1-3 days/week)</option>
-                  <option value="moderate" selected>Moderate (3-5 days/week)</option>
-                  <option value="very_active">Very Active (6-7 days/week)</option>
-                  <option value="athlete">Athlete (Heavy training 2x/day)</option>
-                </select>
+
+              <div class="overview-metric-tile">
+                <span class="metric-label">Net Calorie Deficit</span>
+                <div class="metric-val-wrap">
+                  <strong class="metric-val" id="overviewNetDeficit" style="color: var(--tatva-emerald-bright);">-400 kcal</strong>
+                </div>
+                <span class="metric-status-sub" id="overviewDeficitStatus" style="color: var(--tatva-emerald-bright);">Fat Oxidation Active</span>
+              </div>
+
+              <div class="overview-metric-tile center-tile">
+                <div class="overview-pct-ring">
+                  <span id="overviewDailyPctText">0%</span>
+                </div>
+                <span class="metric-label" style="margin-top: 6px;">Daily Target</span>
               </div>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label class="form-label">Primary Fitness / Health Goal</label>
-              <select class="form-control" id="profileGoal">
-                <option value="lean_hypertrophy" selected>Lean Muscle Hypertrophy (+250 kcal surplus)</option>
-                <option value="moderate_fat_loss">Moderate Fat Loss (-300 kcal deficit)</option>
-                <option value="aggressive_fat_loss">Aggressive Fat Loss (-500 kcal deficit)</option>
-                <option value="maintenance">Weight Maintenance (0 kcal delta)</option>
-                <option value="aggressive_bulk">Clean Bulking (+500 kcal surplus)</option>
-                <option value="diabetic_glycemic_control">Diabetic / Glycemic Control (Low GI, High Fiber)</option>
-                <option value="ketogenic">Ketogenic Diet (High Fat, Low Carb)</option>
-                <option value="dash_hypertension">DASH Diet (Hypertension / Low Sodium)</option>
-                <option value="vegan_muscle">Plant-Powered Vegan Muscle</option>
-              </select>
+          <!-- Quick Action & Manual Intake Launch Bar -->
+          <div class="dashboard-action-bar">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button class="btn-primary-volt open-manual-log-btn">
+                <span>➕</span> Log Manual Food Intake & Macros
+              </button>
+              <button class="btn btn-secondary" id="addWaterBtn" style="padding: 9px 16px; font-size: 12.5px;">
+                <span>💧</span> +250ml Water
+              </button>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Dietary Preference / Restrictions</label>
-              <select class="form-control" id="profileDietPref">
-                <option value="all" selected>All / Non-Vegetarian & Poultry</option>
-                <option value="vegetarian">Indian Vegetarian (Lacto-Veg)</option>
-                <option value="vegan">100% Vegan (Plant-Only)</option>
-                <option value="high_protein">High-Protein Athlete</option>
-                <option value="gluten_free">Gluten-Free</option>
-              </select>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary" id="resetDiaryBtn" style="padding: 8px 14px; font-size: 12px;">Reset Day</button>
+              <button class="btn" onclick="switchTab('diet_planner')" style="padding: 8px 16px; font-size: 12px;">🥗 Get AI Next Meal</button>
+            </div>
+          </div>
+
+          <!-- Radial Progress Grid (5 Tatvas + Water) -->
+          <div class="budget-radial-grid">
+            <!-- Calories (Urja) -->
+            <div class="radial-gauge-card">
+              <div class="gauge-title"><span>⚡</span> ऊर्जा • Ūrjā (Calories)</div>
+              <div class="gauge-svg-wrap">
+                <svg class="gauge-svg" viewBox="0 0 100 100">
+                  <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
+                  <circle class="gauge-circle-progress cals" id="calRing" cx="50" cy="50" r="38"></circle>
+                </svg>
+                <div class="gauge-center-text" id="dashCalVal">0</div>
+              </div>
+              <div class="gauge-sub" id="dashCalSub">of 2200 kcal</div>
             </div>
 
-            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">
-              <span>💾</span> Save Profile & Recalculate Daily Targets
-            </button>
-          </form>
-        </div>
+            <!-- Protein (Prathina) -->
+            <div class="radial-gauge-card">
+              <div class="gauge-title"><span>🥩</span> प्रथिन • Prathina (Protein)</div>
+              <div class="gauge-svg-wrap">
+                <svg class="gauge-svg" viewBox="0 0 100 100">
+                  <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
+                  <circle class="gauge-circle-progress protein" id="proteinRing" cx="50" cy="50" r="38"></circle>
+                </svg>
+                <div class="gauge-center-text" id="dashProteinVal">0g</div>
+              </div>
+              <div class="gauge-sub" id="dashProteinSub">of 140g</div>
+            </div>
 
-        <!-- Calculated Metrics Preview -->
-        <div>
-          <div class="glass-card highlight">
+            <!-- Carbs (Karboja) -->
+            <div class="radial-gauge-card">
+              <div class="gauge-title"><span>🌾</span> कार्बोज • Kārboja (Carbs)</div>
+              <div class="gauge-svg-wrap">
+                <svg class="gauge-svg" viewBox="0 0 100 100">
+                  <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
+                  <circle class="gauge-circle-progress carbs" id="carbsRing" cx="50" cy="50" r="38"></circle>
+                </svg>
+                <div class="gauge-center-text" id="dashCarbsVal">0g</div>
+              </div>
+              <div class="gauge-sub" id="dashCarbsSub">of 240g</div>
+            </div>
+
+            <!-- Fat (Sneha) -->
+            <div class="radial-gauge-card">
+              <div class="gauge-title"><span>🥑</span> स्नेह • Sneha (Fats)</div>
+              <div class="gauge-svg-wrap">
+                <svg class="gauge-svg" viewBox="0 0 100 100">
+                  <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
+                  <circle class="gauge-circle-progress fat" id="fatRing" cx="50" cy="50" r="38"></circle>
+                </svg>
+                <div class="gauge-center-text" id="dashFatVal">0g</div>
+              </div>
+              <div class="gauge-sub" id="dashFatSub">of 65g</div>
+            </div>
+
+            <!-- Fiber (Rukshamsha) -->
+            <div class="radial-gauge-card">
+              <div class="gauge-title"><span>🌿</span> रुक्षांश • Rūkṣāṃśa (Fiber)</div>
+              <div class="gauge-svg-wrap">
+                <svg class="gauge-svg" viewBox="0 0 100 100">
+                  <circle class="gauge-circle-bg" cx="50" cy="50" r="38"></circle>
+                  <circle class="gauge-circle-progress fiber" id="fiberRing" cx="50" cy="50" r="38"></circle>
+                </svg>
+                <div class="gauge-center-text" id="dashFiberVal">0g</div>
+              </div>
+              <div class="gauge-sub" id="dashFiberSub">of 30g</div>
+            </div>
+
+            <!-- Water (Jala) -->
+            <div class="radial-gauge-card">
+              <div class="gauge-title"><span>💧</span> जल • Jala (Hydration)</div>
+              <div style="font-family: var(--font-heading); font-size: 28px; font-weight: 800; color: #38bdf8; margin: 16px 0 6px;" id="dashWaterVal">
+                1.5L
+              </div>
+              <div class="gauge-sub" id="dashWaterSub">Target: 3.0L</div>
+            </div>
+          </div>
+
+          <!-- FitForge Meal Diary Timeline -->
+          <div class="glass-card">
             <div class="card-header">
-              <h3 class="card-title"><span>⚡</span> Metabolic & Target Metrics</h3>
-              <span class="card-badge" id="metricBMICat">Normal Weight</span>
+              <div>
+                <h3 class="card-title">
+                  <span>🍽️</span> Today's Intake & Meal Diary Timeline
+                </h3>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">
+                  All consumed meals with portion weights, macro split ratios, and exact nutrient intake.
+                </p>
+              </div>
+              <button class="btn-primary-volt open-manual-log-btn" style="padding: 7px 16px; font-size: 12px;">
+                <span>+</span> Add Food Item
+              </button>
             </div>
 
-            <div class="grid-2col" style="gap: 12px; margin-bottom: 16px;">
-              <div class="macro-pill">
-                <div class="macro-label">Basal Metabolic Rate (BMR)</div>
-                <div class="macro-value" id="metricBMR">1724 kcal</div>
+            <div class="timeline-list" id="dailyMealTimeline">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 4: AI DIET PLANNER & 7-DAY MATRIX ==================== -->
+        <section class="tab-pane" id="diet_plannerPane">
+
+          <!-- AI Clinical Diet Plan Generator Console -->
+          <div class="diet-generator-console-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 22px;">🧠</span>
+                  <h3 style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #fff; margin: 0;">
+                    AI Diet Plan Generator & Clinical Matrix
+                  </h3>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); margin-top: 5px; max-width: 680px; line-height: 1.5;">
+                  Generates an adaptive, evidence-based 7-day nutritional blueprint calibrated to your metabolic rate, macro targets, and cultural food preferences.
+                </p>
               </div>
-              <div class="macro-pill">
-                <div class="macro-label">Daily Expenditure (TDEE)</div>
-                <div class="macro-value" id="metricTDEE">2672 kcal</div>
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <span class="card-badge" style="background: rgba(204, 255, 0, 0.15); border-color: rgba(204, 255, 0, 0.4); color: #ccff00;">⚡ AI Active</span>
+                <span class="card-badge" id="plannerCalorieSyncBadge">Target: 2100 kcal</span>
               </div>
             </div>
 
-            <div class="macro-pill" style="margin-bottom: 16px; background: rgba(16, 185, 129, 0.1); border-color: var(--tatva-emerald);">
-              <div class="macro-label" style="color: var(--tatva-emerald);">Recommended Daily Calorie Target</div>
-              <div class="macro-value" id="metricTargetCals" style="font-size: 24px; color: #fff;">2200 kcal / day</div>
+            <!-- Generator Controls Form Grid -->
+            <div class="generator-grid-controls">
+              <div class="generator-field">
+                <label for="plannerDietTypeSelect"><span>🥗</span> Dietary Style & Culture</label>
+                <select class="form-control" id="plannerDietTypeSelect">
+                  <option value="balanced" selected>Balanced High-Protein (Poultry/Eggs/Fish)</option>
+                  <option value="vegetarian">Indian High-Protein Vegetarian (Paneer/Dal/Dahi)</option>
+                  <option value="vegan">100% Plant-Based Vegan (Tofu/Legumes/Quinoa)</option>
+                  <option value="keto">Ketogenic Low-Carb / High Healthy Fats</option>
+                  <option value="diabetic">Diabetic & Glycemic Control (High Fiber/Millets)</option>
+                  <option value="athlete_bulk">Athletic Surplus Lean Mass Bulk</option>
+                </select>
+              </div>
+
+              <div class="generator-field">
+                <label for="plannerTargetCalsInput"><span>⚡</span> Daily Target Energy</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <input type="number" class="form-control" id="plannerTargetCalsInput" value="2100" min="1200" max="4500" step="50" style="font-family: var(--font-mono); font-weight: 700;" />
+                  <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);">kcal</span>
+                </div>
+              </div>
+
+              <div class="generator-field">
+                <label for="plannerTargetProteinInput"><span>🥩</span> Target Protein Intake</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <input type="number" class="form-control" id="plannerTargetProteinInput" value="135" min="40" max="300" step="5" style="font-family: var(--font-mono); font-weight: 700;" />
+                  <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);">g/day</span>
+                </div>
+              </div>
+
+              <div class="generator-field">
+                <label for="plannerGoalSelect"><span>🎯</span> Metabolic Goal</label>
+                <select class="form-control" id="plannerGoalSelect">
+                  <option value="lean_hypertrophy" selected>Lean Hypertrophy & Muscle Gain</option>
+                  <option value="fat_loss">Aggressive Fat Loss (Calorie Deficit)</option>
+                  <option value="recomposition">Body Recomposition & Tone</option>
+                  <option value="longevity">Metabolic Health & Longevity</option>
+                </select>
+              </div>
             </div>
 
-            <!-- Target Macros Breakdown -->
-            <div style="font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 10px;">OPTIMAL TARGET MACRO SPLIT (PANCHA-TATVA)</div>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                <span style="color: #22d3ee; font-weight: 600;">🥩 प्रथिन • Prathina (Daily Protein):</span>
-                <strong id="metricTargetProtein" style="color: #fff;">140.0g (25.5%)</strong>
+            <!-- Action Bar -->
+            <div class="generator-actions-row">
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button class="btn-volt-glow" id="generate7DayPlanBtn">
+                  <span>⚡</span> Generate AI 7-Day Plan
+                </button>
+                <button class="btn btn-secondary" id="syncWithProfileBtn" style="font-size: 12px; padding: 10px 16px;">
+                  <span>🔄</span> Sync with Profile BMR
+                </button>
               </div>
-              <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                <span style="color: #fbbf24; font-weight: 600;">🌾 कार्बोज • Kārboja (Daily Carbs):</span>
-                <strong id="metricTargetCarbs" style="color: #fff;">240.0g (43.6%)</strong>
-              </div>
-              <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                <span style="color: #fb7185; font-weight: 600;">🥑 स्नेह • Sneha (Daily Healthy Fats):</span>
-                <strong id="metricTargetFat" style="color: #fff;">65.0g (26.6%)</strong>
-              </div>
-              <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                <span style="color: #a78bfa; font-weight: 600;">🌿 रुक्षांश • Rūkṣāṃśa (Dietary Fiber):</span>
-                <strong id="metricTargetFiber" style="color: #fff;">30.8g</strong>
-              </div>
-              <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                <span style="color: #38bdf8; font-weight: 600;">💧 जल • Jala (Daily Hydration):</span>
-                <strong id="metricTargetWater" style="color: #fff;">2.6 L</strong>
+
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button class="btn btn-secondary" id="copyDietPlanBtn" style="font-size: 12px; padding: 10px 16px;">
+                  <span>📋</span> Copy Plan
+                </button>
+                <button class="btn btn-secondary" id="printDietitianReportBtn" style="font-size: 12px; padding: 10px 16px;">
+                  <span>🖨️</span> Print Clinical Report
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- ==================== TAB 6: SMART SWAPS ==================== -->
-    <section class="tab-pane" id="swapsPane">
-      <div class="glass-card">
-        <div class="card-header">
-          <div>
-            <h3 class="card-title"><span>💡</span> Smart Nutritional Food Swaps Library</h3>
-            <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 2px;">
-              Evidence-based ingredient alternatives to reduce empty calories, lower glycemic spikes, and boost nutrient density.
+          <!-- Real-Time Next Meal Recommender -->
+          <div class="glass-card highlight" style="margin-bottom: 24px;">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">
+                  <span>🤖</span> Adaptive AI Next-Meal Recommender
+                </h3>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">
+                  Formulated to close your remaining calorie & protein deficit today.
+                </p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span class="card-badge" id="remainingDeficitBadge">Remaining Window: 1400 kcal • 80g Protein</span>
+                <button class="btn btn-secondary" id="refreshNextMealBtn" style="padding: 7px 14px; font-size: 11.5px;">🔄 Refresh AI</button>
+              </div>
+            </div>
+
+            <div class="recommendation-card-list" id="nextMealRecsList">
+              <!-- Dynamically generated -->
+            </div>
+          </div>
+
+          <!-- 7-Day Personalized Diet Plan -->
+          <div class="glass-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">
+                  <span>📋</span> 7-Day Structured Meal Schedule
+                </h3>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">
+                  Personalized macro-balanced weekly roadmap tailored to client targets.
+                </p>
+              </div>
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <span id="activeDietPlanBadge" class="card-badge" style="color: var(--tatva-cyan-bright);">Balanced High-Protein</span>
+              </div>
+            </div>
+
+            <div class="schedule-table-wrap">
+              <table class="schedule-table">
+                <thead>
+                  <tr>
+                    <th style="width: 14%;">Day / Target</th>
+                    <th style="width: 22%;">Breakfast (25%)</th>
+                    <th style="width: 26%;">Lunch (35%)</th>
+                    <th style="width: 18%;">Evening Snack (15%)</th>
+                    <th style="width: 20%;">Dinner (25%)</th>
+                  </tr>
+                </thead>
+                <tbody id="dietScheduleTableBody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Smart Grocery Shopping Checklist -->
+            <div style="margin-top: 28px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <h4 style="font-family: var(--font-heading); font-size: 16.5px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                  <span>🛒</span> Smart Grocery & Pantry Checklist
+                </h4>
+                <span id="groceryProgressBadge" style="font-size: 11.5px; color: var(--tatva-emerald-bright); font-weight: 700;">0 of 0 Packed</span>
+              </div>
+              <div class="grid-4col" id="groceryChecklistContainer">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 5: CLIENT PROFILE & BMR ==================== -->
+        <section class="tab-pane" id="client_profilePane">
+          <div class="grid-2col">
+            <!-- Form -->
+            <div class="glass-card">
+              <div class="card-header">
+                <h3 class="card-title"><span>👤</span> Client Fitness & Metabolic Profile</h3>
+                <span class="card-badge">Mifflin-St Jeor Engine</span>
+              </div>
+
+              <form id="clientProfileForm">
+                <div class="grid-2col" style="gap: 14px;">
+                  <div class="form-group">
+                    <label class="form-label">Age (Years)</label>
+                    <input type="number" class="form-control" id="profileAge" value="25" min="12" max="100" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Biological Gender</label>
+                    <select class="form-control" id="profileGender">
+                      <option value="male" selected>Male</option>
+                      <option value="female">Female</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid-2col" style="gap: 14px;">
+                  <div class="form-group">
+                    <label class="form-label">Height (cm)</label>
+                    <input type="number" class="form-control" id="profileHeight" value="175" min="100" max="240" step="0.5" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Current Weight (kg)</label>
+                    <input type="number" class="form-control" id="profileWeight" value="75.0" min="30" max="250" step="0.5" />
+                  </div>
+                </div>
+
+                <div class="grid-2col" style="gap: 14px;">
+                  <div class="form-group">
+                    <label class="form-label">Target Weight (kg)</label>
+                    <input type="number" class="form-control" id="profileTargetWeight" value="72.0" min="30" max="250" step="0.5" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Physical Activity Level</label>
+                    <select class="form-control" id="profileActivity">
+                      <option value="sedentary">Sedentary (Desk job, no gym)</option>
+                      <option value="light">Light (1-3 days/week)</option>
+                      <option value="moderate" selected>Moderate (3-5 days/week)</option>
+                      <option value="very_active">Very Active (6-7 days/week)</option>
+                      <option value="athlete">Athlete (Heavy training 2x/day)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Primary Fitness / Health Goal</label>
+                  <select class="form-control" id="profileGoal">
+                    <option value="lean_hypertrophy" selected>Lean Muscle Hypertrophy (+250 kcal surplus)</option>
+                    <option value="moderate_fat_loss">Moderate Fat Loss (-300 kcal deficit)</option>
+                    <option value="aggressive_fat_loss">Aggressive Fat Loss (-500 kcal deficit)</option>
+                    <option value="maintenance">Weight Maintenance (0 kcal delta)</option>
+                    <option value="aggressive_bulk">Clean Bulking (+500 kcal surplus)</option>
+                    <option value="diabetic_glycemic_control">Diabetic / Glycemic Control (Low GI, High Fiber)</option>
+                    <option value="ketogenic">Ketogenic Diet (High Fat, Low Carb)</option>
+                    <option value="dash_hypertension">DASH Diet (Hypertension / Low Sodium)</option>
+                    <option value="vegan_muscle">Plant-Powered Vegan Muscle</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Dietary Preference / Restrictions</label>
+                  <select class="form-control" id="profileDietPref">
+                    <option value="all" selected>All / Non-Vegetarian & Poultry</option>
+                    <option value="vegetarian">Indian Vegetarian (Lacto-Veg)</option>
+                    <option value="vegan">100% Vegan (Plant-Only)</option>
+                    <option value="high_protein">High-Protein Athlete</option>
+                    <option value="gluten_free">Gluten-Free</option>
+                  </select>
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%; margin-top: 12px; padding: 13px;">
+                  <span>💾</span> Save Profile & Recalculate Daily Targets
+                </button>
+              </form>
+            </div>
+
+            <!-- Calculated Metrics Preview -->
+            <div>
+              <div class="glass-card highlight">
+                <div class="card-header">
+                  <h3 class="card-title"><span>⚡</span> Metabolic & Target Metrics</h3>
+                  <span class="card-badge" id="metricBMICat">Normal Weight</span>
+                </div>
+
+                <div class="grid-2col" style="gap: 14px; margin-bottom: 16px;">
+                  <div class="macro-pill">
+                    <div class="macro-label">Basal Metabolic Rate (BMR)</div>
+                    <div class="macro-value" id="metricBMR">1724 kcal</div>
+                  </div>
+                  <div class="macro-pill">
+                    <div class="macro-label">Daily Expenditure (TDEE)</div>
+                    <div class="macro-value" id="metricTDEE">2672 kcal</div>
+                  </div>
+                </div>
+
+                <div class="macro-pill" style="margin-bottom: 18px; background: rgba(16, 185, 129, 0.12); border-color: var(--tatva-emerald);">
+                  <div class="macro-label" style="color: var(--tatva-emerald-bright);">Recommended Daily Calorie Target</div>
+                  <div class="macro-value" id="metricTargetCals" style="font-size: 26px; color: #fff;">2200 kcal / day</div>
+                </div>
+
+                <!-- Target Macros Breakdown -->
+                <div style="font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 12px; letter-spacing: 0.5px;">OPTIMAL TARGET MACRO SPLIT (PANCHA-TATVA)</div>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                  <div style="display: flex; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.035); border-radius: 10px; border: 1px solid var(--border-glass);">
+                    <span style="color: #22d3ee; font-weight: 700;">🥩 प्रथिन • Prathina (Daily Protein):</span>
+                    <strong id="metricTargetProtein" style="color: #fff;">140.0g (25.5%)</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.035); border-radius: 10px; border: 1px solid var(--border-glass);">
+                    <span style="color: #fbbf24; font-weight: 700;">🌾 कार्बोज • Kārboja (Daily Carbs):</span>
+                    <strong id="metricTargetCarbs" style="color: #fff;">240.0g (43.6%)</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.035); border-radius: 10px; border: 1px solid var(--border-glass);">
+                    <span style="color: #fb7185; font-weight: 700;">🥑 स्नेह • Sneha (Daily Healthy Fats):</span>
+                    <strong id="metricTargetFat" style="color: #fff;">65.0g (26.6%)</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.035); border-radius: 10px; border: 1px solid var(--border-glass);">
+                    <span style="color: #a78bfa; font-weight: 700;">🌿 रुक्षांश • Rūkṣāṃśa (Dietary Fiber):</span>
+                    <strong id="metricTargetFiber" style="color: #fff;">30.8g</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.035); border-radius: 10px; border: 1px solid var(--border-glass);">
+                    <span style="color: #38bdf8; font-weight: 700;">💧 जल • Jala (Daily Hydration):</span>
+                    <strong id="metricTargetWater" style="color: #fff;">2.6 L</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 6: SMART SWAPS ==================== -->
+        <section class="tab-pane" id="swapsPane">
+          <div class="glass-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title"><span>💡</span> Smart Nutritional Food Swaps Library</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">
+                  Evidence-based ingredient alternatives to reduce empty calories, lower glycemic spikes, and boost nutrient density.
+                </p>
+              </div>
+              <span class="card-badge">Clinical Dietitian Curated</span>
+            </div>
+
+            <div class="swaps-grid" id="smartSwapsGrid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 7: FITNESS, GYM & SHRED PROTOCOL ==================== -->
+        <section class="tab-pane" id="fitnessPane">
+          <!-- Hero Header -->
+          <div class="fitness-hero-banner">
+            <div class="fitness-hero-title">
+              <span>🏋️</span>
+              <span>Fitness, Gym & Shred Protocol: The Science of Looking Aesthetic</span>
+            </div>
+            <p class="fitness-hero-subtitle">
+              Master the physiology of energy metabolism. Learn how your body oxidizes carbohydrates (glycogen) vs fats (lipolysis), leverage post-workout EPOC afterburn, and sculpt the Golden Ratio aesthetic physique without starvation or hormonal crash.
             </p>
           </div>
-          <span class="card-badge">Clinical Dietitian Curated</span>
+
+          <!-- Science of Fuel Oxidation Grid: Carbs vs Fats vs EPOC -->
+          <div class="science-cards-grid">
+            <!-- Card 1: Carbs & Glycogen -->
+            <div class="science-card gold-accent">
+              <div class="science-card-header">
+                <div class="science-icon" style="color: var(--tatva-gold);">⚡</div>
+                <div>
+                  <h4>Carbohydrates & Glycogen</h4>
+                  <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">Fast Anaerobic Fuel (4 kcal/g)</span>
+                </div>
+              </div>
+              <p>
+                Stored in skeletal muscle (~400g) and liver (~100g) as glycogen. Drained during heavy resistance lifting, sprints, and high-intensity sets. Depleting glycogen triggers rapid insulin sensitivity, allowing post-workout carbs to replenish muscle tissue rather than spill into fat stores.
+              </p>
+              <div class="science-callout-pill">
+                🔥 Primary Fuel for: Weightlifting & Heavy Sets (>75% 1RM)
+              </div>
+            </div>
+
+            <!-- Card 2: Fat Lipolysis & The Calorie Equation -->
+            <div class="science-card emerald-accent">
+              <div class="science-card-header">
+                <div class="science-icon" style="color: var(--tatva-emerald);">🥑</div>
+                <div>
+                  <h4>Fat Oxidation (Lipolysis)</h4>
+                  <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">Aerobic Mitochondrial Fuel (9 kcal/g)</span>
+                </div>
+              </div>
+              <p>
+                <strong>1 kg of adipose body fat = ~7,700 kcal</strong> of stored energy. To oxidize stubborn subcutaneous fat, maintain a controlled 350–500 kcal daily deficit combined with Zone 2 cardio (60–70% Max HR), where fatty acids are preferentially oxidized via cellular beta-oxidation.
+              </p>
+              <div class="science-callout-pill">
+                🧬 Optimal Zone: Incline Walk / Steady Cardio (60-70% Max HR)
+              </div>
+            </div>
+
+            <!-- Card 3: EPOC & Afterburn Effect -->
+            <div class="science-card indigo-accent">
+              <div class="science-card-header">
+                <div class="science-icon" style="color: var(--tatva-indigo-bright);">🚀</div>
+                <div>
+                  <h4>EPOC & 36h Afterburn</h4>
+                  <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">Excess Post-Exercise Oxygen</span>
+                </div>
+              </div>
+              <p>
+                Unlike steady cardio which stops burning calories the moment you finish, intense resistance training and HIIT generate significant metabolic oxygen debt. Your body consumes 15–20% additional calories over the next 24–48 hours just to repair muscle fibers and restore cellular homeostasis.
+              </p>
+              <div class="science-callout-pill">
+                ⏳ Elevated Metabolism for: 24 to 48 hours post-workout
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Fuel Burn Simulator -->
+          <div class="burn-simulator-card">
+            <div class="simulator-header">
+              <div>
+                <h3><span>🔥</span> Interactive Exercise Fuel Burn & Oxidation Simulator</h3>
+                <p style="font-size: 12.5px; color: var(--text-secondary); margin-top: 3px;">
+                  Simulate your workout session to calculate exact calories burned, grams of pure fat oxidized, and post-workout EPOC afterburn.
+                </p>
+              </div>
+              <button class="btn-primary-glow" id="logWorkoutBurnToDiaryBtn" style="padding: 7px 16px; font-size: 12px;">
+                <span>+</span> Log to Daily Diary
+              </button>
+            </div>
+
+            <div class="burn-controls-grid">
+              <!-- Activity Select -->
+              <div class="intake-input-group">
+                <label>Workout Activity</label>
+                <select id="burnActivitySelect">
+                  <option value="hypertrophy_weightlifting">🏋️ Hypertrophy Resistance Training (Gym)</option>
+                  <option value="zone2_cardio">🚶 Zone 2 Incline Treadmill Walk (Fat Burn Zone)</option>
+                  <option value="hiit_circuits">⚡ High-Intensity Interval Training (HIIT)</option>
+                  <option value="stairmaster">🪜 Stairmaster / High Incline Climber</option>
+                  <option value="jump_rope">🥊 Speed Jump Rope / Boxer Conditioning</option>
+                  <option value="crossfit_metcon">🦾 CrossFit MetCon / Functional Circuit</option>
+                  <option value="outdoor_cycling">🚴 Road / Stationary Cycling</option>
+                  <option value="swimming_laps">🏊 Swimming Freestyle / Butterfly</option>
+                </select>
+              </div>
+
+              <!-- Duration Slider -->
+              <div class="intake-input-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label>Duration</label>
+                  <span id="burnDurationVal" style="font-size: 12px; font-weight: 700; color: var(--tatva-cyan); font-family: var(--font-mono);">45 mins</span>
+                </div>
+                <input type="range" id="burnDurationSlider" min="15" max="120" step="5" value="45" class="avatar-morph-slider" style="margin-top: 8px;" />
+              </div>
+
+              <!-- Intensity Pills -->
+              <div class="intake-input-group">
+                <label>Effort & Intensity</label>
+                <div class="intensity-pills-row">
+                  <button class="intensity-pill-btn" data-intensity="light">Light</button>
+                  <button class="intensity-pill-btn active" data-intensity="moderate">Moderate</button>
+                  <button class="intensity-pill-btn" data-intensity="vigorous">Vigorous</button>
+                  <button class="intensity-pill-btn" data-intensity="maximum">Max</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Real-time Burn Telemetry -->
+            <div class="burn-results-dashboard">
+              <div class="burn-stats-row">
+                <div class="burn-stat-box">
+                  <span class="avatar-stat-label">Total Energy Burned</span>
+                  <div class="num" id="burnTotalCals" style="color: var(--tatva-gold);">371 kcal</div>
+                </div>
+                <div class="burn-stat-box">
+                  <span class="avatar-stat-label">Pure Fat Oxidized</span>
+                  <div class="num" id="burnFatGrams" style="color: var(--tatva-emerald-bright);">16.5g</div>
+                </div>
+                <div class="burn-stat-box">
+                  <span class="avatar-stat-label">Glycogen / Carbs Burned</span>
+                  <div class="num" id="burnCarbsGrams" style="color: var(--tatva-cyan-bright);">55.7g</div>
+                </div>
+                <div class="burn-stat-box">
+                  <span class="avatar-stat-label">EPOC Afterburn</span>
+                  <div class="num" id="burnEpocBonus" style="color: var(--tatva-indigo-bright);">+59 kcal</div>
+                </div>
+              </div>
+
+              <!-- Fuel Ratio Split Bar -->
+              <div class="fuel-ratio-bar-wrapper">
+                <div class="fuel-ratio-labels">
+                  <span id="burnFatRatioPct" style="color: var(--tatva-gold);">Fats: 40%</span>
+                  <span style="color: var(--text-muted); font-size: 11px;">Primary: <strong id="burnPrimaryFuelSource" style="color: #fff;">Intramuscular Glycogen</strong></span>
+                  <span id="burnCarbRatioPct" style="color: var(--tatva-cyan-bright);">Carbs: 60%</span>
+                </div>
+                <div class="fuel-progress-track">
+                  <div class="fuel-fat-fill" id="burnFatRatioBar" style="width: 40%;"></div>
+                  <div class="fuel-carb-fill" id="burnCarbRatioBar" style="width: 60%;"></div>
+                </div>
+                <div style="text-align: right; margin-top: 6px; font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+                  Metabolic Equivalent: <span id="burnEquivalentSteps" style="color: var(--tatva-emerald-bright);">~6,950 steps</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aesthetic Blueprint & "Look Good" Science -->
+          <div class="aesthetic-blueprint-section">
+            <h3 style="font-size: 19px; color: #fff; font-family: var(--font-heading); display: flex; align-items: center; gap: 8px;">
+              <span>✨</span> The "Look Good" Aesthetic Proportion Blueprint
+            </h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 3px;">
+              Looking visually stunning and fit is not just about losing weight on the bathroom scale—it is about sculpting structural ratios and optimizing water retention.
+            </p>
+
+            <div class="blueprint-grid">
+              <div class="blueprint-card">
+                <h4><span>📐</span> The Golden Ratio (Adonis Index & Hourglass)</h4>
+                <ul>
+                  <li><strong>V-Taper Ratio (~1.618)</strong>: A wide shoulder-to-waist ratio creates an immediate visual illusion of a tiny waist and athletic presence. Prioritize Lateral Deltoids and Latissimus Dorsi.</li>
+                  <li><strong>Hourglass Ratio (~0.7)</strong>: Waist-to-hip ratio sculpting. Build the gluteus maximus, gluteus medius, and upper back while tightening the transverse abdominis.</li>
+                  <li><strong>Upper Chest Incline Focus</strong>: Flat bench alone causes a droopy chest. Incline dumbbell presses and cable upper flyes elevate the chest line.</li>
+                </ul>
+              </div>
+
+              <div class="blueprint-card">
+                <h4><span>⚡</span> Nutrient Partitioning & Carb Backloading</h4>
+                <ul>
+                  <li><strong>Post-Workout Carb Window</strong>: Consume 60–70% of your daily carbs in the 2–3 hour window after lifting. GLUT-4 transporters are active, shuttling glycogen directly into muscle bellies rather than fat cells.</li>
+                  <li><strong>Water Retention & Sodium Flush</strong>: Extracellular water bloat hides muscle definition. Drink 3.5L+ daily water and consume high-potassium foods (spinach, avocado, coconut water) to flush sodium bloat.</li>
+                  <li><strong>Posture Elevation Bio-Hack</strong>: Strengthening lower traps, rhomboids, and rear delts immediately fixes forward-head slump, making you look 2 inches taller and instantly leaner.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Structured Gym Workouts -->
+            <div class="routine-tabs-header">
+              <button class="routine-tab-btn active" data-routine="vtaper">🔥 Routine 1: Aesthetic V-Taper & Core Shred (Men / Athletic)</button>
+              <button class="routine-tab-btn" data-routine="hourglass">🍑 Routine 2: Hourglass Curves & Glute Sculpt (Women / Curves)</button>
+              <button class="routine-tab-btn" data-routine="torcher">⚡ Routine 3: Metabolic Fat Torcher & High EPOC (All)</button>
+            </div>
+
+            <!-- Routine 1: V-Taper -->
+            <div class="workout-routine-card active" id="routine_vtaper">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="color: #fff; font-size: 16px;">Aesthetic V-Taper & Core Shred Protocol</h4>
+                <span class="science-callout-pill" style="margin: 0;">4 Days/Week • Hypertrophy Focus</span>
+              </div>
+              <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">
+                Designed to maximize shoulder width and lat flare while tightening the core iliac crest for the classic Golden Era bodybuilding V-taper.
+              </p>
+
+              <table class="exercises-table">
+                <thead>
+                  <tr>
+                    <th>Exercise</th>
+                    <th>Target Muscle Group</th>
+                    <th>Sets x Reps</th>
+                    <th>Rest</th>
+                    <th>Aesthetic Impact</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Incline Dumbbell Press (30°)</strong></td>
+                    <td>Upper Pectoralis Major</td>
+                    <td>4 x 8-10</td>
+                    <td>90s</td>
+                    <td>High chest shelf fullness</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Cable Lat Pulldowns (Wide Grip)</strong></td>
+                    <td>Latissimus Dorsi (Lats)</td>
+                    <td>4 x 10-12</td>
+                    <td>75s</td>
+                    <td>Creates wide back silhouette</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Cable Lateral Raises (Behind Back)</strong></td>
+                    <td>Lateral Deltoid Head</td>
+                    <td>5 x 12-15</td>
+                    <td>60s</td>
+                    <td>Widens shoulder frame</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Hanging Leg Raises / Captain's Chair</strong></td>
+                    <td>Rectus Abdominis & Lower Core</td>
+                    <td>3 x 15-20</td>
+                    <td>45s</td>
+                    <td>Deep six-pack grooves</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Incline Treadmill Walk (12% Incline, 4.5 km/h)</strong></td>
+                    <td>Mitochondrial Fat Lipolysis</td>
+                    <td>20 mins</td>
+                    <td>-</td>
+                    <td>Oxidizes 18g pure fat</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Routine 2: Hourglass -->
+            <div class="workout-routine-card" id="routine_hourglass">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="color: #fff; font-size: 16px;">Hourglass & Glute Sculpt Protocol</h4>
+                <span class="science-callout-pill" style="margin: 0;">4 Days/Week • Glute & Waist Focus</span>
+              </div>
+              <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">
+                Heavy hip thrusts and lateral glute targeting combined with shoulder cap toning to sculpt an exquisite 0.7 waist-to-hip ratio.
+              </p>
+
+              <table class="exercises-table">
+                <thead>
+                  <tr>
+                    <th>Exercise</th>
+                    <th>Target Muscle Group</th>
+                    <th>Sets x Reps</th>
+                    <th>Rest</th>
+                    <th>Aesthetic Impact</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Barbell Hip Thrusts (Pause at top)</strong></td>
+                    <td>Gluteus Maximus</td>
+                    <td>4 x 8-12</td>
+                    <td>90s</td>
+                    <td>Maximum glute projection & firmness</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Romanian Deadlifts (Dumbbells)</strong></td>
+                    <td>Hamstrings & Glute-Ham Tie-in</td>
+                    <td>4 x 10-12</td>
+                    <td>75s</td>
+                    <td>Lifts under-glute crease</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Cable Glute Kickbacks / Abductions</strong></td>
+                    <td>Gluteus Medius</td>
+                    <td>3 x 15-18</td>
+                    <td>60s</td>
+                    <td>Fills upper hip curves</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Dumbbell Overhead Shoulder Press</strong></td>
+                    <td>Shoulders & Clavicle Frame</td>
+                    <td>3 x 10-12</td>
+                    <td>60s</td>
+                    <td>Balances upper body symmetry</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Stairmaster Interval Steps</strong></td>
+                    <td>Glute conditioning & Calorie Burn</td>
+                    <td>15 mins</td>
+                    <td>-</td>
+                    <td>Burns ~160 kcal + Glute burn</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Routine 3: Torcher -->
+            <div class="workout-routine-card" id="routine_torcher">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="color: #fff; font-size: 16px;">High-Calorie Torcher & Functional EPOC MetCon</h4>
+                <span class="science-callout-pill" style="margin: 0;">3 Days/Week • Fat Stripping</span>
+              </div>
+              <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">
+                Combines full-body compound lifts with interval sprint bursts to trigger maximal EPOC afterburn and rapid fat mobilization.
+              </p>
+
+              <table class="exercises-table">
+                <thead>
+                  <tr>
+                    <th>Exercise</th>
+                    <th>Target Muscle Group</th>
+                    <th>Sets x Reps</th>
+                    <th>Rest</th>
+                    <th>Aesthetic Impact</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Barbell Front Squats or Goblet Squats</strong></td>
+                    <td>Quadriceps & Core Bracing</td>
+                    <td>4 x 8-10</td>
+                    <td>90s</td>
+                    <td>High energy systemic demand</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Kettlebell Swings (Hip Hinge)</strong></td>
+                    <td>Posterior Chain & Heart Rate</td>
+                    <td>4 x 20</td>
+                    <td>45s</td>
+                    <td>Rapid calorie torch</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Dumbbell Renegade Rows to Pushup</strong></td>
+                    <td>Chest, Back, Anti-Rotation Core</td>
+                    <td>3 x 10/side</td>
+                    <td>60s</td>
+                    <td>Tightens serratus & waist</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Boxer Speed Jump Rope</strong></td>
+                    <td>Calves & Fast-Twitch Reflexes</td>
+                    <td>5 x 2 mins</td>
+                    <td>45s</td>
+                    <td>Intense cardiovascular burn</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ==================== TAB 8: NEARBY GYM RADAR ==================== -->
+        <section class="tab-pane" id="gymsPane">
+          <div class="gym-radar-header-card">
+            <div>
+              <div style="font-size: 11px; font-family: var(--font-mono); color: var(--tatva-emerald-bright); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px;">
+                📍 LIVE GEOLOCATION FITNESS DIRECTORY
+              </div>
+              <h3 style="font-size: 22px; color: #fff; font-family: var(--font-heading);">
+                Gyms, Barbell Clubs & Fitness Centers Near You
+              </h3>
+              <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
+                Find verified top-rated gyms near your current GPS location with Olympic platforms, heavy iron, saunas, and 24/7 access.
+              </p>
+            </div>
+
+            <div class="radar-controls-row">
+              <button class="gps-detect-btn" id="detectGpsLocationBtn">
+                <span>🛰️</span>
+                <span>Auto-Detect GPS Location</span>
+              </button>
+
+              <select class="gym-city-dropdown" id="gymCitySelect">
+                <option value="">-- Or Pick City --</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Bengaluru">Bengaluru</option>
+                <option value="Delhi">Delhi NCR</option>
+                <option value="Pune">Pune</option>
+                <option value="Hyderabad">Hyderabad</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Chennai">Chennai</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+            <div id="gpsStatusText" style="font-size: 12px; font-family: var(--font-mono); color: var(--tatva-cyan-bright);">
+              📍 Ready • Click Auto-Detect GPS or browse verified metro clubs below
+            </div>
+
+            <input type="text" id="gymSearchInput" placeholder="Search gym name, equipment, or street..." style="background: rgba(4,8,20,0.85); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; padding: 7px 14px; font-size: 12.5px; width: 280px; outline: none;" />
+          </div>
+
+          <!-- Filter Pills Bar -->
+          <div class="gym-filters-bar">
+            <button class="gym-filter-pill active" data-filter="all">All Verified Gyms</button>
+            <button class="gym-filter-pill" data-filter="24_7">24/7 Access Clubs</button>
+            <button class="gym-filter-pill" data-filter="crossfit">CrossFit & Functional Boxes</button>
+            <button class="gym-filter-pill" data-filter="sauna">Steam, Sauna & Recovery</button>
+          </div>
+
+          <!-- Dynamic Gym Cards Grid -->
+          <div class="nearby-gyms-grid" id="nearbyGymsList">
+            <!-- Dynamically populated by gym_locator.js -->
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+
+  <!-- ==================== ONBOARDING & 3D AVATAR RECOMPOSITION MODAL ==================== -->
+  <div class="avatar-modal-overlay" id="avatarModal">
+    <div class="avatar-modal-card">
+      <div class="avatar-modal-header">
+        <div>
+          <h3 id="avatarModalTitle">🧬 3D Body Recomposition & Avatar Transformation</h3>
+          <p id="avatarModalSubtitle">Enter your body metrics to generate your digital anatomical avatar and morph it into your aesthetic fit version.</p>
+        </div>
+        <button class="modal-close-icon-btn" id="closeAvatarModalBtn">&times;</button>
+      </div>
+
+      <div class="avatar-modal-body">
+        <!-- Left Column: Customer Details Intake Form -->
+        <div class="avatar-intake-panel">
+          <div style="font-size: 12px; font-family: var(--font-mono); color: var(--tatva-cyan-bright); text-transform: uppercase; letter-spacing: 0.5px;">
+            STEP 1: CUSTOMER PHYSIOLOGICAL INTAKE
+          </div>
+
+          <div class="intake-form-grid">
+            <div class="intake-input-group">
+              <label>Full Name / Nickname</label>
+              <input type="text" id="intakeName" value="Aesthetic Athlete" placeholder="e.g. Alex" />
+            </div>
+            <div class="intake-input-group">
+              <label>Biological Gender</label>
+              <select id="intakeGender">
+                <option value="male">Male (V-Taper Anatomy)</option>
+                <option value="female">Female (Hourglass Anatomy)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="intake-form-grid">
+            <div class="intake-input-group">
+              <label>Age (Years)</label>
+              <input type="number" id="intakeAge" value="25" min="14" max="80" />
+            </div>
+            <div class="intake-input-group">
+              <label>Height (cm)</label>
+              <input type="number" id="intakeHeight" value="175" min="120" max="230" />
+            </div>
+          </div>
+
+          <div class="intake-form-grid">
+            <div class="intake-input-group">
+              <label>Current Weight (kg)</label>
+              <input type="number" id="intakeWeight" value="75" step="0.5" min="35" max="200" />
+            </div>
+            <div class="intake-input-group">
+              <label>Target Goal Weight (kg)</label>
+              <input type="number" id="intakeTargetWeight" value="70" step="0.5" min="35" max="200" />
+            </div>
+          </div>
+
+          <div class="intake-form-grid">
+            <div class="intake-input-group">
+              <label>Estimated Body Fat %</label>
+              <select id="intakeBodyFat">
+                <option value="28">Soft / High Body Fat (~28%+)</option>
+                <option value="24" selected>Average Build (~24%)</option>
+                <option value="20">Skinny-Fat / Moderate (~20%)</option>
+                <option value="16">Active / Toned (~16%)</option>
+                <option value="12">Lean Athletic (~12%)</option>
+              </select>
+            </div>
+            <div class="intake-input-group">
+              <label>Transformation Timeline</label>
+              <select id="intakeWeeks">
+                <option value="8">8 Weeks (Accelerated)</option>
+                <option value="12" selected>12 Weeks (Recommended)</option>
+                <option value="16">16 Weeks (Sustainable Recomp)</option>
+                <option value="24">24 Weeks (Complete Lifestyle Shift)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="intake-input-group">
+            <label>Aesthetic Transformation Goal</label>
+            <select id="intakeGoal">
+              <option value="lean_hypertrophy" selected>🔥 Lean Muscle Hypertrophy & Fat Loss (Adonis V-Taper)</option>
+              <option value="aggressive_fat_loss">⚡ Aggressive Shred & Deficit (Quick Fat Burn)</option>
+              <option value="moderate_fat_loss">⚖️ Moderate Fat Loss (Preserve Muscle Mass)</option>
+              <option value="maintenance">✨ Body Recomposition (Tone & Sculpt at Same Weight)</option>
+            </select>
+          </div>
+
+          <!-- Transformation Delta Telemetry Card -->
+          <div class="transformation-delta-card">
+            <div class="delta-card-title">
+              <span>⚡</span>
+              <span>Physiological Transformation Delta</span>
+            </div>
+            <div class="delta-metrics-row">
+              <div class="delta-metric-item">
+                <span class="delta-metric-label">Adipose Fat to Burn</span>
+                <span class="delta-metric-val" id="morphDisplayFatToLose" style="color: var(--tatva-gold);">-8.5 kg Pure Fat</span>
+              </div>
+              <div class="delta-metric-item">
+                <span class="delta-metric-label">Total Energy Expenditure</span>
+                <span class="delta-metric-val" id="morphDisplayKcalDeficit" style="color: var(--tatva-emerald-bright);">65,450 kcal</span>
+              </div>
+              <div class="delta-metric-item" style="margin-top: 6px;">
+                <span class="delta-metric-label">Recommended Daily Deficit</span>
+                <span class="delta-metric-val" id="morphDisplayDailyDeficit" style="color: var(--tatva-cyan-bright);">-779 kcal/day</span>
+              </div>
+              <div class="delta-metric-item" style="margin-top: 6px;">
+                <span class="delta-metric-label">Zone 2 Fat Burn Heart Rate</span>
+                <span class="delta-metric-val" id="morphDisplayZone2" style="color: #fff;">117-136 BPM</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="swaps-grid" id="smartSwapsGrid">
-          <!-- Dynamically populated -->
+        <!-- Right Column: Avatar Canvas & Morphing Controller -->
+        <div class="avatar-viewport-panel">
+          <div style="font-size: 12px; font-family: var(--font-mono); color: var(--tatva-emerald-bright); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+            STEP 2: PROCEDURAL HOLOGRAPHIC AVATAR
+          </div>
+
+          <div class="avatar-canvas-wrapper">
+            <canvas id="avatarCanvas" width="280" height="400"></canvas>
+          </div>
+
+          <!-- Interactive Morph Slider -->
+          <div class="morph-slider-container">
+            <div class="morph-slider-labels">
+              <span>Current Silhouette</span>
+              <span style="color: var(--tatva-emerald-bright); font-weight: 700;">Drag to Morph Physique</span>
+              <span>Fitter Aesthetic Self</span>
+            </div>
+            <input type="range" id="avatarMorphSlider" class="avatar-morph-slider" min="0" max="100" value="0" />
+            <div class="avatar-quick-actions">
+              <button class="avatar-quick-btn" id="btnViewCurrentAvatar">Current (0%)</button>
+              <button class="avatar-quick-btn" id="playMorphAnimationBtn" style="color: var(--tatva-cyan); border-color: rgba(0,242,254,0.3);">▶ Play Morph</button>
+              <button class="avatar-quick-btn" id="btnViewFitAvatar">Aesthetic Fit (100%)</button>
+            </div>
+          </div>
+
+          <!-- Telemetry Grid -->
+          <div class="avatar-telemetry-grid">
+            <div class="avatar-stat-pill">
+              <span class="avatar-stat-label">Weight</span>
+              <div class="avatar-stat-value" id="morphDisplayWeight">75.0 kg</div>
+            </div>
+            <div class="avatar-stat-pill">
+              <span class="avatar-stat-label">Body Fat</span>
+              <div class="avatar-stat-value" id="morphDisplayBF">24.0%</div>
+            </div>
+            <div class="avatar-stat-pill">
+              <span class="avatar-stat-label">Est. Waist</span>
+              <div class="avatar-stat-value" id="morphDisplayWaist">86.5 cm</div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-  </main>
+      <div class="avatar-modal-footer">
+        <button class="btn-secondary-ghost" onclick="AvatarEngine.closeModal()">Close Window</button>
+        <button class="btn-primary-glow" id="applyTransformationProtocolBtn">
+          <span>⚡</span> Commit & Apply Transformation Protocol
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================== MANUAL FOOD INTAKE & MACRO RATIO MODAL ==================== -->
+  <div class="avatar-modal-overlay" id="manualLogModal">
+    <div class="avatar-modal-card" style="max-width: 980px;">
+      <div class="avatar-modal-header">
+        <div>
+          <h3 style="color: #fff; font-family: var(--font-heading); font-size: 20px; display: flex; align-items: center; gap: 10px;">
+            <span>🥗</span> Log Manual Food Intake & Custom Macro Ratio
+          </h3>
+          <p style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
+            Record any consumed meal item with exact portion weight (grams), customized macro ratio split, and real-time energy calculation.
+          </p>
+        </div>
+        <button class="modal-close-icon-btn" id="closeManualLogModalBtn">&times;</button>
+      </div>
+
+      <div class="avatar-modal-body" style="grid-template-columns: 1.1fr 1fr;">
+        <!-- Left Column: Food Item, Weight & Category -->
+        <div class="avatar-intake-panel">
+          <div style="font-size: 11.5px; font-family: var(--font-mono); color: var(--tatva-emerald-bright); text-transform: uppercase; letter-spacing: 0.5px;">
+            STEP 1: SELECT FOOD & PORTION WEIGHT
+          </div>
+
+          <div class="intake-input-group">
+            <label>Select Food Item from Nutrition Database</label>
+            <select id="manualFoodSelect" style="padding: 10px 14px; font-size: 13.5px;">
+              <option value="grilled_chicken_breast" selected>🍗 Grilled Chicken Breast (High Protein)</option>
+              <option value="steamed_basmati_rice">🍚 Steamed White Basmati Rice</option>
+              <option value="brown_rice">🌾 Steamed Brown Rice (Complex Carbs)</option>
+              <option value="paneer_tikka">🧀 Paneer Tikka / Paneer Gravy</option>
+              <option value="yellow_dal">🥣 Yellow Moong Dal Tadka</option>
+              <option value="whole_wheat_roti">🫓 Whole Wheat Roti / Chapati</option>
+              <option value="boiled_egg">🥚 Boiled Whole Eggs (Grade A)</option>
+              <option value="egg_white">🍳 Egg Whites (Cooked)</option>
+              <option value="whey_protein_shake">🥤 Whey Protein Isolate Shake</option>
+              <option value="grilled_salmon">🐟 Pan-Seared Salmon Fillet (Omega-3)</option>
+              <option value="tofu_grilled">🧊 Firm Tofu (Grilled)</option>
+              <option value="rolled_oats_cooked">🥣 High-Protein Rolled Oats</option>
+              <option value="greek_yogurt">🥛 Non-Fat Greek Yogurt</option>
+              <option value="peanut_butter">🥜 Natural Peanut Butter</option>
+              <option value="avocado_slices">🥑 Fresh Avocado (Healthy Lipids)</option>
+              <option value="almonds_sliced">🌰 California Almonds</option>
+              <option value="chana_masala">🍲 Chana Masala (Chickpeas)</option>
+              <option value="chicken_biryani">🍗 Chicken Dum Biryani</option>
+              <option value="steamed_broccoli">🥦 Steamed Green Broccoli</option>
+              <option value="cucumber_salad">🥗 Cucumber Kachumber Salad</option>
+              <option value="sweet_potato">🍠 Steamed Sweet Potato</option>
+              <option value="custom">✨ Custom Food / Prepared Recipe...</option>
+            </select>
+          </div>
+
+          <!-- Custom Food Name Input (shown when 'custom' is selected) -->
+          <div class="intake-input-group" id="customFoodNameGroup" style="display: none;">
+            <label>Custom Food / Dish Name</label>
+            <input type="text" id="customFoodNameInput" placeholder="e.g. Grandma's Chicken Soup" value="Custom Prepared Meal" />
+          </div>
+
+          <!-- Portion Weight Input & Slider -->
+          <div class="intake-input-group" style="margin-top: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label>Portion Weight (in Grams)</label>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <input type="number" id="manualWeightInput" value="150" min="10" max="1500" step="5" style="width: 80px; padding: 4px 8px; text-align: center; font-family: var(--font-mono); font-weight: 700; color: var(--tatva-emerald-bright);" />
+                <span style="font-size: 13px; font-family: var(--font-mono); color: #fff;">grams</span>
+              </div>
+            </div>
+
+            <input type="range" id="manualWeightSlider" min="10" max="800" step="5" value="150" class="avatar-morph-slider" style="margin-top: 8px;" />
+
+            <!-- Quick Weight Chips -->
+            <div class="weight-chips-row" style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+              <button class="weight-chip-btn" data-weight="50">50g</button>
+              <button class="weight-chip-btn" data-weight="100">100g</button>
+              <button class="weight-chip-btn active" data-weight="150">150g</button>
+              <button class="weight-chip-btn" data-weight="200">200g</button>
+              <button class="weight-chip-btn" data-weight="300">300g</button>
+              <button class="weight-chip-btn" data-weight="500">500g</button>
+            </div>
+          </div>
+
+          <!-- Meal Category Select -->
+          <div class="intake-input-group" style="margin-top: 6px;">
+            <label>Meal Type / Category</label>
+            <select id="manualMealCategorySelect">
+              <option value="Breakfast">🍳 Breakfast</option>
+              <option value="Lunch" selected>🍛 Lunch</option>
+              <option value="Snack">🥜 Evening Snack</option>
+              <option value="Dinner">🍲 Dinner</option>
+              <option value="Pre/Post Workout">⚡ Pre/Post Workout Fuel</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Right Column: Macro Split Ratio & Real-Time Calculation -->
+        <div class="avatar-viewport-panel" style="align-items: stretch;">
+          <div style="font-size: 11.5px; font-family: var(--font-mono); color: var(--tatva-cyan-bright); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+            STEP 2: MACRO SPLIT RATIO & NUTRITION
+          </div>
+
+          <!-- Ratio Presets -->
+          <div class="ratio-presets-row" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
+            <button class="ratio-preset-btn active" data-preset="high_protein">🍗 High-Protein (40P/40C/20F)</button>
+            <button class="ratio-preset-btn" data-preset="balanced">⚖️ Balanced (30P/50C/20F)</button>
+            <button class="ratio-preset-btn" data-preset="keto">🥑 Keto (25P/5C/70F)</button>
+            <button class="ratio-preset-btn" data-preset="shred">🔪 Strict Shred (50P/30C/20F)</button>
+          </div>
+
+          <!-- Macro Ratio Sliders -->
+          <div class="ratio-sliders-box" style="background: rgba(4,8,20,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;">
+                <span style="color: var(--tatva-emerald-bright); font-weight: 700;">🥩 Protein Ratio:</span>
+                <strong id="ratioProteinVal" style="color: #fff; font-family: var(--font-mono);">40%</strong>
+              </div>
+              <input type="range" id="ratioProteinSlider" min="5" max="80" step="5" value="40" class="avatar-morph-slider" />
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;">
+                <span style="color: var(--tatva-cyan-bright); font-weight: 700;">🌾 Carbs Ratio:</span>
+                <strong id="ratioCarbsVal" style="color: #fff; font-family: var(--font-mono);">40%</strong>
+              </div>
+              <input type="range" id="ratioCarbsSlider" min="0" max="85" step="5" value="40" class="avatar-morph-slider" />
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;">
+                <span style="color: var(--tatva-gold); font-weight: 700;">🥑 Fats Ratio:</span>
+                <strong id="ratioFatVal" style="color: #fff; font-family: var(--font-mono);">20%</strong>
+              </div>
+              <input type="range" id="ratioFatSlider" min="5" max="80" step="5" value="20" class="avatar-morph-slider" />
+            </div>
+
+            <div id="ratioSumLabel" style="font-size: 11px; font-family: var(--font-mono); text-align: right; color: var(--tatva-emerald-bright);">
+              Total: 100% ✓
+            </div>
+          </div>
+
+          <!-- Real-Time Calculated Nutrient Box -->
+          <div class="calculated-preview-box" style="background: linear-gradient(135deg, rgba(0,245,155,0.1), rgba(0,242,254,0.06)); border: 1px solid rgba(0,245,155,0.3); border-radius: 14px; padding: 14px; margin-top: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary); text-transform: uppercase;">CALCULATED NUTRIENTS</span>
+              <span id="manualPreviewRatioTag" style="font-size: 10.5px; font-family: var(--font-mono); color: var(--tatva-emerald-bright); background: rgba(0,245,155,0.15); padding: 3px 8px; border-radius: 6px;">40% P • 40% C • 20% F</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; text-align: center;">
+              <div style="background: rgba(0,0,0,0.4); border-radius: 8px; padding: 8px 4px;">
+                <span style="font-size: 10px; color: var(--text-muted); display: block;">Energy</span>
+                <strong id="manualPreviewCals" style="color: var(--tatva-gold); font-size: 15px; font-family: var(--font-mono);">248 kcal</strong>
+              </div>
+              <div style="background: rgba(0,0,0,0.4); border-radius: 8px; padding: 8px 4px;">
+                <span style="font-size: 10px; color: var(--text-muted); display: block;">Protein</span>
+                <strong id="manualPreviewP" style="color: var(--tatva-emerald-bright); font-size: 15px; font-family: var(--font-mono);">46.5g</strong>
+              </div>
+              <div style="background: rgba(0,0,0,0.4); border-radius: 8px; padding: 8px 4px;">
+                <span style="font-size: 10px; color: var(--text-muted); display: block;">Carbs</span>
+                <strong id="manualPreviewC" style="color: var(--tatva-cyan-bright); font-size: 15px; font-family: var(--font-mono);">0.0g</strong>
+              </div>
+              <div style="background: rgba(0,0,0,0.4); border-radius: 8px; padding: 8px 4px;">
+                <span style="font-size: 10px; color: var(--text-muted); display: block;">Fats</span>
+                <strong id="manualPreviewF" style="color: #fb7185; font-size: 15px; font-family: var(--font-mono);">5.4g</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add to Batch Action -->
+          <div style="display: flex; gap: 10px; margin-top: 12px;">
+            <button class="btn-secondary-ghost" id="addManualItemToBatchBtn" style="flex: 1; padding: 9px; font-size: 12.5px;">
+              <span>➕</span> Add Item to Current Batch
+            </button>
+          </div>
+
+          <!-- Queued Batch Items List -->
+          <div id="manualBatchItemsList" style="margin-top: 10px; max-height: 140px; overflow-y: auto;">
+            <!-- Queued batch items will appear here -->
+          </div>
+        </div>
+      </div>
+
+      <div class="avatar-modal-footer">
+        <button class="btn-secondary-ghost" onclick="DashboardModule.closeManualLogModal()">Cancel</button>
+        <button class="btn-primary-volt" id="commitManualIntakeBtn">
+          <span>⚡</span> Log Food to Today's Intake
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- ==================== GEMINI API KEY MODAL ==================== -->
   <div class="modal-backdrop" id="apiKeyModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeApiKeyModal()">&times;</button>
-      <h3 style="font-family: var(--font-heading); font-size: 18px; color: #fff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+      <h3 style="font-family: var(--font-heading); font-size: 19px; color: #fff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
         <span>⚙️</span> Gemini Vision AI Configuration
       </h3>
-      <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">
+      <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 18px; line-height: 1.5;">
         ThaalTatva AI works 100% out of the box with built-in heuristic computer vision. To enable live multimodal cloud AI with Google Gemini, enter your API key below.
       </p>
 
@@ -697,7 +1752,7 @@
         <input type="password" class="form-control" id="apiKeyInput" placeholder="AIzaSy..." />
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 22px;">
         <button class="btn btn-secondary" onclick="closeApiKeyModal()">Cancel</button>
         <button class="btn" onclick="saveApiKey()">Save API Key</button>
       </div>
@@ -708,13 +1763,17 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
-  <script src="./static/js/camera.js"></script>
-  <script src="./static/js/visualizer.js"></script>
-  <script src="./static/js/consumption.js"></script>
-  <script src="./static/js/dashboard.js"></script>
-  <script src="./static/js/diet_planner.js"></script>
-  <script src="./static/js/client_profile.js"></script>
-  <script src="./static/js/app.js"></script>
+  <script src="./js/camera.js"></script>
+  <script src="./js/visualizer.js"></script>
+  <script src="./js/consumption.js"></script>
+  <script src="./js/dashboard.js"></script>
+  <script src="./js/diet_planner.js"></script>
+  <script src="./js/client_profile.js"></script>
+  <script src="./js/avatar_engine.js"></script>
+  <script src="./js/fitness_hub.js"></script>
+  <script src="./js/gym_locator.js"></script>
+  <script src="./js/app.js"></script>
 
 </body>
 </html>
+

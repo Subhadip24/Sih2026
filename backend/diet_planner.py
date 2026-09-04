@@ -182,10 +182,20 @@ def recommend_next_meals(remaining_budget: Dict[str, Any], diet_preference: str 
 
 def generate_7day_diet_plan(client_targets: Dict[str, Any], diet_type: str = "balanced") -> Dict[str, Any]:
     """
-    Generates a personalized, structured 7-day meal plan.
+    Generates a personalized, structured 7-day meal plan dynamically tailored to
+    dietary preference (balanced, vegetarian, vegan, keto, diabetic, athlete_bulk)
+    and target calories/protein.
     """
-    target_cals = client_targets.get("daily_targets", {}).get("calories_kcal", 2000)
-    target_p = client_targets.get("daily_targets", {}).get("protein_g", 130)
+    if "daily_targets" in client_targets:
+        dt = client_targets["daily_targets"]
+        target_cals = float(dt.get("calories_kcal", dt.get("calories", 2000)))
+        target_p = float(dt.get("protein_g", dt.get("protein", 130)))
+    else:
+        target_cals = float(client_targets.get("calories_kcal", client_targets.get("calories", 2000)))
+        target_p = float(client_targets.get("protein_g", client_targets.get("protein", 130)))
+
+    target_cals = max(1200, min(int(target_cals), 4500))
+    target_p = max(50, min(int(target_p), 300))
 
     # 4 meals per day distribution: Breakfast 25%, Lunch 35%, Snack 15%, Dinner 25%
     b_cals = int(target_cals * 0.25)
@@ -194,34 +204,173 @@ def generate_7day_diet_plan(client_targets: Dict[str, Any], diet_type: str = "ba
     d_cals = int(target_cals * 0.25)
 
     days_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    
-    breakfast_options = [
-        {"name": "Protein Oatmeal with Blueberries & Chia", "cals": b_cals, "p": round(target_p * 0.25, 1)},
-        {"name": "Egg White & Spinach Omelette with Whole Wheat Toast", "cals": b_cals, "p": round(target_p * 0.28, 1)},
-        {"name": "Greek Yogurt Berry Bowl with Crushed Almonds", "cals": b_cals, "p": round(target_p * 0.26, 1)},
-        {"name": "Moong Dal Cheela with Mint Paneer Stuffing", "cals": b_cals, "p": round(target_p * 0.24, 1)}
-    ]
 
-    lunch_options = [
-        {"name": "Grilled Chicken Breast / Tofu with Brown Rice & Steamed Asparagus", "cals": l_cals, "p": round(target_p * 0.38, 1)},
-        {"name": "Traditional Indian Thali (Yellow Dal, Paneer Tikka, 2 Rotis, Kachumber)", "cals": l_cals, "p": round(target_p * 0.35, 1)},
-        {"name": "Mediterranean Quinoa Bowl with Feta & Olive Greens", "cals": l_cals, "p": round(target_p * 0.34, 1)},
-        {"name": "Chana Masala with Spiced Millet Pilaf and Sautéed Spinach", "cals": l_cals, "p": round(target_p * 0.32, 1)}
-    ]
+    diet_type_key = diet_type.lower().strip() if diet_type else "balanced"
 
-    snack_options = [
-        {"name": "Sprouted Chana Chaat with Lemon & Herbs", "cals": s_cals, "p": round(target_p * 0.12, 1)},
-        {"name": "Whey Isolate Shake with 1 Apple", "cals": s_cals, "p": round(target_p * 0.20, 1)},
-        {"name": "Roasted Makhana (Foxnuts) with 10 Walnuts", "cals": s_cals, "p": round(target_p * 0.10, 1)},
-        {"name": "Edamame Pods with Sea Salt", "cals": s_cals, "p": round(target_p * 0.14, 1)}
-    ]
+    if "veg" in diet_type_key and "vegan" not in diet_type_key:
+        # Indian Vegetarian
+        breakfast_options = [
+            {"name": "Moong Dal Cheela with Mint Paneer Stuffing", "cals": b_cals, "p": round(target_p * 0.25, 1)},
+            {"name": "Paneer Bhurji with 2 Multigrain Rotis & Tomato Kachumber", "cals": b_cals, "p": round(target_p * 0.28, 1)},
+            {"name": "Greek Dahi Berry Parfait with Crushed Walnuts & Chia", "cals": b_cals, "p": round(target_p * 0.24, 1)},
+            {"name": "High-Protein Sprouted Besan Chilla with Green Chutney", "cals": b_cals, "p": round(target_p * 0.26, 1)}
+        ]
+        lunch_options = [
+            {"name": "Yellow Dal Tadka with Grilled Paneer Tikka & Brown Rice", "cals": l_cals, "p": round(target_p * 0.36, 1)},
+            {"name": "Spiced Rajma Masala with Steamed Quinoa & Cucumber Raita", "cals": l_cals, "p": round(target_p * 0.35, 1)},
+            {"name": "Palak Paneer with Jowar Roti & Sautéed Mixed Veggies", "cals": l_cals, "p": round(target_p * 0.34, 1)},
+            {"name": "Chole Chickpea Curry with Spiced Millet Pilaf", "cals": l_cals, "p": round(target_p * 0.33, 1)}
+        ]
+        snack_options = [
+            {"name": "Sprouted Black Chana Chaat with Fresh Lemon & Herbs", "cals": s_cals, "p": round(target_p * 0.14, 1)},
+            {"name": "Roasted Makhana (Foxnuts) with 12 Almonds", "cals": s_cals, "p": round(target_p * 0.10, 1)},
+            {"name": "Low-Fat Masala Paneer Cubes with Mint Sprinkle", "cals": s_cals, "p": round(target_p * 0.16, 1)},
+            {"name": "Whey Protein / Sattu Shake with Chia Seeds", "cals": s_cals, "p": round(target_p * 0.18, 1)}
+        ]
+        dinner_options = [
+            {"name": "Lentil Soup (Moong Dal) with 1 Multigrain Roti & Paneer Salad", "cals": d_cals, "p": round(target_p * 0.26, 1)},
+            {"name": "Soya Chunks Curry with Steamed Broccoli & Quinoa", "cals": d_cals, "p": round(target_p * 0.32, 1)},
+            {"name": "Grilled Herbed Paneer Skewers with Roasted Asparagus & Bell Peppers", "cals": d_cals, "p": round(target_p * 0.28, 1)},
+            {"name": "Warm Sprouted Lentil Broth with Multigrain Toast", "cals": d_cals, "p": round(target_p * 0.24, 1)}
+        ]
+        shopping_list = [
+            {"category": "Vegetarian Proteins", "items": ["Fresh Low-Fat Paneer (1kg)", "Organic Soya Chunks (500g)", "Greek Dahi / Curd (1kg)", "Whey Protein / Sattu", "Sprouted Moong & Black Chana"]},
+            {"category": "Complex Grains & Dal", "items": ["Yellow Moong Dal & Toor Dal", "Rajma & Chana", "Organic Quinoa & Brown Basmati", "Jowar / Multigrain Flour", "Rolled Oats"]},
+            {"category": "Fresh Vegetables & Greens", "items": ["Baby Spinach (Palak)", "Fresh Broccoli Florets", "Cucumbers, Tomatoes & Mint", "Asparagus & Bell Peppers", "Lemons & Ginger"]},
+            {"category": "Healthy Fats & Seasoning", "items": ["Raw Almonds & Walnuts", "Black Chia & Flax Seeds", "Pure Cold-Pressed Mustard / Olive Oil", "Roasted Foxnuts (Makhana)", "Himalayan Pink Salt & Turmeric"]}
+        ]
 
-    dinner_options = [
-        {"name": "Pan-Seared Salmon Fillet / Paneer Skewers with Roasted Broccoli", "cals": d_cals, "p": round(target_p * 0.28, 1)},
-        {"name": "Lentil Soup (Dal Tadka) with 1 Multigrain Roti and Cucumber Salad", "cals": d_cals, "p": round(target_p * 0.24, 1)},
-        {"name": "Grilled Herb Chicken Breast with Zucchini & Cauliflower Mash", "cals": d_cals, "p": round(target_p * 0.30, 1)},
-        {"name": "Tofu Vegetable Curry with Steamed Quinoa", "cals": d_cals, "p": round(target_p * 0.26, 1)}
-    ]
+    elif "vegan" in diet_type_key:
+        # 100% Plant-Based
+        breakfast_options = [
+            {"name": "Turmeric Tofu Scramble with Whole Grain Toast & Avocado", "cals": b_cals, "p": round(target_p * 0.26, 1)},
+            {"name": "Rolled Oatmeal with Pea Protein, Blueberries & Chia Seeds", "cals": b_cals, "p": round(target_p * 0.25, 1)},
+            {"name": "Almond Milk Chia Pudding with Hemp Hearts & Banana Slices", "cals": b_cals, "p": round(target_p * 0.22, 1)},
+            {"name": "Sprouted Moong & Chickpea Cheela with Coconut-Mint Chutney", "cals": b_cals, "p": round(target_p * 0.24, 1)}
+        ]
+        lunch_options = [
+            {"name": "Air-Fried Crispy Tofu & Edamame Quinoa Bowl with Tahini", "cals": l_cals, "p": round(target_p * 0.36, 1)},
+            {"name": "Spiced Lentil Dal Tadka with Brown Basmati & Steamed Kale", "cals": l_cals, "p": round(target_p * 0.32, 1)},
+            {"name": "Tempeh Vegetable Curry with Tri-Color Quinoa & Asparagus", "cals": l_cals, "p": round(target_p * 0.38, 1)},
+            {"name": "Mediterranean Chickpea & Roast Veggie Platter with Hummus", "cals": l_cals, "p": round(target_p * 0.33, 1)}
+        ]
+        snack_options = [
+            {"name": "Steamed Sea-Salt Edamame Pods", "cals": s_cals, "p": round(target_p * 0.16, 1)},
+            {"name": "Sprouted Chana Chaat with Lime & Coriander", "cals": s_cals, "p": round(target_p * 0.14, 1)},
+            {"name": "Plant Protein Isolate Shake with Unsweetened Almond Milk", "cals": s_cals, "p": round(target_p * 0.18, 1)},
+            {"name": "Roasted Pumpkin Seeds & Brazil Nuts", "cals": s_cals, "p": round(target_p * 0.11, 1)}
+        ]
+        dinner_options = [
+            {"name": "Grilled Tofu Vegetable Skewers with Sautéed Spinach & Garlic", "cals": d_cals, "p": round(target_p * 0.28, 1)},
+            {"name": "Hearty Green Lentil & Vegetable Broth with Multigrain Toast", "cals": d_cals, "p": round(target_p * 0.26, 1)},
+            {"name": "Szechuan Pepper Tofu & Broccoli with Steamed Wild Rice", "cals": d_cals, "p": round(target_p * 0.30, 1)},
+            {"name": "Sprouted Moong Bowl with Sliced Avocado & Cherry Tomatoes", "cals": d_cals, "p": round(target_p * 0.25, 1)}
+        ]
+        shopping_list = [
+            {"category": "Plant Proteins", "items": ["Organic Firm Tofu (1kg)", "Organic Tempeh (500g)", "Shelled Edamame (500g)", "Pea/Rice Protein Powder", "Sprouted Lentils & Chickpeas"]},
+            {"category": "Whole Grains & Pulses", "items": ["Tri-Color Quinoa", "Brown Basmati Rice", "Yellow Moong & Green Lentils", "Rolled Oats", "Hemp Hearts"]},
+            {"category": "Greens & Produce", "items": ["Broccoli & Kale", "Baby Spinach & Asparagus", "Avocados (4 pcs)", "Cherry Tomatoes & Bell Peppers", "Limes, Garlic & Ginger"]},
+            {"category": "Healthy Fats & Extras", "items": ["Tahini & Pumpkin Seeds", "Raw Walnuts & Chia Seeds", "Extra Virgin Olive Oil", "Unsweetened Almond Milk", "Nutritional Yeast"]}
+        ]
+
+    elif "keto" in diet_type_key:
+        # Ketogenic Low-Carb High-Fat
+        breakfast_options = [
+            {"name": "Spinach & Mushroom Omelette with Sliced Avocado & Olive Oil", "cals": b_cals, "p": round(target_p * 0.28, 1)},
+            {"name": "Grilled Herbed Paneer Steak with Sautéed Asparagus", "cals": b_cals, "p": round(target_p * 0.26, 1)},
+            {"name": "Scrambled Eggs in Butter with Smoked Salmon & Chives", "cals": b_cals, "p": round(target_p * 0.30, 1)},
+            {"name": "Chia & Coconut Milk Cream Bowl with Crushed Pecans", "cals": b_cals, "p": round(target_p * 0.20, 1)}
+        ]
+        lunch_options = [
+            {"name": "Pan-Seared Salmon Fillet with Garlic Butter Cauliflower Rice", "cals": l_cals, "p": round(target_p * 0.36, 1)},
+            {"name": "Grilled Chicken Thighs with Roasted Zucchini & Feta Salad", "cals": l_cals, "p": round(target_p * 0.38, 1)},
+            {"name": "Paneer Tikka in Rich Cream Tomato Gravy (Zero Naan)", "cals": l_cals, "p": round(target_p * 0.32, 1)},
+            {"name": "Mediterranean Greek Salad with Herb Chicken & Extra Olives", "cals": l_cals, "p": round(target_p * 0.35, 1)}
+        ]
+        snack_options = [
+            {"name": "Whole Hass Avocado with Sea Salt & Lemon", "cals": s_cals, "p": round(target_p * 0.08, 1)},
+            {"name": "Roasted Almonds & Macadamia Nuts", "cals": s_cals, "p": round(target_p * 0.12, 1)},
+            {"name": "Keto Whey Protein Shake with MCT Oil", "cals": s_cals, "p": round(target_p * 0.18, 1)},
+            {"name": "Full-Fat Cottage Cheese / Paneer with Herb Olive Oil", "cals": s_cals, "p": round(target_p * 0.16, 1)}
+        ]
+        dinner_options = [
+            {"name": "Grilled Herb Chicken Breast with Broccoli in Cheddar Sauce", "cals": d_cals, "p": round(target_p * 0.32, 1)},
+            {"name": "Pan-Roasted Lemon Paneer with Sautéed Spinach & Garlic", "cals": d_cals, "p": round(target_p * 0.28, 1)},
+            {"name": "Baked Herb Salmon Fillet with Asparagus Spears & Butter", "cals": d_cals, "p": round(target_p * 0.30, 1)},
+            {"name": "Spiced Ground Chicken / Soya Bowl with Avocado Crema", "cals": d_cals, "p": round(target_p * 0.34, 1)}
+        ]
+        shopping_list = [
+            {"category": "Keto Proteins", "items": ["Wild Salmon Fillets / Chicken Thighs", "Full-Fat Fresh Paneer", "Free-Range Pastured Eggs", "Greek Feta Cheese", "Zero-Carb Whey Isolate"]},
+            {"category": "Low-Carb Veggies", "items": ["Cauliflower (for rice)", "Fresh Zucchini & Broccoli", "Asparagus Spears", "Baby Spinach & Salad Greens", "Hass Avocados (6 pcs)"]},
+            {"category": "Healthy Fats & Oils", "items": ["Extra Virgin Olive Oil", "Pure Grass-Fed Ghee / Butter", "MCT Oil", "Kalamata Olives", "Full-Fat Coconut Milk"]},
+            {"category": "Keto Crunch & Extras", "items": ["Macadamia Nuts & Pecans", "Raw Almonds", "Hemp Seeds & Chia Seeds", "Pink Himalayan Rock Salt", "Herbes de Provence"]}
+        ]
+
+    elif "diabetic" in diet_type_key:
+        # Low Glycemic Index & High Soluble Fiber
+        breakfast_options = [
+            {"name": "Sprouted Moong & Methi Cheela with Flaxseed Chutney", "cals": b_cals, "p": round(target_p * 0.26, 1)},
+            {"name": "Steel-Cut Cinnamon Oats with Chia Seeds & Sliced Almonds", "cals": b_cals, "p": round(target_p * 0.24, 1)},
+            {"name": "Egg White & Spinach Omelette with 1 Multigrain Roti", "cals": b_cals, "p": round(target_p * 0.28, 1)},
+            {"name": "Low-Fat Dahi Berry Bowl with Ceylon Cinnamon Sprinkle", "cals": b_cals, "p": round(target_p * 0.22, 1)}
+        ]
+        lunch_options = [
+            {"name": "Bitter Gourd (Karela) & Paneer Bhurji with 2 Jowar Bhakris", "cals": l_cals, "p": round(target_p * 0.34, 1)},
+            {"name": "Yellow Dal with Methi Leaves, Brown Basmati & Sprouted Salad", "cals": l_cals, "p": round(target_p * 0.32, 1)},
+            {"name": "Grilled Lemon Chicken / Tofu with Steamed Asparagus & Quinoa", "cals": l_cals, "p": round(target_p * 0.36, 1)},
+            {"name": "High-Fiber Chana Dal with Cucumber Raita & Multigrain Roti", "cals": l_cals, "p": round(target_p * 0.33, 1)}
+        ]
+        snack_options = [
+            {"name": "Roasted Sprouted Chana with Lemon & Chaat Masala", "cals": s_cals, "p": round(target_p * 0.14, 1)},
+            {"name": "Roasted Makhana with 10 Walnuts (Zero Sugar)", "cals": s_cals, "p": round(target_p * 0.10, 1)},
+            {"name": "Fenugreek-Infused Green Tea with Steamed Edamame", "cals": s_cals, "p": round(target_p * 0.12, 1)},
+            {"name": "Whey Isolate / Sattu Drink with Cinnamon", "cals": s_cals, "p": round(target_p * 0.18, 1)}
+        ]
+        dinner_options = [
+            {"name": "Moong Dal Soup with Sautéed Palak & 1 Multigrain Roti", "cals": d_cals, "p": round(target_p * 0.26, 1)},
+            {"name": "Pan-Seared Salmon Fillet with Steamed Broccoli & Zucchini", "cals": d_cals, "p": round(target_p * 0.30, 1)},
+            {"name": "Grilled Herbed Paneer Skewers with Big Green Salad", "cals": d_cals, "p": round(target_p * 0.28, 1)},
+            {"name": "Clear Vegetable & Tofu Broth with Millet Crackers", "cals": d_cals, "p": round(target_p * 0.25, 1)}
+        ]
+        shopping_list = [
+            {"category": "Low-GI Proteins", "items": ["Low-Fat Paneer & Greek Yogurt", "Egg Whites / Lean Chicken", "Organic Firm Tofu", "Sprouted Moong & Black Chana", "Chana Dal & Yellow Dal"]},
+            {"category": "Low-GI Complex Carbs", "items": ["Jowar & Ragi Flour", "Steel-Cut Oats", "Organic Quinoa", "Brown Basmati Rice", "Flaxseed Meal"]},
+            {"category": "Glycemic-Regulating Produce", "items": ["Bitter Gourd (Karela)", "Fresh Fenugreek (Methi) Leaves", "Baby Spinach (Palak)", "Broccoli & Asparagus", "Cucumbers & Limes"]},
+            {"category": "Healthy Lipids & Spices", "items": ["Ceylon Cinnamon Powder", "Raw Walnuts & Almonds", "Extra Virgin Olive Oil", "Chia Seeds", "Roasted Makhana"]}
+        ]
+
+    else:
+        # Default: Balanced High-Protein
+        breakfast_options = [
+            {"name": "Protein Oatmeal with Blueberries, Chia & Whey", "cals": b_cals, "p": round(target_p * 0.25, 1)},
+            {"name": "Egg White & Spinach Omelette with Whole Wheat Toast", "cals": b_cals, "p": round(target_p * 0.28, 1)},
+            {"name": "Greek Yogurt Berry Bowl with Crushed Almonds & Honey", "cals": b_cals, "p": round(target_p * 0.26, 1)},
+            {"name": "Moong Dal Cheela with Mint Paneer Stuffing", "cals": b_cals, "p": round(target_p * 0.24, 1)}
+        ]
+        lunch_options = [
+            {"name": "Grilled Chicken Breast / Tofu with Brown Rice & Steamed Asparagus", "cals": l_cals, "p": round(target_p * 0.38, 1)},
+            {"name": "Traditional Indian Thali (Yellow Dal, Paneer Tikka, 2 Rotis, Kachumber)", "cals": l_cals, "p": round(target_p * 0.35, 1)},
+            {"name": "Mediterranean Quinoa Bowl with Feta & Olive Greens", "cals": l_cals, "p": round(target_p * 0.34, 1)},
+            {"name": "Chana Masala with Spiced Millet Pilaf and Sautéed Spinach", "cals": l_cals, "p": round(target_p * 0.32, 1)}
+        ]
+        snack_options = [
+            {"name": "Sprouted Chana Chaat with Lemon & Herbs", "cals": s_cals, "p": round(target_p * 0.12, 1)},
+            {"name": "Whey Isolate Shake with 1 Apple", "cals": s_cals, "p": round(target_p * 0.20, 1)},
+            {"name": "Roasted Makhana (Foxnuts) with 10 Walnuts", "cals": s_cals, "p": round(target_p * 0.10, 1)},
+            {"name": "Edamame Pods with Sea Salt", "cals": s_cals, "p": round(target_p * 0.14, 1)}
+        ]
+        dinner_options = [
+            {"name": "Pan-Seared Salmon Fillet / Paneer Skewers with Roasted Broccoli", "cals": d_cals, "p": round(target_p * 0.28, 1)},
+            {"name": "Lentil Soup (Dal Tadka) with 1 Multigrain Roti and Cucumber Salad", "cals": d_cals, "p": round(target_p * 0.24, 1)},
+            {"name": "Grilled Herb Chicken Breast with Zucchini & Cauliflower Mash", "cals": d_cals, "p": round(target_p * 0.30, 1)},
+            {"name": "Tofu Vegetable Curry with Steamed Quinoa", "cals": d_cals, "p": round(target_p * 0.26, 1)}
+        ]
+        shopping_list = [
+            {"category": "Proteins", "items": ["Chicken Breast / Organic Firm Tofu", "Fresh Low-Fat Paneer", "Greek Yogurt (Non-Fat)", "Eggs / Egg Whites", "Whey Protein Isolate"]},
+            {"category": "Complex Carbs & Grains", "items": ["Rolled Oats", "Organic Quinoa", "Brown Basmati Rice", "Whole Wheat / Multigrain Flour", "Sprouted Moong & Black Chickpeas"]},
+            {"category": "Vegetables & Fruits", "items": ["Fresh Broccoli Florets", "Baby Spinach / Palak", "Cucumbers & Cherry Tomatoes", "Fresh Blueberries & Bananas", "Asparagus Spears"]},
+            {"category": "Healthy Fats & Extras", "items": ["Raw Almonds & Walnuts", "Black Chia Seeds", "Extra Virgin Olive Oil", "Natural Peanut Butter", "Turmeric, Cumin, Herbs & Spices"]}
+        ]
 
     weekly_plan = []
     for i, day in enumerate(days_names):
@@ -229,7 +378,7 @@ def generate_7day_diet_plan(client_targets: Dict[str, Any], diet_type: str = "ba
         l = lunch_options[i % len(lunch_options)]
         s = snack_options[i % len(snack_options)]
         d = dinner_options[i % len(dinner_options)]
-        
+
         day_cals = b["cals"] + l["cals"] + s["cals"] + d["cals"]
         day_p = round(b["p"] + l["p"] + s["p"] + d["p"], 1)
 
@@ -244,13 +393,6 @@ def generate_7day_diet_plan(client_targets: Dict[str, Any], diet_type: str = "ba
                 "dinner": {"title": d["name"], "calories": d["cals"], "protein_g": d["p"]}
             }
         })
-
-    shopping_list = [
-        {"category": "Proteins", "items": ["Chicken Breast / Organic Firm Tofu", "Fresh Low-Fat Paneer", "Greek Yogurt (Non-Fat)", "Eggs / Egg Whites", "Whey Protein Isolate"]},
-        {"category": "Complex Carbs & Grains", "items": ["Rolled Oats", "Organic Quinoa", "Brown Basmati Rice", "Whole Wheat / Multigrain Flour", "Sprouted Moong & Black Chickpeas"]},
-        {"category": "Vegetables & Fruits", "items": ["Fresh Broccoli Florets", "Baby Spinach / Palak", "Cucumbers & Cherry Tomatoes", "Fresh Blueberries & Bananas", "Asparagus Spears"]},
-        {"category": "Healthy Fats & Extras", "items": ["Raw Almonds & Walnuts", "Black Chia Seeds", "Extra Virgin Olive Oil", "Natural Peanut Butter", "Turmeric, Cumin, Herbs & Spices"]}
-    ]
 
     return {
         "client_target_calories": target_cals,

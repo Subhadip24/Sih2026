@@ -516,7 +516,9 @@ body::after {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
   min-width: 0;
+  width: 100%;
   background: transparent;
   position: relative;
   z-index: 1;
@@ -537,6 +539,8 @@ body::after {
   align-items: center;
   gap: 16px;
   box-shadow: 0 4px 25px rgba(0,0,0,0.5);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header-status-ticker {
@@ -574,7 +578,7 @@ body::after {
   box-shadow: 0 0 14px var(--tatva-emerald-glow);
 }
 
-/* Main Workspace Padding */
+/* Main Workspace Centering */
 .main-content {
   max-width: 1440px;
   width: 100%;
@@ -582,10 +586,17 @@ body::after {
   padding: 26px 30px 70px;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .tab-pane {
   display: none;
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
   animation: fadeInTab 0.38s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -602,6 +613,8 @@ body::after {
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 @media (min-width: 1100px) {
@@ -614,6 +627,8 @@ body::after {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 18px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 /* ==========================================================================
@@ -918,6 +933,43 @@ body::after {
 
 .shutter-btn:active {
   transform: scale(0.92);
+}
+
+.shutter-btn.camera-live {
+  background: linear-gradient(135deg, #ccff00, #00f59b);
+  color: #090a0c;
+  box-shadow: 0 0 35px #ccff00, 0 0 60px rgba(204, 255, 0, 0.6);
+  animation: live-pulse-shutter 1.5s infinite alternate;
+}
+
+@keyframes live-pulse-shutter {
+  0% { transform: scale(1); box-shadow: 0 0 25px #ccff00; }
+  100% { transform: scale(1.08); box-shadow: 0 0 45px #ccff00, 0 0 70px rgba(0, 245, 155, 0.7); }
+}
+
+.realtime-cam-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(204, 255, 0, 0.15);
+  border: 1px solid rgba(204, 255, 0, 0.4);
+  border-radius: 8px;
+  color: #ccff00;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.realtime-cam-badge.pulsing {
+  animation: pulse-badge 1.6s infinite ease-in-out;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { opacity: 0.75; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
 }
 
 /* Preset Carousel */
@@ -1489,6 +1541,99 @@ body::after {
   color: #bae6fd;
   margin: 14px 0;
   line-height: 1.5;
+}
+
+/* AI Diet Plan Generator Console */
+.diet-generator-console-card {
+  background: linear-gradient(135deg, rgba(14, 24, 46, 0.95), rgba(7, 13, 26, 0.98));
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  border-radius: 22px;
+  padding: 26px;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  margin-bottom: 26px;
+  position: relative;
+  overflow: hidden;
+}
+
+.diet-generator-console-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ccff00, #00f59b, #00f2fe, #b5179e);
+}
+
+.generator-grid-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 20px 0 22px;
+}
+
+.generator-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.generator-field label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--tatva-cyan-bright);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.generator-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.btn-volt-glow {
+  background: #ccff00;
+  color: #090a0c;
+  border: none;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 13.5px;
+  padding: 12px 26px;
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(204, 255, 0, 0.4);
+  transition: var(--trans-spring);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-volt-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(204, 255, 0, 0.7);
+  background: #d4ff1a;
+}
+
+.btn-volt-glow:active {
+  transform: scale(0.96);
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0,0,0,0.3);
+  border-radius: 50%;
+  border-top-color: #000;
+  animation: spin 0.8s linear infinite;
 }
 
 .schedule-table-wrap {

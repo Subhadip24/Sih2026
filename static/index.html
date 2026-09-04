@@ -171,11 +171,14 @@
                   <span style="font-size: 12.5px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
                     <span class="status-dot"></span> Holographic AI Plate Viewfinder
                   </span>
-                  <div style="display: flex; gap: 8px;">
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="btn btn-primary-volt" id="livePhotoCaptureBtn" style="padding: 5px 12px; font-size: 11px; display: flex; align-items: center; gap: 6px;" title="Take Realtime Photo with Camera">
+                      <span>📸</span> Realtime Photo
+                    </button>
                     <button class="btn-icon" id="startCameraBtn" title="Toggle Live Webcam Feed">📷</button>
                     <button class="btn-icon" id="switchCameraBtn" title="Switch Camera (Front/Rear)">🔄</button>
                     <button class="btn-icon" id="uploadTriggerBtn" title="Upload Plate Photo">📁</button>
-                    <input type="file" id="plateFileInput" accept="image/*" style="display: none;" />
+                    <input type="file" id="plateFileInput" accept="image/*" capture="environment" style="display: none;" />
                   </div>
                 </div>
 
@@ -203,7 +206,13 @@
                 </div>
 
                 <div class="shutter-bar">
-                  <button class="shutter-btn" id="shutterBtn" title="Capture / Re-analyze Plate">📸</button>
+                  <button class="btn btn-secondary" id="toggleLiveCamBtn" style="font-size: 12px; padding: 10px 16px; border-radius: 20px; display: flex; align-items: center; gap: 6px;">
+                    <span>📷</span> Start Live Camera
+                  </button>
+                  <button class="shutter-btn" id="shutterBtn" title="Capture / Snap Realtime Photo">📸</button>
+                  <button class="btn btn-secondary" id="mobileSnapBtn" style="font-size: 12px; padding: 10px 16px; border-radius: 20px; display: flex; align-items: center; gap: 6px;" title="Open Device Camera">
+                    <span>📱</span> Snap Device
+                  </button>
                 </div>
               </div>
 
@@ -632,6 +641,90 @@
 
         <!-- ==================== TAB 4: AI DIET PLANNER & 7-DAY MATRIX ==================== -->
         <section class="tab-pane" id="diet_plannerPane">
+
+          <!-- AI Clinical Diet Plan Generator Console -->
+          <div class="diet-generator-console-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 22px;">🧠</span>
+                  <h3 style="font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: #fff; margin: 0;">
+                    AI Diet Plan Generator & Clinical Matrix
+                  </h3>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); margin-top: 5px; max-width: 680px; line-height: 1.5;">
+                  Generates an adaptive, evidence-based 7-day nutritional blueprint calibrated to your metabolic rate, macro targets, and cultural food preferences.
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <span class="card-badge" style="background: rgba(204, 255, 0, 0.15); border-color: rgba(204, 255, 0, 0.4); color: #ccff00;">⚡ AI Active</span>
+                <span class="card-badge" id="plannerCalorieSyncBadge">Target: 2100 kcal</span>
+              </div>
+            </div>
+
+            <!-- Generator Controls Form Grid -->
+            <div class="generator-grid-controls">
+              <div class="generator-field">
+                <label for="plannerDietTypeSelect"><span>🥗</span> Dietary Style & Culture</label>
+                <select class="form-control" id="plannerDietTypeSelect">
+                  <option value="balanced" selected>Balanced High-Protein (Poultry/Eggs/Fish)</option>
+                  <option value="vegetarian">Indian High-Protein Vegetarian (Paneer/Dal/Dahi)</option>
+                  <option value="vegan">100% Plant-Based Vegan (Tofu/Legumes/Quinoa)</option>
+                  <option value="keto">Ketogenic Low-Carb / High Healthy Fats</option>
+                  <option value="diabetic">Diabetic & Glycemic Control (High Fiber/Millets)</option>
+                  <option value="athlete_bulk">Athletic Surplus Lean Mass Bulk</option>
+                </select>
+              </div>
+
+              <div class="generator-field">
+                <label for="plannerTargetCalsInput"><span>⚡</span> Daily Target Energy</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <input type="number" class="form-control" id="plannerTargetCalsInput" value="2100" min="1200" max="4500" step="50" style="font-family: var(--font-mono); font-weight: 700;" />
+                  <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);">kcal</span>
+                </div>
+              </div>
+
+              <div class="generator-field">
+                <label for="plannerTargetProteinInput"><span>🥩</span> Target Protein Intake</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <input type="number" class="form-control" id="plannerTargetProteinInput" value="135" min="40" max="300" step="5" style="font-family: var(--font-mono); font-weight: 700;" />
+                  <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);">g/day</span>
+                </div>
+              </div>
+
+              <div class="generator-field">
+                <label for="plannerGoalSelect"><span>🎯</span> Metabolic Goal</label>
+                <select class="form-control" id="plannerGoalSelect">
+                  <option value="lean_hypertrophy" selected>Lean Hypertrophy & Muscle Gain</option>
+                  <option value="fat_loss">Aggressive Fat Loss (Calorie Deficit)</option>
+                  <option value="recomposition">Body Recomposition & Tone</option>
+                  <option value="longevity">Metabolic Health & Longevity</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="generator-actions-row">
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button class="btn-volt-glow" id="generate7DayPlanBtn">
+                  <span>⚡</span> Generate AI 7-Day Plan
+                </button>
+                <button class="btn btn-secondary" id="syncWithProfileBtn" style="font-size: 12px; padding: 10px 16px;">
+                  <span>🔄</span> Sync with Profile BMR
+                </button>
+              </div>
+
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button class="btn btn-secondary" id="copyDietPlanBtn" style="font-size: 12px; padding: 10px 16px;">
+                  <span>📋</span> Copy Plan
+                </button>
+                <button class="btn btn-secondary" id="printDietitianReportBtn" style="font-size: 12px; padding: 10px 16px;">
+                  <span>🖨️</span> Print Clinical Report
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Real-Time Next Meal Recommender -->
           <div class="glass-card highlight" style="margin-bottom: 24px;">
             <div class="card-header">
@@ -666,15 +759,7 @@
                 </p>
               </div>
               <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <select class="form-control" id="plannerDietTypeSelect" style="width: auto; padding: 7px 14px;">
-                  <option value="balanced" selected>Balanced High-Protein</option>
-                  <option value="vegetarian">Indian Vegetarian</option>
-                  <option value="vegan">100% Plant-Based Vegan</option>
-                  <option value="keto">Ketogenic (Low Carb)</option>
-                  <option value="diabetic">Diabetic Glycemic Control</option>
-                </select>
-                <button class="btn btn-cyan" id="generate7DayPlanBtn" style="padding: 7px 16px; font-size: 12px;">Generate Plan</button>
-                <button class="btn btn-secondary" id="printDietitianReportBtn" style="padding: 7px 16px; font-size: 12px;">🖨️ Print Report</button>
+                <span id="activeDietPlanBadge" class="card-badge" style="color: var(--tatva-cyan-bright);">Balanced High-Protein</span>
               </div>
             </div>
 
