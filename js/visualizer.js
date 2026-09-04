@@ -21,8 +21,60 @@ const VisualizerModule = {
     if (this.canvas) {
       this.ctx = this.canvas.getContext('2d');
       window.addEventListener('resize', () => this.resizeCanvas());
+      const imgDisplay = document.getElementById('plateImageDisplay');
+      if (imgDisplay) {
+        imgDisplay.addEventListener('load', () => {
+          this.resizeCanvas();
+          this.redrawOverlay();
+        });
+      }
       this.bindCanvasInteractions();
     }
+  },
+
+  getImageRenderBounds() {
+    const img = document.getElementById('plateImageDisplay');
+    const video = document.getElementById('cameraVideo');
+    const activeMedia = (video && video.style.display !== 'none') ? video : img;
+
+    if (!this.canvas) return { x: 0, y: 0, w: 600, h: 440 };
+
+    const containerW = this.canvas.width;
+    const containerH = this.canvas.height;
+
+    let naturalW = 0;
+    let naturalH = 0;
+
+    if (activeMedia === video) {
+      naturalW = video.videoWidth || 1280;
+      naturalH = video.videoHeight || 720;
+    } else if (img) {
+      naturalW = img.naturalWidth || img.clientWidth || containerW;
+      naturalH = img.naturalHeight || img.clientHeight || containerH;
+    }
+
+    if (!naturalW || !naturalH) {
+      return { x: 0, y: 0, w: containerW, h: containerH };
+    }
+
+    const imgAspect = naturalW / naturalH;
+    const containerAspect = containerW / containerH;
+
+    let renderW, renderH, renderX, renderY;
+
+    if (imgAspect > containerAspect) {
+      renderW = containerW;
+      renderH = containerW / imgAspect;
+      renderX = 0;
+      renderY = (containerH - renderH) / 2;
+    } else {
+      renderH = containerH;
+      renderW = containerH * imgAspect;
+      renderX = (containerW - renderW) / 2;
+      renderY = 0;
+    }
+
+    return { x: renderX, y: renderY, w: renderW, h: renderH };
   },
 
   resizeCanvas() {
@@ -40,8 +92,21 @@ const VisualizerModule = {
 
     this.canvas.addEventListener('mousemove', (e) => {
       const rect = this.canvas.getBoundingClientRect();
-      const mouseX = ((e.clientX - rect.left) / this.canvas.width) * 1000;
-      const mouseY = ((e.clientY - rect.top) / this.canvas.height) * 1000;
+      const bounds = this.getImageRenderBounds();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      if (clickX < bounds.x || clickX > bounds.x + bounds.w ||
+          clickY < bounds.y || clickY > bounds.y + bounds.h) {
+        if (this.activeHoverItemIndex !== -1) {
+          this.activeHoverItemIndex = -1;
+          this.redrawOverlay();
+        }
+        return;
+      }
+
+      const mouseX = ((clickX - bounds.x) / bounds.w) * 1000;
+      const mouseY = ((clickY - bounds.y) / bounds.h) * 1000;
 
       const analysis = AppState.currentPlateAnalysis;
       if (!analysis || !analysis.items) return;
@@ -112,14 +177,15 @@ const VisualizerModule = {
     const analysis = AppState.currentPlateAnalysis;
     if (!analysis || !analysis.items) return;
 
-    const scaleX = this.canvas.width / 1000;
-    const scaleY = this.canvas.height / 1000;
+    const bounds = this.getImageRenderBounds();
+    const scaleX = bounds.w / 1000;
+    const scaleY = bounds.h / 1000;
 
     analysis.items.forEach((item, index) => {
       const isHovered = (index === this.activeHoverItemIndex);
       const [ymin, xmin, ymax, xmax] = item.box_2d;
-      const x = xmin * scaleX;
-      const y = ymin * scaleY;
+      const x = bounds.x + (xmin * scaleX);
+      const y = bounds.y + (ymin * scaleY);
       const w = (xmax - xmin) * scaleX;
       const h = (ymax - ymin) * scaleY;
 
