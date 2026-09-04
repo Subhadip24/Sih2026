@@ -3,6 +3,40 @@
 
 ---
 
+## 📱 Official Android Mobile App (APK Release)
+
+<div align="center">
+  <img src="static/images/thaaltatva_tricolor_logo.png" width="130" height="130" alt="ThaalTatva Indian Tricolor Logo" style="border-radius: 24px; box-shadow: 0 0 25px rgba(255, 153, 51, 0.4);" />
+  <br/>
+  <h3>🇮🇳 ThaalTatva AI for Android</h3>
+  <p><b>Official Indian Tricolor Edition • Real-Time Computer Vision &amp; GPS Gym Tracking</b></p>
+  <p>
+    <a href="https://github.com/Subhadip24/Sih2026/raw/main/ThaalTatva.apk">
+      <img src="https://img.shields.io/badge/Download-ThaalTatva.apk-CCFF00?style=for-the-badge&logo=android&logoColor=black" alt="Download APK" />
+    </a>
+    <a href="https://github.com/Subhadip24/Sih2026/raw/main/release/ThaalTatva-v1.0.0-release.apk">
+      <img src="https://img.shields.io/badge/Version-1.0.0_Release-00F2FE?style=for-the-badge&logo=github" alt="Release 1.0.0" />
+    </a>
+    <img src="https://img.shields.io/badge/Size-6.48_MB-FF9933?style=for-the-badge" alt="Size 6.48MB" />
+    <img src="https://img.shields.io/badge/Status-Signed_&_Verified-138808?style=for-the-badge" alt="Verified" />
+  </p>
+</div>
+
+### 📥 How to Install on Any Android Device:
+1. **Download APK**: Tap **[Download ThaalTatva.apk](https://github.com/Subhadip24/Sih2026/raw/main/ThaalTatva.apk)** directly on your smartphone (or download `release/ThaalTatva-v1.0.0-release.apk`).
+2. **Enable Unknown Sources**: When prompted, tap *"Settings"* and toggle *"Allow from this source"* (standard for direct APK installs outside Play Store).
+3. **Install & Launch**: Tap **Install** and open **ThaalTatva AI**.
+4. **Grant Permissions**: Allow Camera and Location access when prompted to activate **Realtime HD Plate Scanning** and **Instant GPS Gym Navigation**.
+
+#### ⚡ Real-Time Native Capabilities in APK:
+- **Instant Live Camera Feed**: Directly streams device camera with zero latency and snaps high-res meal frames.
+- **Hardware-Accelerated Computer Vision**: Real-time Pancha-Tatva segmentation canvas with interactive gram sliders.
+- **GPS Triangulation**: Pinpoints your exact location and spotlights the closest gym with live distance & walking/driving travel times.
+- **Full Offline Operation**: Completely self-contained embedded engine with client-side fallback — works even with zero internet connectivity.
+- **Official Indian Tricolor Flag App Logo**: Featuring Indian Saffron, Ashoka Chakra & Pancha-Tatva mandala in White, and India Green.
+
+---
+
 ## 🌟 Overview & Problem Statement
 
 Accurate dietary tracking and fitness transformation are the two most critical yet commonly failed aspects of modern wellness, clinical nutrition, and body recomposition. Traditional apps require tedious guessing of food weights, fail to account for **food left uneaten on the plate**, and lack integrated physiological guidance on how the human body oxidizes energy (carbohydrates vs fats) to achieve an aesthetic, healthy physique.

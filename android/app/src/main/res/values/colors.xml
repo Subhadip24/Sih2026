@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#090a0c</color>
+    <color name="colorPrimaryDark">#050608</color>
+    <color name="colorAccent">#ccff00</color>
+    <color name="saffron">#ff9933</color>
+    <color name="white">#ffffff</color>
+    <color name="india_green">#138808</color>
+</resources>

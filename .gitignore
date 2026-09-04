@@ -18,3 +18,12 @@ uploads/
 .DS_Store
 .directory
 Thumbs.db
+# Android build artifacts
+android/app-unaligned.apk
+android/compiled_res.zip
+android/bin/
+android/dex/
+android/app/src/main/gen/
+android/.gradle/
+android/build/
+android/app/build/
