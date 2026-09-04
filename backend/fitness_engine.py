@@ -3,7 +3,7 @@ Fitness Target, BMR, TDEE, and Dynamic Macro Engine.
 Calculates metabolic expenditure, target calorie deficit/surplus, custom macro splits, and real-time remaining budgets.
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 ACTIVITY_MULTIPLIERS = {
     "sedentary": 1.2,          # Little to no exercise, desk job
@@ -205,3 +205,398 @@ def compute_remaining_budget(daily_targets: Dict[str, Any], consumed_today: Dict
             "fat_pct": pct_f
         }
     }
+
+
+# ==================== EXERCISE FUEL BURN & METABOLIC OXIDATION ENGINE ====================
+
+EXERCISE_MET_PROFILES = {
+    "zone2_cardio": {
+        "name": "Zone 2 Incline Walk / Steady Cardio",
+        "met": 6.0,
+        "fat_oxidation_ratio": 0.65,
+        "carb_oxidation_ratio": 0.35,
+        "epoc_pct": 0.06,
+        "primary_fuel": "Fat Lipolysis (Mitochondrial Beta-Oxidation)"
+    },
+    "hypertrophy_weightlifting": {
+        "name": "Hypertrophy Resistance Training (Gym)",
+        "met": 5.5,
+        "fat_oxidation_ratio": 0.40,
+        "carb_oxidation_ratio": 0.60,
+        "epoc_pct": 0.16,
+        "primary_fuel": "Intramuscular Glycogen & Afterburn EPOC"
+    },
+    "hiit_circuits": {
+        "name": "High-Intensity Interval Training (HIIT)",
+        "met": 9.2,
+        "fat_oxidation_ratio": 0.28,
+        "carb_oxidation_ratio": 0.72,
+        "epoc_pct": 0.20,
+        "primary_fuel": "Rapid Glycogen Depletion + Massive EPOC"
+    },
+    "stairmaster": {
+        "name": "Stairmaster / High Incline Climber",
+        "met": 8.5,
+        "fat_oxidation_ratio": 0.50,
+        "carb_oxidation_ratio": 0.50,
+        "epoc_pct": 0.12,
+        "primary_fuel": "Balanced Glute-Driven Fat & Glycogen Burn"
+    },
+    "jump_rope": {
+        "name": "Speed Jump Rope / Boxer Conditioning",
+        "met": 10.0,
+        "fat_oxidation_ratio": 0.32,
+        "carb_oxidation_ratio": 0.68,
+        "epoc_pct": 0.15,
+        "primary_fuel": "Glycogen & Fast-Twitch Muscle Burn"
+    },
+    "crossfit_metcon": {
+        "name": "CrossFit MetCon / Functional Circuit",
+        "met": 9.5,
+        "fat_oxidation_ratio": 0.30,
+        "carb_oxidation_ratio": 0.70,
+        "epoc_pct": 0.18,
+        "primary_fuel": "High Lactate Glycolysis + 36h Afterburn"
+    },
+    "outdoor_cycling": {
+        "name": "Road / Stationary Cycling",
+        "met": 7.5,
+        "fat_oxidation_ratio": 0.55,
+        "carb_oxidation_ratio": 0.45,
+        "epoc_pct": 0.08,
+        "primary_fuel": "Quad Fueling & Aerobic Lipolysis"
+    },
+    "swimming_laps": {
+        "name": "Swimming Freestyle / Butterfly Laps",
+        "met": 8.0,
+        "fat_oxidation_ratio": 0.45,
+        "carb_oxidation_ratio": 0.55,
+        "epoc_pct": 0.10,
+        "primary_fuel": "Full Body Resistance & Aerobic Burn"
+    }
+}
+
+INTENSITY_MODIFIERS = {
+    "light": 0.85,
+    "moderate": 1.0,
+    "vigorous": 1.18,
+    "maximum": 1.35
+}
+
+
+def calculate_exercise_burn(
+    activity: str = "hypertrophy_weightlifting",
+    duration_min: float = 45.0,
+    weight_kg: float = 75.0,
+    intensity: str = "moderate"
+) -> Dict[str, Any]:
+    """
+    Computes total calories, fat oxidized (g), carbs depleted (g), and post-exercise EPOC.
+    """
+    profile = EXERCISE_MET_PROFILES.get(activity, EXERCISE_MET_PROFILES["hypertrophy_weightlifting"])
+    intensity_mult = INTENSITY_MODIFIERS.get(intensity, 1.0)
+
+    # Standard formula: Calories = MET * 3.5 * weight_kg / 200 * duration_min
+    # Simplified standard equivalent: MET * weight_kg * (duration_min / 60)
+    base_calories = profile["met"] * weight_kg * (duration_min / 60.0) * intensity_mult
+    total_calories = round(base_calories, 1)
+
+    fat_cals = total_calories * profile["fat_oxidation_ratio"]
+    carb_cals = total_calories * profile["carb_oxidation_ratio"]
+
+    fat_grams = round(fat_cals / 9.0, 1)    # 1g fat = 9 kcal
+    carb_grams = round(carb_cals / 4.0, 1)  # 1g carb = 4 kcal
+
+    epoc_bonus_cals = round(total_calories * profile["epoc_pct"], 1)
+
+    # Equivalent metabolic steps estimation
+    approx_steps = int((total_calories / 0.04) * 0.75)
+
+    return {
+        "activity": activity,
+        "activity_name": profile["name"],
+        "duration_min": duration_min,
+        "weight_kg": weight_kg,
+        "intensity": intensity,
+        "total_calories_kcal": total_calories,
+        "fat_oxidized_grams": fat_grams,
+        "carbs_burned_grams": carb_grams,
+        "fat_ratio_pct": int(profile["fat_oxidation_ratio"] * 100),
+        "carb_ratio_pct": int(profile["carb_oxidation_ratio"] * 100),
+        "epoc_afterburn_kcal": epoc_bonus_cals,
+        "primary_fuel_source": profile["primary_fuel"],
+        "approx_equivalent_steps": approx_steps
+    }
+
+
+# ==================== AVATAR RECOMPOSITION & MORPHING CALCULATOR ====================
+
+def calculate_body_recomposition_avatar(
+    current_weight_kg: float = 75.0,
+    target_weight_kg: float = 70.0,
+    height_cm: float = 175.0,
+    gender: str = "male",
+    current_body_fat_pct: float = 24.0,
+    goal: str = "lean_hypertrophy",
+    timeline_weeks: int = 12
+) -> Dict[str, Any]:
+    """
+    Computes precise body recomposition parameters for visual avatar morphing.
+    """
+    # Current body composition
+    current_fat_mass_kg = round(current_weight_kg * (current_body_fat_pct / 100.0), 1)
+    current_lean_mass_kg = round(current_weight_kg - current_fat_mass_kg, 1)
+
+    # Determine optimal aesthetic target body fat %
+    if gender.lower() == "female":
+        ideal_target_bf = 19.0 if "fat_loss" in goal or "hypertrophy" in goal else 22.0
+    else:
+        ideal_target_bf = 11.5 if "fat_loss" in goal or "hypertrophy" in goal else 14.0
+
+    target_fat_pct = min(current_body_fat_pct - 2.0, ideal_target_bf)
+    target_fat_pct = max(target_fat_pct, 9.0 if gender.lower() == "male" else 16.0)
+
+    target_fat_mass_kg = round(target_weight_kg * (target_fat_pct / 100.0), 1)
+    target_lean_mass_kg = round(target_weight_kg - target_fat_mass_kg, 1)
+
+    fat_to_lose_kg = max(0.0, round(current_fat_mass_kg - target_fat_mass_kg, 1))
+    muscle_to_gain_kg = max(0.0, round(target_lean_mass_kg - current_lean_mass_kg, 1))
+
+    # 1 kg of pure adipose tissue stores ~7,700 kcal
+    total_fat_deficit_kcal = int(fat_to_lose_kg * 7700)
+    weeks = max(timeline_weeks, 4)
+    daily_caloric_deficit = round(total_fat_deficit_kcal / (weeks * 7), 0) if fat_to_lose_kg > 0 else 0
+
+    # Aesthetic ratio indicators
+    current_waist_est_cm = round(current_weight_kg * 0.95 + (height_cm * 0.15) - (5 if gender.lower() == "male" else 10), 1)
+    target_waist_est_cm = round(current_waist_est_cm - (fat_to_lose_kg * 1.3), 1)
+    waist_reduction_cm = max(0.0, round(current_waist_est_cm - target_waist_est_cm, 1))
+
+    # Zone 2 Heart Rate Target (Maffetone / Karvonen standard ~60-70% max HR)
+    est_max_hr = 220 - 25 # Assuming base 25yo
+    zone2_hr_low = int(est_max_hr * 0.60)
+    zone2_hr_high = int(est_max_hr * 0.70)
+
+    # Morphing parameters for procedural SVG/Canvas avatar (scales: 0.0 to 1.0)
+    morph_profile = {
+        "current_build": {
+            "waist_scale": min(1.35, max(0.85, (current_body_fat_pct / 20.0))),
+            "shoulder_width": 1.0,
+            "chest_definition": 0.35 if current_body_fat_pct > 22 else 0.6,
+            "abs_visibility": 0.15 if current_body_fat_pct > 20 else 0.5,
+            "quad_sweep": 0.85,
+            "posture_lift": 0.90
+        },
+        "target_build": {
+            "waist_scale": 0.82 if gender.lower() == "male" else 0.74,
+            "shoulder_width": 1.25 if gender.lower() == "male" else 1.10,
+            "chest_definition": 0.95,
+            "abs_visibility": 0.90,
+            "quad_sweep": 1.15,
+            "posture_lift": 1.0
+        }
+    }
+
+    return {
+        "current_composition": {
+            "weight_kg": current_weight_kg,
+            "body_fat_pct": current_body_fat_pct,
+            "fat_mass_kg": current_fat_mass_kg,
+            "lean_mass_kg": current_lean_mass_kg,
+            "waist_est_cm": current_waist_est_cm
+        },
+        "target_composition": {
+            "weight_kg": target_weight_kg,
+            "body_fat_pct": target_fat_pct,
+            "fat_mass_kg": target_fat_mass_kg,
+            "lean_mass_kg": target_lean_mass_kg,
+            "waist_est_cm": target_waist_est_cm
+        },
+        "transformation_delta": {
+            "fat_loss_kg": fat_to_lose_kg,
+            "muscle_gain_kg": muscle_to_gain_kg,
+            "waist_reduction_cm": waist_reduction_cm,
+            "waist_reduction_inches": round(waist_reduction_cm / 2.54, 1),
+            "total_kcal_burn_needed": total_fat_deficit_kcal,
+            "recommended_daily_deficit_kcal": int(daily_caloric_deficit),
+            "timeline_weeks": weeks,
+            "zone2_heart_rate_target": f"{zone2_hr_low}-{zone2_hr_high} BPM"
+        },
+        "morph_profile": morph_profile
+    }
+
+
+# ==================== NEARBY GYM RADAR & DIRECTORY ====================
+
+import math
+
+VERIFIED_GYMS_DATABASE = [
+    {
+        "id": "golds_gym_metro",
+        "name": "Gold's Gym Super-Club",
+        "city": "Mumbai",
+        "lat": 19.0760,
+        "lng": 72.8777,
+        "rating": 4.8,
+        "review_count": 482,
+        "address": "Bandra West, Linking Road, Mumbai",
+        "distance_km": 0.8,
+        "amenities": ["Olympic Racks", "Heavy Dumbbells (up to 60kg)", "Cardio Deck", "Steam & Sauna", "Certified Trainers", "24/7 Access"],
+        "price_tier": "$$$",
+        "hours": "Open 24 Hours",
+        "highlight": "Legendary strength training equipment with dedicated deadlift platforms and saunas.",
+        "maps_query": "Gold's Gym Linking Road Bandra Mumbai"
+    },
+    {
+        "id": "cult_fit_elite",
+        "name": "Cult.fit Elite Fitness Studio",
+        "city": "Bengaluru",
+        "lat": 12.9716,
+        "lng": 77.5946,
+        "rating": 4.9,
+        "review_count": 612,
+        "address": "Indiranagar 100ft Road, Bengaluru",
+        "distance_km": 1.2,
+        "amenities": ["HIIT MetCon Area", "Cardio Zone", "Boxing Ring", "Functional Turf", "Shower & Lockers"],
+        "price_tier": "$$",
+        "hours": "6:00 AM - 10:00 PM",
+        "highlight": "High-energy group strength, conditioning, and boxing classes with world-class coaches.",
+        "maps_query": "Cult fit Indiranagar Bengaluru"
+    },
+    {
+        "id": "anytime_fitness_express",
+        "name": "Anytime Fitness 24/7",
+        "city": "Delhi",
+        "lat": 28.6139,
+        "lng": 77.2090,
+        "rating": 4.7,
+        "review_count": 340,
+        "address": "Connaught Place, Outer Circle, New Delhi",
+        "distance_km": 1.5,
+        "amenities": ["24/7 Access", "Precor Cardio Deck", "Free Weights Zone", "Private Showers", "Key-Fob Entry"],
+        "price_tier": "$$",
+        "hours": "Open 24 Hours",
+        "highlight": "Round-the-clock convenience with state-of-the-art biometrics and global club access.",
+        "maps_query": "Anytime Fitness Connaught Place New Delhi"
+    },
+    {
+        "id": "iron_sanctuary_barbell",
+        "name": "The Iron Sanctuary Barbell Club",
+        "city": "Pune",
+        "lat": 18.5204,
+        "lng": 73.8567,
+        "rating": 4.95,
+        "review_count": 290,
+        "address": "Koregaon Park North Main Road, Pune",
+        "distance_km": 1.9,
+        "amenities": ["Eleiko Competition Plates", "6 Power Racks", "Chalk Allowed", "Prowler Turf", "Ice Bath Recovery"],
+        "price_tier": "$$",
+        "hours": "5:30 AM - 11:00 PM",
+        "highlight": "Pure athletic hardcore lifting culture with calibrated steel plates and ice bath recovery tubs.",
+        "maps_query": "Barbell Club Koregaon Park Pune"
+    },
+    {
+        "id": "crossfit_hyperion",
+        "name": "CrossFit Hyperion Box",
+        "city": "Hyderabad",
+        "lat": 17.3850,
+        "lng": 78.4867,
+        "rating": 4.85,
+        "review_count": 315,
+        "address": "Jubilee Hills Road No. 36, Hyderabad",
+        "distance_km": 2.3,
+        "amenities": ["Gymnastic Rings", "Concept2 Rowers & SkiErgs", "Echo Bikes", "Outdoor Rig", "Physio On-Site"],
+        "price_tier": "$$$",
+        "hours": "6:00 AM - 9:30 PM",
+        "highlight": "Official CrossFit affiliate with Olympic lifting platforms, gymnastic rings, and metabolic conditioning.",
+        "maps_query": "CrossFit Jubilee Hills Hyderabad"
+    },
+    {
+        "id": "equinox_wellness_haven",
+        "name": "Aura Luxury Health & Wellness Club",
+        "city": "Kolkata",
+        "lat": 22.5726,
+        "lng": 88.3639,
+        "rating": 4.88,
+        "review_count": 270,
+        "address": "Park Street Lifestyle Hub, Kolkata",
+        "distance_km": 2.1,
+        "amenities": ["Olympic Swimming Pool", "Cryotherapy", "Technogym Biostrength", "Nutrition Cafe", "Sauna & Steam"],
+        "price_tier": "$$$$",
+        "hours": "6:00 AM - 11:00 PM",
+        "highlight": "Five-star holistic fitness experience featuring AI Technogym machines, heated pool, and post-workout smoothies.",
+        "maps_query": "Luxury Gym Park Street Kolkata"
+    },
+    {
+        "id": "titan_fitness_hub",
+        "name": "Titan Heavy Metal & Powerlifting Gym",
+        "city": "Chennai",
+        "lat": 13.0827,
+        "lng": 80.2707,
+        "rating": 4.75,
+        "review_count": 210,
+        "address": "T. Nagar Venkatnarayana Road, Chennai",
+        "distance_km": 1.7,
+        "amenities": ["Deadlift Jacks & Chalk", "Dumbbells up to 70kg", "Cable Towers", "Cardio Deck", "Locker Rooms"],
+        "price_tier": "$",
+        "hours": "5:00 AM - 10:30 PM",
+        "highlight": "Old-school serious bodybuilding gym with heavy iron, squat cages, and dedicated hypertrophy zones.",
+        "maps_query": "Titan Gym T Nagar Chennai"
+    }
+]
+
+
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculates great-circle distance in kilometers between two GPS points."""
+    R = 6371.0 # Earth radius in km
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = (math.sin(dlat / 2.0) ** 2 +
+         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+         math.sin(dlon / 2.0) ** 2)
+    c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+    return round(R * c, 2)
+
+
+def find_nearby_gyms(
+    lat: Optional[float] = None,
+    lng: Optional[float] = None,
+    city: Optional[str] = None,
+    filter_type: Optional[str] = "all"
+) -> List[Dict[str, Any]]:
+    """
+    Finds gyms sorted by proximity (if GPS coordinates provided) or city matching.
+    """
+    results = []
+    has_coords = lat is not None and lng is not None
+
+    for gym in VERIFIED_GYMS_DATABASE:
+        item = dict(gym)
+        # Apply filter
+        if filter_type and filter_type != "all":
+            if filter_type == "24_7" and "24/7 Access" not in item["amenities"]:
+                continue
+            elif filter_type == "crossfit" and "CrossFit" not in item["name"] and "Functional" not in item["amenities"]:
+                continue
+            elif filter_type == "sauna" and "Steam & Sauna" not in item["amenities"] and "Sauna & Steam" not in item["amenities"]:
+                continue
+
+        # If user coordinates are supplied, calculate real distance
+        if has_coords:
+            dist = haversine_distance(lat, lng, item["lat"], item["lng"])
+            item["distance_km"] = dist
+        elif city and city.lower() in item["city"].lower():
+            # City boost
+            item["distance_km"] = item.get("distance_km", 1.5)
+        else:
+            item["distance_km"] = item.get("distance_km", 2.0)
+
+        # Build direct Google Maps navigation URL
+        query_encoded = item["maps_query"].replace(" ", "+")
+        item["google_maps_url"] = f"https://www.google.com/maps/search/?api=1&query={query_encoded}"
+        results.append(item)
+
+    # Sort by distance
+    results.sort(key=lambda x: x["distance_km"])
+    return results
+

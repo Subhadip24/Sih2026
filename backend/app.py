@@ -16,7 +16,13 @@ from pydantic import BaseModel, Field
 from backend.config import BASE_DIR, STATIC_DIR, PRESET_DIR, UPLOAD_DIR, GEMINI_API_KEY
 from backend.vision_engine import analyze_plate_image
 from backend.leftover_comparator import compare_pre_and_post_plates
-from backend.fitness_engine import calculate_client_targets, compute_remaining_budget
+from backend.fitness_engine import (
+    calculate_client_targets,
+    compute_remaining_budget,
+    calculate_exercise_burn,
+    calculate_body_recomposition_avatar,
+    find_nearby_gyms
+)
 from backend.diet_planner import recommend_next_meals, generate_7day_diet_plan, SMART_SWAPS_DB
 from backend.mock_plates import PRESET_PLATES
 from backend.nutrition_db import calculate_nutrients_for_portion, FOOD_DATABASE
@@ -86,6 +92,23 @@ class DietPlanRequest(BaseModel):
 class PortionRecalculateRequest(BaseModel):
     food_id: str
     grams: float
+
+
+class ExerciseBurnRequest(BaseModel):
+    activity: str = "hypertrophy_weightlifting"
+    duration_min: float = 45.0
+    weight_kg: float = 75.0
+    intensity: str = "moderate"
+
+
+class AvatarRecompRequest(BaseModel):
+    current_weight_kg: float = 75.0
+    target_weight_kg: float = 70.0
+    height_cm: float = 175.0
+    gender: str = "male"
+    current_body_fat_pct: float = 24.0
+    goal: str = "lean_hypertrophy"
+    timeline_weeks: int = 12
 
 
 # ------------------ API ENDPOINTS ------------------
@@ -246,3 +269,60 @@ async def recalculate_portion(req: PortionRecalculateRequest):
         return {"status": "success", "data": nutrients}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Portion recalculation failed: {str(e)}")
+
+
+@app.post("/api/fitness/burn-calculator")
+async def exercise_burn_calculator(req: ExerciseBurnRequest):
+    """
+    Computes precise calories, grams of fat oxidized, grams of carbs burned, and EPOC afterburn
+    for gym resistance training, cardio, or HIIT sessions.
+    """
+    try:
+        burn_data = calculate_exercise_burn(
+            activity=req.activity,
+            duration_min=req.duration_min,
+            weight_kg=req.weight_kg,
+            intensity=req.intensity
+        )
+        return {"status": "success", "data": burn_data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Burn calculation failed: {str(e)}")
+
+
+@app.post("/api/fitness/avatar-recomp")
+async def avatar_recomposition(req: AvatarRecompRequest):
+    """
+    Computes body recomposition physics and avatar morphing factors (current vs aesthetic fit self).
+    """
+    try:
+        recomp_data = calculate_body_recomposition_avatar(
+            current_weight_kg=req.current_weight_kg,
+            target_weight_kg=req.target_weight_kg,
+            height_cm=req.height_cm,
+            gender=req.gender,
+            current_body_fat_pct=req.current_body_fat_pct,
+            goal=req.goal,
+            timeline_weeks=req.timeline_weeks
+        )
+        return {"status": "success", "data": recomp_data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Avatar recomposition failed: {str(e)}")
+
+
+@app.get("/api/gyms/nearby")
+async def get_nearby_gyms(
+    lat: Optional[float] = None,
+    lng: Optional[float] = None,
+    city: Optional[str] = None,
+    filter_type: Optional[str] = "all"
+):
+    """
+    Returns verified gyms and fitness centers sorted by GPS proximity or city,
+    complete with ratings, amenities, and Google Maps direct links.
+    """
+    try:
+        gyms = find_nearby_gyms(lat=lat, lng=lng, city=city, filter_type=filter_type)
+        return {"status": "success", "count": len(gyms), "gyms": gyms}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gym locator failed: {str(e)}")
+

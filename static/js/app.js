@@ -412,6 +412,10 @@ function switchTab(tabId) {
     DietPlannerModule.loadDietPlanner();
   } else if (tabId === 'client_profile') {
     ClientProfileModule.loadProfileUI();
+  } else if (tabId === 'fitness') {
+    FitnessHubModule.calculateFuelBurn();
+  } else if (tabId === 'gyms') {
+    GymLocatorModule.loadGyms();
   }
 }
 
@@ -701,6 +705,168 @@ function handleClientSideFallback(endpoint, method, body) {
     };
   }
 
+  if (endpoint.startsWith('fitness/burn-calculator')) {
+    const act = (body && body.activity) || 'hypertrophy_weightlifting';
+    const dur = (body && body.duration_min) || 45;
+    const wt = (body && body.weight_kg) || 75;
+    const mets = {
+      zone2_cardio: { met: 6.0, fat: 0.65, carb: 0.35, epoc: 0.06, name: "Zone 2 Incline Walk / Steady Cardio", fuel: "Fat Lipolysis (Mitochondrial Beta-Oxidation)" },
+      hypertrophy_weightlifting: { met: 5.5, fat: 0.40, carb: 0.60, epoc: 0.16, name: "Hypertrophy Resistance Training (Gym)", fuel: "Intramuscular Glycogen & Afterburn EPOC" },
+      hiit_circuits: { met: 9.2, fat: 0.28, carb: 0.72, epoc: 0.20, name: "High-Intensity Interval Training (HIIT)", fuel: "Rapid Glycogen Depletion + Massive EPOC" },
+      stairmaster: { met: 8.5, fat: 0.50, carb: 0.50, epoc: 0.12, name: "Stairmaster / High Incline Climber", fuel: "Balanced Glute-Driven Fat & Glycogen Burn" },
+      jump_rope: { met: 10.0, fat: 0.32, carb: 0.68, epoc: 0.15, name: "Speed Jump Rope / Boxer Conditioning", fuel: "Glycogen & Fast-Twitch Muscle Burn" },
+      crossfit_metcon: { met: 9.5, fat: 0.30, carb: 0.70, epoc: 0.18, name: "CrossFit MetCon / Functional Circuit", fuel: "High Lactate Glycolysis + 36h Afterburn" },
+      outdoor_cycling: { met: 7.5, fat: 0.55, carb: 0.45, epoc: 0.08, name: "Road / Stationary Cycling", fuel: "Quad Fueling & Aerobic Lipolysis" },
+      swimming_laps: { met: 8.0, fat: 0.45, carb: 0.55, epoc: 0.10, name: "Swimming Freestyle / Butterfly Laps", fuel: "Full Body Resistance & Aerobic Burn" }
+    };
+    const prof = mets[act] || mets.hypertrophy_weightlifting;
+    const totalCals = Math.round(prof.met * wt * (dur / 60.0));
+    return {
+      status: "success",
+      data: {
+        activity: act,
+        activity_name: prof.name,
+        duration_min: dur,
+        weight_kg: wt,
+        total_calories_kcal: totalCals,
+        fat_oxidized_grams: Math.round((totalCals * prof.fat / 9.0) * 10) / 10,
+        carbs_burned_grams: Math.round((totalCals * prof.carb / 4.0) * 10) / 10,
+        fat_ratio_pct: Math.round(prof.fat * 100),
+        carb_ratio_pct: Math.round(prof.carb * 100),
+        epoc_afterburn_kcal: Math.round(totalCals * prof.epoc),
+        primary_fuel_source: prof.fuel,
+        approx_equivalent_steps: Math.round((totalCals / 0.04) * 0.75)
+      }
+    };
+  }
+
+  if (endpoint.startsWith('fitness/avatar-recomp')) {
+    const cw = (body && body.current_weight_kg) || 75;
+    const tw = (body && body.target_weight_kg) || 70;
+    const h = (body && body.height_cm) || 175;
+    const g = (body && body.gender) || 'male';
+    const cbf = (body && body.current_body_fat_pct) || 24;
+    const tbf = g === 'female' ? 19.0 : 12.0;
+
+    const cfm = Math.round(cw * (cbf / 100) * 10) / 10;
+    const tfm = Math.round(tw * (tbf / 100) * 10) / 10;
+    const fatToLose = Math.max(0, Math.round((cfm - tfm) * 10) / 10);
+    const totalDeficit = Math.round(fatToLose * 7700);
+    const weeks = (body && body.timeline_weeks) || 12;
+
+    const waistEst = Math.round((cw * 0.95 + (h * 0.15) - (g === 'male' ? 5 : 10)) * 10) / 10;
+    const targetWaist = Math.round((waistEst - (fatToLose * 1.3)) * 10) / 10;
+
+    return {
+      status: "success",
+      data: {
+        current_composition: { weight_kg: cw, body_fat_pct: cbf, fat_mass_kg: cfm, waist_est_cm: waistEst },
+        target_composition: { weight_kg: tw, body_fat_pct: tbf, fat_mass_kg: tfm, waist_est_cm: targetWaist },
+        transformation_delta: {
+          fat_loss_kg: fatToLose,
+          muscle_gain_kg: Math.max(0, Math.round(((tw - tfm) - (cw - cfm)) * 10) / 10),
+          waist_reduction_cm: Math.round((waistEst - targetWaist) * 10) / 10,
+          total_kcal_burn_needed: totalDeficit,
+          recommended_daily_deficit_kcal: Math.round(totalDeficit / (weeks * 7)),
+          timeline_weeks: weeks,
+          zone2_heart_rate_target: "120-138 BPM"
+        }
+      }
+    };
+  }
+
+  if (endpoint.startsWith('gyms/nearby')) {
+    return {
+      status: "success",
+      gyms: [
+        {
+          id: "golds_gym_metro",
+          name: "Gold's Gym Super-Club",
+          city: "Mumbai",
+          rating: 4.8,
+          review_count: 482,
+          address: "Bandra West, Linking Road, Mumbai",
+          distance_km: 0.8,
+          amenities: ["Olympic Racks", "Heavy Dumbbells (up to 60kg)", "Cardio Deck", "Steam & Sauna", "Certified Trainers", "24/7 Access"],
+          price_tier: "$$$",
+          hours: "Open 24 Hours",
+          highlight: "Legendary strength training equipment with dedicated deadlift platforms and saunas.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=Gold's+Gym+Linking+Road+Bandra+Mumbai"
+        },
+        {
+          id: "cult_fit_elite",
+          name: "Cult.fit Elite Fitness Studio",
+          city: "Bengaluru",
+          rating: 4.9,
+          review_count: 612,
+          address: "Indiranagar 100ft Road, Bengaluru",
+          distance_km: 1.2,
+          amenities: ["HIIT MetCon Area", "Cardio Zone", "Boxing Ring", "Functional Turf", "Shower & Lockers"],
+          price_tier: "$$",
+          hours: "6:00 AM - 10:00 PM",
+          highlight: "High-energy group strength, conditioning, and boxing classes with world-class coaches.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=Cult+fit+Indiranagar+Bengaluru"
+        },
+        {
+          id: "anytime_fitness_express",
+          name: "Anytime Fitness 24/7",
+          city: "Delhi",
+          rating: 4.7,
+          review_count: 340,
+          address: "Connaught Place, Outer Circle, New Delhi",
+          distance_km: 1.5,
+          amenities: ["24/7 Access", "Precor Cardio Deck", "Free Weights Zone", "Private Showers", "Key-Fob Entry"],
+          price_tier: "$$",
+          hours: "Open 24 Hours",
+          highlight: "Round-the-clock convenience with state-of-the-art biometrics and global club access.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=Anytime+Fitness+Connaught+Place+New+Delhi"
+        },
+        {
+          id: "iron_sanctuary_barbell",
+          name: "The Iron Sanctuary Barbell Club",
+          city: "Pune",
+          rating: 4.95,
+          review_count: 290,
+          address: "Koregaon Park North Main Road, Pune",
+          distance_km: 1.9,
+          amenities: ["Eleiko Competition Plates", "6 Power Racks", "Chalk Allowed", "Prowler Turf", "Ice Bath Recovery"],
+          price_tier: "$$",
+          hours: "5:30 AM - 11:00 PM",
+          highlight: "Pure athletic hardcore lifting culture with calibrated steel plates and ice bath recovery tubs.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=Barbell+Club+Koregaon+Park+Pune"
+        },
+        {
+          id: "crossfit_hyperion",
+          name: "CrossFit Hyperion Box",
+          city: "Hyderabad",
+          rating: 4.85,
+          review_count: 315,
+          address: "Jubilee Hills Road No. 36, Hyderabad",
+          distance_km: 2.3,
+          amenities: ["Gymnastic Rings", "Concept2 Rowers & SkiErgs", "Echo Bikes", "Outdoor Rig", "Physio On-Site"],
+          price_tier: "$$$",
+          hours: "6:00 AM - 9:30 PM",
+          highlight: "Official CrossFit affiliate with Olympic lifting platforms, gymnastic rings, and metabolic conditioning.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=CrossFit+Jubilee+Hills+Hyderabad"
+        },
+        {
+          id: "equinox_wellness_haven",
+          name: "Aura Luxury Health & Wellness Club",
+          city: "Kolkata",
+          rating: 4.88,
+          review_count: 270,
+          address: "Park Street Lifestyle Hub, Kolkata",
+          distance_km: 2.1,
+          amenities: ["Olympic Swimming Pool", "Cryotherapy", "Technogym Biostrength", "Nutrition Cafe", "Sauna & Steam"],
+          price_tier: "$$$$",
+          hours: "6:00 AM - 11:00 PM",
+          highlight: "Five-star holistic fitness experience featuring AI Technogym machines, heated pool, and post-workout smoothies.",
+          google_maps_url: "https://www.google.com/maps/search/?api=1&query=Luxury+Gym+Park+Street+Kolkata"
+        }
+      ]
+    };
+  }
+
   return { status: "success" };
 }
 
@@ -798,5 +964,16 @@ document.addEventListener('DOMContentLoaded', () => {
   DietPlannerModule.init();
   ClientProfileModule.init();
 
-  showToast('ThaalTatva AI online: Pancha-Tatva Vision Scanner active', 'success');
+  if (typeof AvatarEngine !== 'undefined') {
+    AvatarEngine.init();
+    AvatarEngine.updateTopBarAvatarPill();
+  }
+  if (typeof FitnessHubModule !== 'undefined') {
+    FitnessHubModule.init();
+  }
+  if (typeof GymLocatorModule !== 'undefined') {
+    GymLocatorModule.init();
+  }
+
+  showToast('ThaalTatva AI online: Pancha-Tatva Vision & Fitness Scanner active', 'success');
 });
