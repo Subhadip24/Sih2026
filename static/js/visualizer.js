@@ -27,6 +27,12 @@ const VisualizerModule = {
           this.resizeCanvas();
           this.redrawOverlay();
         });
+        if (imgDisplay.complete) {
+          requestAnimationFrame(() => {
+            this.resizeCanvas();
+            this.redrawOverlay();
+          });
+        }
       }
       this.bindCanvasInteractions();
     }
@@ -37,10 +43,10 @@ const VisualizerModule = {
     const video = document.getElementById('cameraVideo');
     const activeMedia = (video && video.style.display !== 'none') ? video : img;
 
-    if (!this.canvas) return { x: 0, y: 0, w: 600, h: 440 };
+    if (!this.canvas) return { x: 0, y: 0, w: 500, h: 500 };
 
-    const containerW = this.canvas.width;
-    const containerH = this.canvas.height;
+    const containerW = this.canvas.width || 500;
+    const containerH = this.canvas.height || 500;
 
     let naturalW = 0;
     let naturalH = 0;
@@ -62,7 +68,13 @@ const VisualizerModule = {
 
     let renderW, renderH, renderX, renderY;
 
-    if (imgAspect > containerAspect) {
+    // Direct match for square viewport & square plate images
+    if (Math.abs(imgAspect - containerAspect) < 0.02) {
+      renderW = containerW;
+      renderH = containerH;
+      renderX = 0;
+      renderY = 0;
+    } else if (imgAspect > containerAspect) {
       renderW = containerW;
       renderH = containerW / imgAspect;
       renderX = 0;
