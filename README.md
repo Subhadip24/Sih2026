@@ -122,7 +122,7 @@ graph TD
 
 ## 🛠️ Technology Stack
 
-- **Backend**: Python 3, FastAPI, Uvicorn, Pydantic, Pillow, Requests.
+- **Backend**: Python 3, FastAPI, Pydantic, Requests.
 - **Multimodal AI**: Google Gemini Vision API (`gemini-1.5-flash` / `gemini-2.0-flash`) with robust offline Heuristic Computer Vision fallback.
 - **Nutritional Database**: Normalized per-100g database based on USDA FoodData Central and Indian Food Composition Tables (IFCT/NIN/FSSAI).
 - **Frontend**: HTML5, Vanilla JavaScript (ES6+ Modules), HTML5 Canvas Procedural Avatar & Vision Engine, CSS3 Glassmorphism with FitForge/PowerBlast Cyber-Fitness Aesthetic.
